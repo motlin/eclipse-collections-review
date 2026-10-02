@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -71,6 +72,16 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         {
             throw new RuntimeException(e);
         }
+    }
+
+    private static List<Integer> getIndicesHashTableSlots(OrderedHashMap<?, ?> map)
+    {
+        List<Integer> slots = new ArrayList<>();
+        for (int slot : (int[]) getField(map, "indicesHashTable"))
+        {
+            slots.add(slot);
+        }
+        return slots;
     }
 
     private static int getIndicesHashTableOccupied(OrderedHashMap<?, ?> map)
@@ -113,6 +124,30 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         catch (ReflectiveOperationException e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static final class HashCountingKey
+    {
+        private final int value;
+        private int hashCodeCalls;
+
+        private HashCountingKey(int value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object other)
+        {
+            return other instanceof HashCountingKey && ((HashCountingKey) other).value == this.value;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            this.hashCodeCalls++;
+            return this.value;
         }
     }
 
@@ -275,36 +310,48 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
             assertEquals(6, map.size());
         }
 
-        // Compaction: dense-storage tombstones are cleared without growing.
+        // Compaction: when the dense slots fill but the capacity is unchanged, they are compacted in place without hashing any key.
         {
-            OrderedHashMap<Integer, Integer> map = new OrderedHashMap<>();
-            map.put(0, 0);
-            map.put(1, 1);
+            // The default capacity is an 8-slot index table and 5 dense key-value slots.
+            OrderedHashMap<HashCountingKey, String> map = new OrderedHashMap<>();
+            HashCountingKey a = new HashCountingKey(1);
+            HashCountingKey b = new HashCountingKey(2);
+            map.put(a, "a1");
+            map.put(b, "b1");
 
-            while (getOrderedKeyValuesOccupied(map) < getOrderedKeyValueCapacity(map))
-            {
-                map.removeKey(0);
-                map.put(0, 0);
-                if (getOrderedKeyValuesOccupied(map) < getOrderedKeyValueCapacity(map))
-                {
-                    map.removeKey(1);
-                    map.put(1, 1);
-                }
-            }
-
+            // Removing and re-adding the older key each time leaves an interior tombstone, filling the dense slots.
+            map.removeKey(a);
+            map.put(a, "a2");
+            map.removeKey(b);
+            map.put(b, "b2");
+            map.removeKey(a);
+            map.put(a, "a3");
+            map.removeKey(b);
+            assertEquals(5, a.hashCodeCalls);
+            assertEquals(4, b.hashCodeCalls);
             assertEquals(8, getIndicesHashTableLength(map));
             assertEquals(10, getOrderedKeyValuesLength(map));
             assertEquals(5, getOrderedKeyValuesOccupied(map));
-            assertEquals(2, map.size());
 
-            map.removeKey(1);
-            map.put(1, 1);
+            // The index table keeps its layout: compaction updates a's stored index from 4 to 0 in the same array, then b reuses its REMOVED (-2) slot.
+            Object indicesHashTable = getField(map, "indicesHashTable");
+            assertEquals(List.of(-1, 4, -2, -1, -1, -1, -1, -1), getIndicesHashTableSlots(map));
 
+            a.hashCodeCalls = 0;
+            b.hashCodeCalls = 0;
+            map.put(b, "b3");
+            assertEquals(0, a.hashCodeCalls);
+            assertEquals(2, b.hashCodeCalls);
+            assertSame(indicesHashTable, getField(map, "indicesHashTable"));
+            assertEquals(List.of(-1, 0, 1, -1, -1, -1, -1, -1), getIndicesHashTableSlots(map));
             assertEquals(8, getIndicesHashTableLength(map));
             assertEquals(10, getOrderedKeyValuesLength(map));
             assertEquals(2, getIndicesHashTableOccupied(map));
             assertEquals(2, getOrderedKeyValuesOccupied(map));
-            assertEquals(2, map.size());
+            assertEquals(List.of(a, b), new ArrayList<>(map.keySet()));
+            assertEquals(List.of("a3", "b3"), new ArrayList<>(map.values()));
+            assertEquals("a3", map.get(a));
+            assertEquals("b3", map.get(b));
         }
 
         // Delete-heavy churn reuses the same capacity instead of growing.
