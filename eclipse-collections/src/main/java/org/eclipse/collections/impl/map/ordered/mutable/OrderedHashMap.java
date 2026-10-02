@@ -111,7 +111,9 @@ import org.eclipse.collections.impl.utility.LazyIterate;
  * A rehash is triggered when an insert would overflow the dense storage, or would push the index
  * table's occupancy past the usable capacity without reusing a tombstone slot. The new capacity is
  * derived from the number of live entries alone, not from the current capacity: the smallest power of
- * two at least {@code max(size * 3, 8)}. Rehashing compacts tombstones out of both arrays. This has
+ * two at least {@code max(size * 3, 8)}. Rehashing compacts tombstones out of both arrays. When that
+ * capacity is unchanged and the index table still has room, only the dense storage is compacted: the
+ * index table keeps its layout and just has its stored indices updated, so no key is hashed again. This has
  * consequences:
  * <ul>
  *     <li>With no removals, each rehash doubles the capacity: live entries fill two thirds of the old
@@ -122,7 +124,7 @@ import org.eclipse.collections.impl.utility.LazyIterate;
  *     churn periodically compacts tombstones away instead of growing the arrays unboundedly.
  *     Removing the most recently added entry reclaims its slot immediately. Removing any other entry
  *     leaves a tombstone, and re-adding the same key appends it again, so repeatedly removing and
- *     re-adding one interior key triggers a compacting rehash about once every {@code size} such
+ *     re-adding one interior key triggers a compaction about once every {@code size} such
  *     cycles even though the set of keys never changes.</li>
  * </ul>
  * For example, a map with the default index table capacity of 8 has a usable capacity of 5. The first
@@ -424,9 +426,10 @@ public class OrderedHashMap<K, V>
 
         if (this.needsRehashBeforeAdd(reusedRemovedHashTableSlot))
         {
-            this.rehashForGrowth();
+            this.makeRoomForAdd(reusedRemovedHashTableSlot);
             slot = this.probe(key);
-            reusedRemovedHashTableSlot = false;
+            // Compaction keeps the REMOVED slots in indicesHashTable, so the probe can land on one again.
+            reusedRemovedHashTableSlot = this.indexAt(slot) == REMOVED;
         }
 
         this.orderedKeyValues[this.orderedKeyValuesOccupied << 1] = toSentinelIfNull(key);
@@ -447,10 +450,57 @@ public class OrderedHashMap<K, V>
                 || (!reusedRemovedHashTableSlot && this.indicesHashTableOccupied >= usableEntryCapacity);
     }
 
-    private void rehashForGrowth()
+    private void makeRoomForAdd(boolean reusedRemovedHashTableSlot)
     {
         int indicesHashTableCapacity = smallestIndicesHashTableCapacityForGrowth(this.size);
-        this.rehash(indicesHashTableCapacity);
+        boolean sameCapacity = this.indicesHashTable != null && indicesHashTableCapacity == this.indicesHashTable.length;
+        boolean indexTableHasRoom = reusedRemovedHashTableSlot || this.indicesHashTableOccupied < this.usableEntryCapacity();
+        // Compaction only clears tombstones from orderedKeyValues. If REMOVED slots filled indicesHashTable, only a rehash clears them.
+        if (sameCapacity && indexTableHasRoom)
+        {
+            this.compactOrderedKeyValues();
+        }
+        else
+        {
+            this.rehash(indicesHashTableCapacity);
+        }
+    }
+
+    // Removes the tombstones from orderedKeyValues and updates the indices stored in indicesHashTable, without hashing any key.
+    private void compactOrderedKeyValues()
+    {
+        Object[] keyValues = this.orderedKeyValues;
+        int occupied = this.orderedKeyValuesOccupied;
+        int[] newIndexOfOld = new int[occupied];
+        int newIndex = 0;
+        for (int oldIndex = 0; oldIndex < occupied; oldIndex++)
+        {
+            Object key = keyValues[oldIndex << 1];
+            if (isNonSentinel(key))
+            {
+                newIndexOfOld[oldIndex] = newIndex;
+                if (newIndex != oldIndex)
+                {
+                    keyValues[newIndex << 1] = key;
+                    keyValues[(newIndex << 1) + 1] = keyValues[(oldIndex << 1) + 1];
+                }
+                newIndex++;
+            }
+        }
+        Arrays.fill(keyValues, newIndex << 1, occupied << 1, null);
+        this.orderedKeyValuesOccupied = newIndex;
+        remapIndices(this.indicesHashTable, newIndexOfOld);
+    }
+
+    private static void remapIndices(int[] table, int[] newIndexOfOld)
+    {
+        for (int slot = 0; slot < table.length; slot++)
+        {
+            if (table[slot] >= 0)
+            {
+                table[slot] = newIndexOfOld[table[slot]];
+            }
+        }
     }
 
     private void rehash(int indicesHashTableCapacity)
