@@ -10,6 +10,7 @@
 
 package org.eclipse.collections.test.map.mutable.ordered;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,21 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         {
             Field field = OrderedHashMap.class.getDeclaredField("indicesHashTable");
             field.setAccessible(true);
-            return ((int[]) field.get(map)).length;
+            return Array.getLength(field.get(map));
+        }
+        catch (ReflectiveOperationException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Class<?> getIndicesHashTableClass(OrderedHashMap<?, ?> map)
+    {
+        try
+        {
+            Field field = OrderedHashMap.class.getDeclaredField("indicesHashTable");
+            field.setAccessible(true);
+            return field.get(map).getClass();
         }
         catch (ReflectiveOperationException e)
         {
@@ -77,9 +92,10 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
     private static List<Integer> getIndicesHashTableSlots(OrderedHashMap<?, ?> map)
     {
         List<Integer> slots = new ArrayList<>();
-        for (int slot : (int[]) getField(map, "indicesHashTable"))
+        Object table = getField(map, "indicesHashTable");
+        for (int slot = 0; slot < Array.getLength(table); slot++)
         {
-            slots.add(slot);
+            slots.add(((Number) Array.get(table, slot)).intValue());
         }
         return slots;
     }
@@ -374,6 +390,105 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
             assertEquals(2, getOrderedKeyValuesOccupied(map));
             assertEquals(List.of("A", "B"), new ArrayList<>(map.keySet()));
         }
+
+        // The index table is the narrowest of byte[], short[], or int[] that fits its capacity, growing and shrinking across the boundaries.
+        {
+            // Growing from byte[] to short[] exactly at the boundary
+            OrderedHashMap<Integer, String> map = new OrderedHashMap<>();
+            List<Integer> expectedKeys = new ArrayList<>();
+            for (int i = 0; i < 85; i++)
+            {
+                map.put(i, "v" + i);
+                expectedKeys.add(i);
+            }
+            assertEquals(byte[].class, getIndicesHashTableClass(map));
+            assertEquals(128, getIndicesHashTableLength(map));
+
+            map.put(85, "v85");
+            expectedKeys.add(85);
+            assertEquals(short[].class, getIndicesHashTableClass(map));
+            assertEquals(256, getIndicesHashTableLength(map));
+            assertEquals(expectedKeys, new ArrayList<>(map.keySet()));
+
+            // Tombstones in a short[] table
+            for (int i = 0; i < 86; i += 2)
+            {
+                assertEquals("v" + i, map.removeKey(i));
+                expectedKeys.remove(Integer.valueOf(i));
+            }
+            for (int i = 0; i < 86; i++)
+            {
+                assertEquals(i % 2 == 0 ? null : "v" + i, map.get(i));
+            }
+            assertEquals(expectedKeys, new ArrayList<>(map.keySet()));
+            assertEquals(short[].class, getIndicesHashTableClass(map));
+            assertEquals(256, getIndicesHashTableLength(map));
+
+            // Growing from short[] to int[] exactly at the boundary, with no tombstones
+            OrderedHashMap<Integer, Integer> boundaryMap = new OrderedHashMap<>();
+            List<Integer> boundaryKeys = new ArrayList<>();
+            for (int i = 0; i < 21_845; i++)
+            {
+                boundaryMap.put(i, i);
+                boundaryKeys.add(i);
+            }
+            assertEquals(short[].class, getIndicesHashTableClass(boundaryMap));
+            assertEquals(32_768, getIndicesHashTableLength(boundaryMap));
+
+            boundaryMap.put(21_845, 21_845);
+            boundaryKeys.add(21_845);
+            assertEquals(int[].class, getIndicesHashTableClass(boundaryMap));
+            assertEquals(65_536, getIndicesHashTableLength(boundaryMap));
+            assertEquals(boundaryKeys, new ArrayList<>(boundaryMap.keySet()));
+            for (Integer key : boundaryKeys)
+            {
+                assertEquals(key, boundaryMap.get(key));
+            }
+
+            // Shrinking: a rehash sizes the table from the live entries, the smallest power of two at least 3 * size.
+            // Each map fills its dense slots, removes the oldest keys down to the given size, then re-adds key 0, which needs room.
+            // 10,923 live entries need a 65,536-slot int[] table, so the dense slots are compacted in place.
+            // 10,922 fit in a 32,768-slot short[] table. 43 live entries need a 256-slot short[] table, and 42 fit in a 128-slot byte[] table.
+            int[] initialCapacities = {21_846, 21_846, 86, 86};
+            int[] liveSizes = {10_923, 10_922, 43, 42};
+            Class<?>[] expectedClasses = {int[].class, short[].class, short[].class, byte[].class};
+            int[] expectedLengths = {65_536, 32_768, 256, 128};
+            for (int i = 0; i < liveSizes.length; i++)
+            {
+                OrderedHashMap<Integer, Integer> shrinkMap = new OrderedHashMap<>(initialCapacities[i]);
+                int usableEntryCapacity = getOrderedKeyValueCapacity(shrinkMap);
+                for (int key = 0; key < usableEntryCapacity; key++)
+                {
+                    shrinkMap.put(key, key);
+                }
+                int firstLiveKey = usableEntryCapacity - liveSizes[i];
+                for (int key = 0; key < firstLiveKey; key++)
+                {
+                    assertEquals(Integer.valueOf(key), shrinkMap.removeKey(key));
+                }
+                assertEquals(liveSizes[i], shrinkMap.size());
+                assertEquals(usableEntryCapacity, getOrderedKeyValuesOccupied(shrinkMap));
+                assertEquals(initialCapacities[i] == 86 ? short[].class : int[].class, getIndicesHashTableClass(shrinkMap));
+
+                assertNull(shrinkMap.put(0, 0));
+                assertEquals(expectedClasses[i], getIndicesHashTableClass(shrinkMap));
+                assertEquals(expectedLengths[i], getIndicesHashTableLength(shrinkMap));
+                assertEquals(liveSizes[i] + 1, getOrderedKeyValuesOccupied(shrinkMap));
+                List<Integer> shrinkKeys = new ArrayList<>();
+                for (int key = firstLiveKey; key < usableEntryCapacity; key++)
+                {
+                    shrinkKeys.add(key);
+                }
+                shrinkKeys.add(0);
+                assertEquals(shrinkKeys, new ArrayList<>(shrinkMap.keySet()));
+                assertEquals(shrinkKeys, new ArrayList<>(shrinkMap.values()));
+                for (Integer key : shrinkKeys)
+                {
+                    assertEquals(key, shrinkMap.get(key));
+                }
+                assertNull(shrinkMap.get(1));
+            }
+        }
     }
 
     @Override
@@ -581,7 +696,13 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
     public void OrderedHashMap_constructor()
     {
         assertThrows(IllegalArgumentException.class, () -> new OrderedHashMap<>(-1));
-        new OrderedHashMap<>(0); // should not throw
+
+        // The initial capacity picks the narrowest index table width, on either side of each width boundary.
+        assertEquals(byte[].class, getIndicesHashTableClass(new OrderedHashMap<>(0)));
+        assertEquals(byte[].class, getIndicesHashTableClass(new OrderedHashMap<>(85)));
+        assertEquals(short[].class, getIndicesHashTableClass(new OrderedHashMap<>(86)));
+        assertEquals(short[].class, getIndicesHashTableClass(new OrderedHashMap<>(21_845)));
+        assertEquals(int[].class, getIndicesHashTableClass(new OrderedHashMap<>(21_846)));
 
         LinkedHashMap<String, Integer> source = new LinkedHashMap<>();
         source.put("C", 3);
@@ -627,6 +748,28 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         assertEquals(map.entrySet(), entrySet);
         assertEquals(List.of(Map.entry("A", 1), Map.entry("B", 2), Map.entry("C", 3)), new ArrayList<>(entrySet));
         assertEquals(Map.entry("A", 1), SerializeTestHelper.serializeDeserialize(map.entrySet().iterator().next()));
+
+        // Deserialization picks the same index table width, on either side of each width boundary.
+        // One map shrinks through each size by removing its last key, which never rehashes.
+        OrderedHashMap<Integer, Integer> boundaryMap = new OrderedHashMap<>();
+        for (int key = 0; key < 21_846; key++)
+        {
+            boundaryMap.put(key, key);
+        }
+        Class<?>[] expectedClasses = {int[].class, short[].class, short[].class, byte[].class};
+        int[] sizes = {21_846, 21_845, 86, 85};
+        for (int i = 0; i < sizes.length; i++)
+        {
+            for (int key = boundaryMap.size() - 1; key >= sizes[i]; key--)
+            {
+                boundaryMap.removeKey(key);
+            }
+            assertEquals(sizes[i], boundaryMap.size());
+            OrderedHashMap<Integer, Integer> boundaryDeserialized = SerializeTestHelper.serializeDeserialize(boundaryMap);
+            assertEquals(expectedClasses[i], getIndicesHashTableClass(boundaryDeserialized));
+            assertEquals(boundaryMap, boundaryDeserialized);
+            assertEquals(new ArrayList<>(boundaryMap.keySet()), new ArrayList<>(boundaryDeserialized.keySet()));
+        }
     }
 
     @Test
