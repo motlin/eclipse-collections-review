@@ -1360,6 +1360,6 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public int detectIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return this.getMutableSortedMap().detectIndex(predicate);
     }
 }
