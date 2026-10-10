@@ -504,6 +504,12 @@ class ImmutableEmptySortedBag<T>
     }
 
     @Override
+    public int detectLastIndex(Predicate<? super T> predicate)
+    {
+        return -1;
+    }
+
+    @Override
     public ImmutableSortedSet<T> selectUnique()
     {
         return SortedSets.immutable.of(this.comparator());

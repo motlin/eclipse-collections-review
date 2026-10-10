@@ -77,4 +77,12 @@ public interface MutableSortedBagTestCase extends SortedBagTestCase, MutableOrde
         // TODO Support reverseForEach() for mutable sorted bags, which rejects the reversed index range it delegates to.
         assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
+
+    @Override
+    @Test
+    default void ReversibleIterable_detectLastIndex()
+    {
+        // TODO Support detectLastIndex() for mutable sorted bags, which needs a descending traversal of TreeBag's backing map.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+    }
 }
