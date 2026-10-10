@@ -141,21 +141,21 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(5, 7, each -> { }));
+        ReversibleIterableTestCase.super.OrderedIterable_forEach_from_to();
 
-        // TODO Support reverse indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(7, 5, each -> { }));
+        // Every index is out of bounds for an empty map
+        SortedMapIterable<Object, Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEach(0, 0, each -> fail()));
     }
 
     @Override
     @Test
     default void OrderedIterable_forEachWithIndex_from_to()
     {
-        // TODO: Support indexed traversal with index for sorted maps.
+        // TODO Support indexed traversal with index for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(5, 7, (each, index) -> { }));
 
-        // TODO: Support reverse indexed traversal with index for sorted maps.
+        // TODO Support reverse indexed traversal with index for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(7, 5, (each, index) -> { }));
     }
 
@@ -163,7 +163,7 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_corresponds()
     {
-        // TODO: Support corresponds() for sorted maps.
+        // TODO Support corresponds() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).corresponds(Lists.mutable.with(3, 2, 1), Object::equals));
     }
 
@@ -171,7 +171,7 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_distinct()
     {
-        // TODO: Support distinct() for sorted maps.
+        // TODO Support distinct() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).distinct());
     }
 
@@ -179,7 +179,7 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_toStack()
     {
-        // TODO: Support toStack() for sorted maps.
+        // TODO Support toStack() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toStack());
     }
 
@@ -187,7 +187,7 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_detectIndex()
     {
-        // TODO: Support detectIndex() for sorted maps.
+        // TODO Support detectIndex() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectIndex(each -> true));
     }
 
@@ -195,23 +195,15 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO: Support toReversed() for sorted maps.
+        // TODO Support toReversed() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
-    }
-
-    @Override
-    @Test
-    default void ReversibleIterable_reverseForEach()
-    {
-        // TODO: Support reverseForEach() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
 
     @Override
     @Test
     default void ReversibleIterable_detectLastIndex()
     {
-        // TODO: Support detectLastIndex() for sorted maps.
+        // TODO Support detectLastIndex() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
     }
 
