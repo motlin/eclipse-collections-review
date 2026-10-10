@@ -161,14 +161,6 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
 
     @Override
     @Test
-    default void OrderedIterable_corresponds()
-    {
-        // TODO Support corresponds() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).corresponds(Lists.mutable.with(3, 2, 1), Object::equals));
-    }
-
-    @Override
-    @Test
     default void OrderedIterable_distinct()
     {
         // TODO Support distinct() for sorted maps.
