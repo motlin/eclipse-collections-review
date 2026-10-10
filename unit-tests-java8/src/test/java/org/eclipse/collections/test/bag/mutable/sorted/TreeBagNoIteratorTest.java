@@ -65,14 +65,6 @@ public class TreeBagNoIteratorTest implements MutableSortedBagTestCase, OrderedI
         assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).take(2));
     }
 
-    @Override
-    @Test
-    public void ReversibleIterable_drop()
-    {
-        // TODO: Optimize TreeBag.drop() to avoid delegating to iterator().
-        assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).drop(1));
-    }
-
     public static class TreeBagNoIterator<T> extends TreeBag<T>
     {
         public TreeBagNoIterator()
