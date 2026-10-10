@@ -105,13 +105,13 @@ public final class OrderedSetAdapter<T>
     @Override
     public MutableOrderedSet<T> asUnmodifiable()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asUnmodifiable() not implemented yet");
+        return UnmodifiableMutableOrderedSet.of(this);
     }
 
     @Override
     public MutableOrderedSet<T> asSynchronized()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asSynchronized() not implemented yet");
+        return SynchronizedMutableOrderedSet.of(this);
     }
 
     @Override
