@@ -10,16 +10,9 @@
 
 package org.eclipse.collections.test.bimap.mutable;
 
-import java.util.Map;
-
 import org.eclipse.collections.test.FixedSizeIterableTestCase;
 import org.eclipse.collections.test.map.mutable.UnmodifiableMapTestCase;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface UnmodifiableBiMapTestCase extends MutableBiMapTestCase, UnmodifiableMapTestCase, FixedSizeIterableTestCase
 {
@@ -28,43 +21,6 @@ public interface UnmodifiableBiMapTestCase extends MutableBiMapTestCase, Unmodif
     default void Map_replaceAll()
     {
         UnmodifiableMapTestCase.super.Map_replaceAll();
-    }
-
-    @Override
-    @Test
-    default void Map_putIfAbsent()
-    {
-        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertEquals("1", map.putIfAbsent(1, "One"));
-        assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(4, "4"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_remove_key_value()
-    {
-        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.remove(1, "1"));
-        assertFalse(map.remove(2, "wrong"));
-        assertFalse(map.remove(4, "4"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_replace()
-    {
-        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.replace(1, "One"));
-        assertNull(map.replace(4, "Four"));
-        assertThrows(UnsupportedOperationException.class, () -> map.replace(2, "2", "Two"));
-        assertFalse(map.replace(3, "wrong", "Three"));
-        assertFalse(map.replace(4, "4", "Four"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
     }
 
     @Override
