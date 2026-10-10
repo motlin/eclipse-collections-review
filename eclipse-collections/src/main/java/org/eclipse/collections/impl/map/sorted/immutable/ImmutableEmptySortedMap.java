@@ -37,6 +37,7 @@ import org.eclipse.collections.api.partition.list.PartitionImmutableList;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.partition.list.PartitionImmutableListImpl;
 import org.eclipse.collections.impl.utility.LazyIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 
 /**
  * This is a zero element {@link ImmutableSortedMap} which is created by calling SortedMaps.immutable.empty().
@@ -324,5 +325,11 @@ final class ImmutableEmptySortedMap<K, V>
     public V getOnly()
     {
         throw new IllegalStateException("Size must be 1 but was " + this.size());
+    }
+
+    @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ListIterate.rangeCheck(startIndex, endIndex, 0);
     }
 }
