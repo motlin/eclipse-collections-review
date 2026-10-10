@@ -16,6 +16,9 @@ import org.eclipse.collections.api.multimap.bag.MutableBagMultimap;
 import org.eclipse.collections.api.multimap.list.ImmutableListMultimap;
 import org.eclipse.collections.api.multimap.list.ListMultimap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
+import org.eclipse.collections.api.multimap.orderedset.ImmutableOrderedSetMultimap;
+import org.eclipse.collections.api.multimap.orderedset.MutableOrderedSetMultimap;
+import org.eclipse.collections.api.multimap.orderedset.OrderedSetMultimap;
 import org.eclipse.collections.api.multimap.set.ImmutableSetMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.multimap.set.SetMultimap;
@@ -25,10 +28,12 @@ import org.eclipse.collections.api.multimap.sortedbag.SortedBagMultimap;
 import org.eclipse.collections.api.multimap.sortedset.ImmutableSortedSetMultimap;
 import org.eclipse.collections.api.multimap.sortedset.MutableSortedSetMultimap;
 import org.eclipse.collections.api.multimap.sortedset.SortedSetMultimap;
+import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.multimap.bag.HashBagMultimap;
 import org.eclipse.collections.impl.multimap.bag.sorted.mutable.TreeBagMultimap;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.multimap.set.UnifiedSetMultimap;
+import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.multimap.set.sorted.TreeSortedSetMultimap;
 import org.eclipse.collections.impl.test.Verify;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -88,6 +93,23 @@ public class MultimapsTest
         ImmutableSortedSetMultimap<Integer, Integer> three = Multimaps.immutable.sortedSet.of(Integer::compareTo, 1, 1, 2, 2, 3, 3);
         SortedSetMultimap<Integer, Integer> expectedThree = TreeSortedSetMultimap.newMultimap(Tuples.pair(1, 1), Tuples.pair(2, 2), Tuples.pair(3, 3));
         assertEquals(expectedThree, three);
+    }
+
+    @Test
+    public void immutableOrderedSet()
+    {
+        ImmutableOrderedSetMultimap<Integer, Integer> empty = Multimaps.immutable.orderedSet.of();
+        ImmutableOrderedSetMultimap<Integer, Integer> emptyWith = Multimaps.immutable.orderedSet.with();
+        Verify.assertEmpty(empty);
+        Verify.assertEmpty(emptyWith);
+        ImmutableOrderedSetMultimap<Integer, Integer> one = Multimaps.immutable.orderedSet.of(1, 1);
+        assertEquals(OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 1)), one);
+        ImmutableOrderedSetMultimap<Integer, Integer> two = Multimaps.immutable.orderedSet.of(1, 1, 2, 2);
+        assertEquals(OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 1), Tuples.pair(2, 2)), two);
+        ImmutableOrderedSetMultimap<Integer, Integer> three = Multimaps.immutable.orderedSet.of(1, 3, 1, 2, 1, 1);
+        OrderedSetMultimap<Integer, Integer> expectedThree = OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 3), Tuples.pair(1, 2), Tuples.pair(1, 1));
+        assertEquals(expectedThree, three);
+        assertEquals(FastList.newListWith(3, 2, 1), three.get(1).toList());
     }
 
     @Test
@@ -233,6 +255,25 @@ public class MultimapsTest
         SortedSetMultimap<Integer, Integer> expectedThree = TreeSortedSetMultimap.newMultimap(Tuples.pair(1, 1), Tuples.pair(2, 2), Tuples.pair(3, 3));
         assertEquals(expectedThree, three);
         assertEquals(expectedThree, Multimaps.mutable.sortedSet.withAll(three));
+    }
+
+    @Test
+    public void mutableOrderedSet()
+    {
+        MutableOrderedSetMultimap<Integer, Integer> empty = Multimaps.mutable.orderedSet.of();
+        MutableOrderedSetMultimap<Integer, Integer> emptyWith = Multimaps.mutable.orderedSet.with();
+        Verify.assertEmpty(empty);
+        Verify.assertEmpty(emptyWith);
+        MutableOrderedSetMultimap<Integer, Integer> one = Multimaps.mutable.orderedSet.of(1, 1);
+        assertEquals(OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 1)), one);
+        MutableOrderedSetMultimap<Integer, Integer> two = Multimaps.mutable.orderedSet.of(1, 1, 2, 2);
+        assertEquals(OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 1), Tuples.pair(2, 2)), two);
+        MutableOrderedSetMultimap<Integer, Integer> three = Multimaps.mutable.orderedSet.of(1, 3, 1, 2, 1, 1);
+        OrderedSetMultimap<Integer, Integer> expectedThree = OrderedHashSetMultimap.newMultimap(Tuples.pair(1, 3), Tuples.pair(1, 2), Tuples.pair(1, 1));
+        assertEquals(expectedThree, three);
+        assertEquals(FastList.newListWith(3, 2, 1), three.get(1).toList());
+        assertEquals(expectedThree, Multimaps.mutable.orderedSet.withAll(three));
+        assertEquals(FastList.newListWith(3, 2, 1), Multimaps.mutable.orderedSet.withAll(three).get(1).toList());
     }
 
     @Test
