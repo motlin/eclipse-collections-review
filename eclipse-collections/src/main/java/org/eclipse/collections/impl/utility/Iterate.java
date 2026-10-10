@@ -85,6 +85,7 @@ import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.block.factory.Procedures;
 import org.eclipse.collections.impl.block.factory.Procedures2;
 import org.eclipse.collections.impl.block.procedure.MapCollectProcedure;
 import org.eclipse.collections.impl.block.procedure.MaxComparatorProcedure;
@@ -287,6 +288,10 @@ public final class Iterate
         else if (iterable instanceof List)
         {
             ListIterate.forEachWith((List<T>) iterable, procedure, parameter);
+        }
+        else if (iterable instanceof BatchIterable)
+        {
+            ((BatchIterable<T>) iterable).forEach(Procedures.bind(procedure, parameter));
         }
         else if (iterable != null)
         {
