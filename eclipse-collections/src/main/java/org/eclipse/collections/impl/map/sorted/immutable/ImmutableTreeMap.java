@@ -25,6 +25,7 @@ import java.util.SortedMap;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.factory.SortedMaps;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -362,6 +363,12 @@ public class ImmutableTreeMap<K, V>
             result.getRejected().add(this.values[i]);
         }
         return result.toImmutable();
+    }
+
+    @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ArrayIterate.forEach(this.values, startIndex, endIndex, procedure);
     }
 
     protected class ImmutableSortedMapKeySet extends AbstractSet<K> implements Serializable
