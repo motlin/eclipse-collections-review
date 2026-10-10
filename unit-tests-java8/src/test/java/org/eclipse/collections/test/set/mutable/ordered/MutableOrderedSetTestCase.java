@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public interface MutableOrderedSetTestCase extends OrderedSetTestCase, MutableCollectionUniqueTestCase, MutableOrderedIterableTestCase
@@ -51,5 +52,23 @@ public interface MutableOrderedSetTestCase extends OrderedSetTestCase, MutableCo
         assertTrue(reversed.add(4));
         assertIterablesEqual(this.newWith(3, 2, 1), integers);
         assertIterablesEqual(this.newWith(1, 2, 3, 4), reversed);
+    }
+
+    @Test
+    default void MutableOrderedSet_clone()
+    {
+        MutableOrderedSet<Integer> integers = this.newWith(3, 2, 1);
+        MutableOrderedSet<Integer> clone = integers.clone();
+        assertNotSame(integers, clone);
+        assertSame(integers.getClass(), clone.getClass());
+        assertIterablesEqual(integers, clone);
+
+        // The clone is independent of the original
+        assertTrue(clone.add(4));
+        assertTrue(clone.remove(3));
+        assertIterablesEqual(this.newWith(3, 2, 1), integers);
+        assertIterablesEqual(this.newWith(2, 1, 4), clone);
+
+        assertIterablesEqual(this.newWith(), this.newWith().clone());
     }
 }
