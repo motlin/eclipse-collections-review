@@ -10,30 +10,11 @@
 
 package org.eclipse.collections.test.map;
 
-import java.util.Collection;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 public interface NoIteratorMapValuesCollectionTestCase extends MapValuesCollectionTestCase
 {
     @Override
     default boolean allowsIterator()
     {
         return false;
-    }
-
-    // TODO: Implement Collection.remove(Object) on UnifiedMap.ValuesCollection without delegating to iterator()
-    @Override
-    @Test
-    default void Collection_remove_removeAll()
-    {
-        Collection<Integer> collection = this.newWith(3, 2, 1);
-        AssertionError error = assertThrows(
-                AssertionError.class,
-                () -> collection.remove(2));
-        assertEquals("No iteration patterns should delegate to iterator()", error.getMessage());
     }
 }
