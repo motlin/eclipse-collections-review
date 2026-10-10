@@ -307,7 +307,11 @@ public class SortedMapAdapter<K, V>
     @Override
     public MutableSortedMap<K, V> toReversed()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
+        if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            return new TreeSortedMap<>(navigableMap.descendingMap());
+        }
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet for a SortedMap that is not a NavigableMap");
     }
 
     @Override

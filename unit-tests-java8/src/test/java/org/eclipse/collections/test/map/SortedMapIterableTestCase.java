@@ -20,11 +20,13 @@ import org.eclipse.collections.api.map.OrderedMap;
 import org.eclipse.collections.api.map.sorted.SortedMapIterable;
 import org.eclipse.collections.api.partition.ordered.PartitionOrderedIterable;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.list.TransformsToListTrait;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -163,8 +165,14 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO Support toReversed() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
+        ReversibleIterableTestCase.super.ReversibleIterable_toReversed();
+
+        // The reversed map keeps each value with its key and sorts the keys with the reversed comparator
+        SortedMapIterable<Object, Integer> reversed = this.newWith(3, 2, 1).toReversed();
+        assertEquals(
+                Lists.immutable.with(Tuples.pair(1, 1), Tuples.pair(2, 2), Tuples.pair(3, 3)),
+                reversed.keyValuesView().toList());
+        assertEquals(Lists.immutable.with(1, 2, 3), Lists.mutable.<Object>with(2, 3, 1).sortThis(reversed.comparator()));
     }
 
     @Override

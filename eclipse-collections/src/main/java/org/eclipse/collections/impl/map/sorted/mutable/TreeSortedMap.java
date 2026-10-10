@@ -407,7 +407,7 @@ public class TreeSortedMap<K, V>
     @Override
     public MutableSortedMap<K, V> toReversed()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
+        return new TreeSortedMap<>(this.treeMap.descendingMap());
     }
 
     @Override

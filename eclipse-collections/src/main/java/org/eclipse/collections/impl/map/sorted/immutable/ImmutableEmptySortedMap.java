@@ -12,6 +12,7 @@ package org.eclipse.collections.impl.map.sorted.immutable;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -344,5 +345,11 @@ final class ImmutableEmptySortedMap<K, V>
     public ImmutableList<V> distinct()
     {
         return Lists.immutable.empty();
+    }
+
+    @Override
+    public ImmutableSortedMap<K, V> toReversed()
+    {
+        return new ImmutableEmptySortedMap<>(Collections.reverseOrder(this.comparator));
     }
 }
