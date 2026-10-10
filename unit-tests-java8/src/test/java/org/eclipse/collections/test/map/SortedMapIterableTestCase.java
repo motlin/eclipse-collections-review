@@ -177,14 +177,6 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
 
     @Override
     @Test
-    default void ReversibleIterable_detectLastIndex()
-    {
-        // TODO Support detectLastIndex() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
-    }
-
-    @Override
-    @Test
     default void ReversibleIterable_asReversed()
     {
         // TODO: Support asReversed() for sorted maps.
