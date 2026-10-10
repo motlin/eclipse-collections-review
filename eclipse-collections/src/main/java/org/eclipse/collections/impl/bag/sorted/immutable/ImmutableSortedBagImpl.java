@@ -808,6 +808,21 @@ class ImmutableSortedBagImpl<T>
     }
 
     @Override
+    public int detectLastIndex(Predicate<? super T> predicate)
+    {
+        int runStart = this.size;
+        for (int i = this.elements.length - 1; i >= 0; i--)
+        {
+            runStart -= this.occurrences[i];
+            if (predicate.accept(this.elements[i]))
+            {
+                return runStart + this.occurrences[i] - 1;
+            }
+        }
+        return -1;
+    }
+
+    @Override
     public boolean equals(Object other)
     {
         if (this == other)
