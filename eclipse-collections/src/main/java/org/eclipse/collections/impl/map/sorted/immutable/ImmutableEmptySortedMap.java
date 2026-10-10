@@ -352,4 +352,10 @@ final class ImmutableEmptySortedMap<K, V>
     {
         return new ImmutableEmptySortedMap<>(Collections.reverseOrder(this.comparator));
     }
+
+    @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        return -1;
+    }
 }

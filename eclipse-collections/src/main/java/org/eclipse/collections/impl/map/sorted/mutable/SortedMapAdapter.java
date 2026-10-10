@@ -315,6 +315,25 @@ public class SortedMapAdapter<K, V>
     }
 
     @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        if (!(this.delegate instanceof NavigableMap<K, V> navigableMap))
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectLastIndex() not implemented yet for a SortedMap that is not a NavigableMap");
+        }
+        int index = navigableMap.size() - 1;
+        for (V each : navigableMap.descendingMap().values())
+        {
+            if (predicate.accept(each))
+            {
+                return index;
+            }
+            index--;
+        }
+        return -1;
+    }
+
+    @Override
     public MutableSortedMap<K, V> take(int count)
     {
         if (count < 0)
