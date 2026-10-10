@@ -130,8 +130,24 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO Support toReversed() for sorted bags.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
+        ReversibleIterableTestCase.super.ReversibleIterable_toReversed();
+
+        // The reversed bag keeps every occurrence and sorts with the reversed comparator
+        SortedBag<Integer> reversed = this.newWith(3, 3, 3, 2, 2, 1).toReversed();
+        assertEquals(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(3, 3, 3, 2, 2, 1);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(1, 2, 2, 3, 3, 3);
+                },
+                reversed.toList());
+        assertEquals(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(3, 2, 1);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(1, 2, 3);
+                },
+                Lists.mutable.with(2, 3, 1).sortThis(reversed.comparator()));
     }
 
     @Override

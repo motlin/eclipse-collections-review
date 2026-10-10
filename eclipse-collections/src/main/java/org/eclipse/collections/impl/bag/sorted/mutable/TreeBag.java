@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -683,6 +684,14 @@ public class TreeBag<T>
     public MutableStack<T> toStack()
     {
         return ArrayStack.newStack(this);
+    }
+
+    @Override
+    public MutableSortedBag<T> toReversed()
+    {
+        TreeBag<T> result = new TreeBag<>(Collections.reverseOrder(this.comparator()));
+        this.forEachWithOccurrences(result::addOccurrences);
+        return result;
     }
 
     @Override
