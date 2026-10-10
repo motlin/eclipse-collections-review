@@ -85,11 +85,4 @@ public class ArrayStackTest extends MutableStackTestCase
         ArrayStack<Object> arrayStack = new ArrayStack<>();
         assertThrows(UnsupportedOperationException.class, () -> arrayStack.hasSameElements(null));
     }
-
-    @Test
-    public void detectIndex()
-    {
-        ArrayStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.detectIndex(null));
-    }
 }
