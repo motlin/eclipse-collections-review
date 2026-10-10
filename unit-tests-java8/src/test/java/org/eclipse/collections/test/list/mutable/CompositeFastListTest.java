@@ -17,8 +17,6 @@ import org.eclipse.collections.impl.list.mutable.CompositeFastList;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.junit.jupiter.api.Test;
 
-import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CompositeFastListTest implements MutableListTestCase
@@ -52,23 +50,6 @@ public class CompositeFastListTest implements MutableListTestCase
     public void List_subList_subList_addAll()
     {
         assertThrows(UnsupportedOperationException.class, () -> this.newWith("A", "B", "C", "D").subList(0, 3).subList(0, 2).addAll(0, Lists.mutable.with("E")));
-    }
-
-    @Override
-    @Test
-    public void List_remove()
-    {
-        MutableList<Integer> list = this.newWith(4, 3, 2, 1);
-        assertEquals(Integer.valueOf(4), list.remove(0));
-        assertIterablesEqual(this.newWith(3, 2, 1), list);
-        assertEquals(Integer.valueOf(1), list.remove(list.size() - 1));
-        assertIterablesEqual(this.newWith(3, 2), list);
-        assertThrows(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
-        assertIterablesEqual(this.newWith(3, 2), list);
-
-        // TODO: CompositeFastList.remove(int) does not range check negative indexes, so it decrements size before the inner list throws.
-        assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
-        assertEquals(1, list.size());
     }
 
     @Override
