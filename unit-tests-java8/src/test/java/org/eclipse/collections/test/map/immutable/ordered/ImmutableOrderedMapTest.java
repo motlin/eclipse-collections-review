@@ -12,7 +12,6 @@ package org.eclipse.collections.test.map.immutable.ordered;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -27,7 +26,6 @@ import org.eclipse.collections.test.map.mutable.UnmodifiableMapTestCase;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -112,70 +110,6 @@ public class ImmutableOrderedMapTest
     public void Iterable_remove()
     {
         FixedSizeIterableTestCase.super.Iterable_remove();
-    }
-
-    @Override
-    @Test
-    public void Map_compute()
-    {
-        // TODO: Throw before calling the function, like the unmodifiable maps do; ImmutableOrderedMapAdapter inherits the default java.util.Map method, which calls the function before put() throws
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.compute(1, (k, v) -> {
-            assertEquals(Integer.valueOf(1), k);
-            assertEquals("1", v);
-            return "modified";
-        }));
-        assertThrows(UnsupportedOperationException.class, () -> map.compute(4, (k, v) -> {
-            assertEquals(Integer.valueOf(4), k);
-            assertNull(v);
-            return "new";
-        }));
-        assertThrows(UnsupportedOperationException.class, () -> map.compute(2, (k, v) -> null));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    public void Map_computeIfAbsent()
-    {
-        // TODO: Throw before calling the function, like the unmodifiable maps do; ImmutableOrderedMapAdapter inherits the default java.util.Map method, which calls the function before put() throws
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertEquals("1", map.computeIfAbsent(1, k -> {
-            fail("Expected lambda not to be called for existing key");
-            return "modified";
-        }));
-        assertThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(4, k -> "new"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    public void Map_computeIfPresent()
-    {
-        // TODO: Throw before calling the function, like the unmodifiable maps do; ImmutableOrderedMapAdapter inherits the default java.util.Map method, which calls the function before put() throws
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(1, (k, v) -> {
-            assertEquals(Integer.valueOf(1), k);
-            assertEquals("1", v);
-            return "modified";
-        }));
-        assertNull(map.computeIfPresent(4, (k, v) -> {
-            fail("Expected lambda not to be called for non-existing key");
-            return "new";
-        }));
-        assertThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(2, (k, v) -> null));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    public void Map_replaceAll()
-    {
-        // TODO: Throw before calling the function, like the unmodifiable maps do; ImmutableOrderedMapAdapter inherits the default java.util.Map method, which calls the function before put() throws
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-
-        assertThrows(UnsupportedOperationException.class, () -> map.replaceAll((k, v) -> v + "modified"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
     }
 
     @Override
