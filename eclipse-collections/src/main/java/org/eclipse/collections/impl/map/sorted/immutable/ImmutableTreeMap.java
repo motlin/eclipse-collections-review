@@ -407,6 +407,12 @@ public class ImmutableTreeMap<K, V>
         return new ImmutableTreeMap<>(reversedKeys, reversedValues, Collections.reverseOrder(this.comparator));
     }
 
+    @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        return ArrayIterate.detectLastIndex(this.values, predicate);
+    }
+
     protected class ImmutableSortedMapKeySet extends AbstractSet<K> implements Serializable
     {
         private static final long serialVersionUID = 1L;
