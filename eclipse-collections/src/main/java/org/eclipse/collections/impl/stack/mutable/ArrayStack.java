@@ -1238,7 +1238,19 @@ public class ArrayStack<T> implements MutableStack<T>, Externalizable
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super T, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        if (this.delegate.size() != other.size())
+        {
+            return false;
+        }
+        Iterator<S> otherIterator = other.iterator();
+        for (int i = this.delegate.size() - 1; i >= 0; i--)
+        {
+            if (!predicate.accept(this.delegate.get(i), otherIterator.next()))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean hasSameElements(OrderedIterable<T> other)
