@@ -27,54 +27,14 @@ public interface UnmodifiableBiMapTestCase extends MutableBiMapTestCase, Unmodif
     @Test
     default void Map_replaceAll()
     {
-        // TODO: Throw UnsupportedOperationException before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(NullPointerException.class, () -> map.replaceAll(null));
-        assertThrows(UnsupportedOperationException.class, () -> map.replaceAll((k, v) -> v + "modified"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_compute()
-    {
-        // TODO: Throw UnsupportedOperationException before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(NullPointerException.class, () -> map.compute(1, null));
-        assertThrows(UnsupportedOperationException.class, () -> map.compute(1, (k, v) -> "modified"));
-        assertThrows(UnsupportedOperationException.class, () -> map.compute(4, (k, v) -> "new"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_computeIfAbsent()
-    {
-        // TODO: Throw UnsupportedOperationException unconditionally, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method, which checks the arguments first and returns without throwing when nothing would change.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(NullPointerException.class, () -> map.computeIfAbsent(1, null));
-        assertEquals("1", map.computeIfAbsent(1, k -> "modified"));
-        assertThrows(UnsupportedOperationException.class, () -> map.computeIfAbsent(4, k -> "new"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_computeIfPresent()
-    {
-        // TODO: Throw UnsupportedOperationException unconditionally, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method, which checks the arguments first and returns without throwing when nothing would change.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(NullPointerException.class, () -> map.computeIfPresent(1, null));
-        assertThrows(UnsupportedOperationException.class, () -> map.computeIfPresent(1, (k, v) -> "modified"));
-        assertNull(map.computeIfPresent(4, (k, v) -> "new"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
+        UnmodifiableMapTestCase.super.Map_replaceAll();
     }
 
     @Override
     @Test
     default void Map_putIfAbsent()
     {
-        // TODO: Throw UnsupportedOperationException unconditionally, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method, which returns without throwing when nothing would change.
+        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
         Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
         assertEquals("1", map.putIfAbsent(1, "One"));
         assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(4, "4"));
@@ -85,7 +45,7 @@ public interface UnmodifiableBiMapTestCase extends MutableBiMapTestCase, Unmodif
     @Test
     default void Map_remove_key_value()
     {
-        // TODO: Throw UnsupportedOperationException unconditionally, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method, which returns without throwing when nothing would change.
+        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
         Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
         assertThrows(UnsupportedOperationException.class, () -> map.remove(1, "1"));
         assertFalse(map.remove(2, "wrong"));
@@ -97,7 +57,7 @@ public interface UnmodifiableBiMapTestCase extends MutableBiMapTestCase, Unmodif
     @Test
     default void Map_replace()
     {
-        // TODO: Throw UnsupportedOperationException unconditionally, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method, which returns without throwing when nothing would change.
+        // TODO: Throw before checking the arguments, like the other unmodifiable maps; UnmodifiableBiMap inherits the default java.util.Map method.
         Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
         assertThrows(UnsupportedOperationException.class, () -> map.replace(1, "One"));
         assertNull(map.replace(4, "Four"));
