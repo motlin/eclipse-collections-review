@@ -332,4 +332,10 @@ final class ImmutableEmptySortedMap<K, V>
     {
         ListIterate.rangeCheck(startIndex, endIndex, 0);
     }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ListIterate.rangeCheck(fromIndex, toIndex, 0);
+    }
 }

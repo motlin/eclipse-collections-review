@@ -1348,7 +1348,7 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        this.getMutableSortedMap().forEachWithIndex(fromIndex, toIndex, objectIntProcedure);
     }
 
     @Override
