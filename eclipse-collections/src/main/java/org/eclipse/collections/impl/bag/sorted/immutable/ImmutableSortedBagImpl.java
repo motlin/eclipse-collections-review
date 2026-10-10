@@ -380,7 +380,23 @@ class ImmutableSortedBagImpl<T>
 
         if (index > toIndex)
         {
-            throw new IllegalArgumentException("fromIndex must not be greater than toIndex");
+            int i = this.elements.length - 1;
+            int runStart = this.size - this.occurrences[i];
+            while (runStart > index)
+            {
+                i--;
+                runStart -= this.occurrences[i];
+            }
+            for (int position = index; position >= toIndex; position--)
+            {
+                if (position < runStart)
+                {
+                    i--;
+                    runStart -= this.occurrences[i];
+                }
+                procedure.value(this.elements[i]);
+            }
+            return;
         }
         int i = 0;
         int beginningIndex = 0;
@@ -474,7 +490,23 @@ class ImmutableSortedBagImpl<T>
 
         if (fromIndex > toIndex)
         {
-            throw new IllegalArgumentException("fromIndex must not be greater than toIndex");
+            int i = this.elements.length - 1;
+            int runStart = this.size - this.occurrences[i];
+            while (runStart > fromIndex)
+            {
+                i--;
+                runStart -= this.occurrences[i];
+            }
+            for (int position = fromIndex; position >= toIndex; position--)
+            {
+                if (position < runStart)
+                {
+                    i--;
+                    runStart -= this.occurrences[i];
+                }
+                objectIntProcedure.value(this.elements[i], position);
+            }
+            return;
         }
 
         int arrayIndex = 0;
