@@ -141,11 +141,11 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(5, 7, each -> { }));
+        ReversibleIterableTestCase.super.OrderedIterable_forEach_from_to();
 
-        // TODO Support reverse indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(7, 5, each -> { }));
+        // Every index is out of bounds for an empty map
+        SortedMapIterable<Object, Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEach(0, 0, each -> fail()));
     }
 
     @Override
@@ -197,14 +197,6 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     {
         // TODO Support toReversed() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
-    }
-
-    @Override
-    @Test
-    default void ReversibleIterable_reverseForEach()
-    {
-        // TODO Support reverseForEach() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
 
     @Override
