@@ -21,6 +21,7 @@ import java.util.function.BiFunction;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.SortedMaps;
 import org.eclipse.collections.api.list.MutableList;
@@ -207,6 +208,40 @@ public class SortedMapAdapter<K, V>
         else
         {
             throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() with a reverse range not implemented yet for a SortedMap that is not a NavigableMap");
+        }
+    }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ListIterate.rangeCheck(fromIndex, toIndex, this.delegate.size());
+        if (fromIndex <= toIndex)
+        {
+            Iterator<V> iterator = this.delegate.values().iterator();
+            for (int i = 0; i < fromIndex; i++)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i <= toIndex; i++)
+            {
+                objectIntProcedure.value(iterator.next(), i);
+            }
+        }
+        else if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            Iterator<V> iterator = navigableMap.descendingMap().values().iterator();
+            for (int i = navigableMap.size() - 1; i > fromIndex; i--)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i >= toIndex; i--)
+            {
+                objectIntProcedure.value(iterator.next(), i);
+            }
+        }
+        else
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() with a reverse range not implemented yet for a SortedMap that is not a NavigableMap");
         }
     }
 

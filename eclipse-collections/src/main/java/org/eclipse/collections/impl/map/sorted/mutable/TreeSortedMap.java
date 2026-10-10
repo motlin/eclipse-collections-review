@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.SortedMaps;
 import org.eclipse.collections.api.list.MutableList;
@@ -363,6 +364,36 @@ public class TreeSortedMap<K, V>
             for (int i = startIndex; i >= endIndex; i--)
             {
                 procedure.value(iterator.next());
+            }
+        }
+    }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ListIterate.rangeCheck(fromIndex, toIndex, this.treeMap.size());
+        if (fromIndex <= toIndex)
+        {
+            Iterator<V> iterator = this.treeMap.values().iterator();
+            for (int i = 0; i < fromIndex; i++)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i <= toIndex; i++)
+            {
+                objectIntProcedure.value(iterator.next(), i);
+            }
+        }
+        else
+        {
+            Iterator<V> iterator = this.treeMap.descendingMap().values().iterator();
+            for (int i = this.treeMap.size() - 1; i > fromIndex; i--)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i >= toIndex; i--)
+            {
+                objectIntProcedure.value(iterator.next(), i);
             }
         }
     }
