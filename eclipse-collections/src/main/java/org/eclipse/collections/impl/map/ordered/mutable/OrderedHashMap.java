@@ -109,23 +109,26 @@ import org.eclipse.collections.impl.utility.LazyIterate;
  * the usable capacity, so it fills up at the same point the index table reaches its maximum load.
  * <p>
  * A rehash is triggered when an insert would overflow the dense storage, or would push the index
- * table's occupancy past the usable capacity without reusing a tombstone slot. The new capacity is
- * derived from the number of live entries alone, not from the current capacity: the smallest power of
- * two at least {@code max(size * 3, 8)}. Rehashing compacts tombstones out of both arrays. When that
- * capacity is unchanged and the index table still has room, only the dense storage is compacted: the
+ * table's occupancy past the usable capacity without reusing a tombstone slot. The new capacity is the
+ * smallest power of two at least {@code max(size * 3, 8)}, except that the table does not grow when
+ * compacting at the current capacity already leaves free slots for at least a quarter of the live
+ * entries. Rehashing compacts tombstones out of both arrays. When the capacity is unchanged and the
+ * index table still has room, only the dense storage is compacted: the
  * index table keeps its layout and just has its stored indices updated, so no key is hashed again. This has
  * consequences:
  * <ul>
  *     <li>With no removals, each rehash doubles the capacity: live entries fill two thirds of the old
  *     table, and three times that rounds up to twice the old capacity.</li>
- *     <li>After a rehash, the index table is at most one third full, leaving room for at least
- *     {@code size} more insertions before the next rehash.</li>
+ *     <li>After a rehash that changes the capacity, the index table is at most one third full, leaving
+ *     room for at least {@code size} more insertions before the next rehash. A compaction that keeps the
+ *     current capacity leaves free dense slots for at least a quarter of the live entries.</li>
  *     <li>Removal-heavy workloads rehash at the same or a smaller capacity. Steady remove/re-add
  *     churn periodically compacts tombstones away instead of growing the arrays unboundedly.
  *     Removing the most recently added entry reclaims its slot immediately. Removing any other entry
  *     leaves a tombstone, and re-adding the same key appends it again, so repeatedly removing and
- *     re-adding one interior key triggers a compaction about once every {@code size} such
- *     cycles even though the set of keys never changes.</li>
+ *     re-adding one interior key triggers compactions even though the set of keys never changes. Each
+ *     cycle uses up one free dense slot, so consecutive compactions are at least {@code (size - 1) / 4}
+ *     such cycles apart.</li>
  * </ul>
  * For example, a map with the default index table capacity of 8 has a usable capacity of 5. The first
  * five insertions fit without rehashing. The sixth insertion triggers a rehash before it is stored:
@@ -644,8 +647,15 @@ public class OrderedHashMap<K, V>
 
     private void makeRoomForAdd(boolean reusedRemovedHashTableSlot)
     {
+        int currentCapacity = this.indicesHashTable == null ? 0 : indicesHashTableLength(this.indicesHashTable);
         int indicesHashTableCapacity = smallestIndicesHashTableCapacityForGrowth(this.size);
-        boolean sameCapacity = this.indicesHashTable != null && indicesHashTableCapacity == indicesHashTableLength(this.indicesHashTable);
+        int freeAfterCompaction = this.usableEntryCapacity() - this.size;
+        // Don't grow while compacting at the current capacity leaves free slots for at least a quarter of the live entries.
+        if (indicesHashTableCapacity > currentCapacity && freeAfterCompaction > 0 && freeAfterCompaction * 4 >= this.size)
+        {
+            indicesHashTableCapacity = currentCapacity;
+        }
+        boolean sameCapacity = indicesHashTableCapacity == currentCapacity;
         boolean indexTableHasRoom = reusedRemovedHashTableSlot || this.indicesHashTableOccupied < this.usableEntryCapacity();
         // Compaction only clears tombstones from orderedKeyValues. If REMOVED slots filled indicesHashTable, only a rehash clears them.
         if (sameCapacity && indexTableHasRoom)
