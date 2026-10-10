@@ -885,6 +885,12 @@ abstract class AbstractMutableBiMap<K, V> extends AbstractBiMap<K, V> implements
     protected class ValuesCollection implements Collection<V>
     {
         @Override
+        public void forEach(Consumer<? super V> action)
+        {
+            AbstractMutableBiMap.this.delegate.forEachValue(action::accept);
+        }
+
+        @Override
         public int size()
         {
             return AbstractMutableBiMap.this.size();
