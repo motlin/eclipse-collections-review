@@ -10,6 +10,7 @@
 
 package org.eclipse.collections.impl.map.sorted.mutable;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import org.eclipse.collections.api.block.function.Function;
@@ -346,7 +347,12 @@ public abstract class AbstractMutableSortedMap<K, V> extends AbstractMutableMapI
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super V, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        if (this.size() != other.size())
+        {
+            return false;
+        }
+        Iterator<S> otherIterator = other.iterator();
+        return this.allSatisfy(each -> predicate.accept(each, otherIterator.next()));
     }
 
     @Override
