@@ -72,6 +72,7 @@ import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.Partitio
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.PartitionProcedure;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.PartitionWhileProcedure;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
 
 final class ImmutableNotEmptyStack<T>
@@ -473,7 +474,30 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, this.size);
+        if (startIndex <= endIndex)
+        {
+            ImmutableStack<T> pointer = this.pop(startIndex);
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                procedure.value(pointer.peek());
+                pointer = pointer.pop();
+            }
+        }
+        else
+        {
+            Object[] range = new Object[startIndex - endIndex + 1];
+            ImmutableStack<T> pointer = this.pop(endIndex);
+            for (int i = 0; i < range.length; i++)
+            {
+                range[i] = pointer.peek();
+                pointer = pointer.pop();
+            }
+            for (int i = range.length - 1; i >= 0; i--)
+            {
+                procedure.value((T) range[i]);
+            }
+        }
     }
 
     @Override
