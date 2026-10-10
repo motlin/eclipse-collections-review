@@ -16,7 +16,8 @@ import org.eclipse.collections.impl.list.mutable.CompositeFastList;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CompositeFastListTest implements MutableListTestCase
 {
@@ -40,7 +41,15 @@ public class CompositeFastListTest implements MutableListTestCase
     @Test
     public void MutableList_clone()
     {
-        // TODO: Implement CompositeFastList.clone().
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).clone());
+        MutableListTestCase.super.MutableList_clone();
+
+        // A composite with no inner lists clones to an independent empty composite
+        MutableList<Integer> empty = new CompositeFastList<>();
+        MutableList<Integer> clone = empty.clone();
+        assertNotSame(empty, clone);
+        assertIterablesEqual(this.newWith(), clone);
+        clone.add(1);
+        assertIterablesEqual(this.newWith(), empty);
+        assertIterablesEqual(this.newWith(1), clone);
     }
 }

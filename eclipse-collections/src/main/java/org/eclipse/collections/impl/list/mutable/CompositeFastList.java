@@ -65,7 +65,12 @@ public final class CompositeFastList<E>
     @Override
     public MutableList<E> clone()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".clone() not implemented yet");
+        CompositeFastList<E> result = new CompositeFastList<>();
+        for (int i = 0; i < this.lists.size(); i++)
+        {
+            result.addComposited(this.lists.get(i).clone());
+        }
+        return result;
     }
 
     @Override
