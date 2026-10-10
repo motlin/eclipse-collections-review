@@ -158,6 +158,29 @@ public interface ReversibleIterableTestCase extends OrderedIterableTestCase
         assertEquals(Lists.immutable.empty(), iterable.drop(3).toList());
         assertEquals(Lists.immutable.empty(), iterable.drop(Integer.MAX_VALUE).toList());
         assertThrows(IllegalArgumentException.class, () -> iterable.drop(-1));
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        // Dropping part of a run of duplicates keeps the rest of the run
+        ReversibleIterable<Integer> iterableWithDuplicates = (ReversibleIterable<Integer>) this.newWith(3, 3, 3, 2, 2, 1);
+        switch (this.getOrderingType())
+        {
+            case UNORDERED -> throw new AssertionError("ReversibleIterable should not have UNORDERED ordering type");
+            case INSERTION_ORDER, SORTED_REVERSE_NATURAL ->
+            {
+                assertEquals(Lists.mutable.with(3, 2, 2, 1), iterableWithDuplicates.drop(2).toList());
+                assertEquals(Lists.mutable.with(2, 1), iterableWithDuplicates.drop(4).toList());
+            }
+            case SORTED_NATURAL ->
+            {
+                assertEquals(Lists.mutable.with(2, 3, 3, 3), iterableWithDuplicates.drop(2).toList());
+                assertEquals(Lists.mutable.with(3, 3), iterableWithDuplicates.drop(4).toList());
+            }
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
     }
 
     @Test
