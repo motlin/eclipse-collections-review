@@ -377,6 +377,6 @@ public abstract class AbstractMutableSortedMap<K, V> extends AbstractMutableMapI
     @Override
     public int detectIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return Iterate.detectIndex(this.values(), predicate);
     }
 }
