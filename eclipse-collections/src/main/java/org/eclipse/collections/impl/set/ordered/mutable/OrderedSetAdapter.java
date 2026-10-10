@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -63,8 +64,10 @@ import org.eclipse.collections.impl.block.procedure.PartitionPredicate2Procedure
 import org.eclipse.collections.impl.block.procedure.PartitionProcedure;
 import org.eclipse.collections.impl.block.procedure.SelectInstancesOfProcedure;
 import org.eclipse.collections.impl.collection.mutable.AbstractCollectionAdapter;
+import org.eclipse.collections.impl.lazy.parallel.set.NonParallelUnsortedSetIterable;
 import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.partition.set.ordered.PartitionOrderedSetAdapter;
+import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.OrderedIterate;
 import org.eclipse.collections.impl.utility.internal.IterableIterate;
@@ -537,7 +540,12 @@ public final class OrderedSetAdapter<T>
     @Override
     public ParallelSetIterable<T> asParallel(ExecutorService executorService, int batchSize)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asParallel() not implemented yet");
+        Objects.requireNonNull(executorService);
+        if (batchSize < 1)
+        {
+            throw new IllegalArgumentException("batchSize must be greater than zero, but was: " + batchSize);
+        }
+        return new NonParallelUnsortedSetIterable<>(SetAdapter.adapt(this.delegate));
     }
 
     @Override
