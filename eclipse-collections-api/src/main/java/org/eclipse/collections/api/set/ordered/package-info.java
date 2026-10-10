@@ -13,8 +13,11 @@
  * <p>
  *     An ordered set is an {@link java.lang.Iterable} whose items are unique and keep the order in which they were first added.
  * <p>
- *   This package contains 2 interfaces:
+ *   This package contains 3 interfaces:
  * <ul>
+ *   <li>
+ *      {@link org.eclipse.collections.api.set.ordered.ImmutableOrderedSet} - the non-modifiable equivalent interface to {@link org.eclipse.collections.api.set.ordered.MutableOrderedSet}.
+ *   </li>
  *   <li>
  *      {@link org.eclipse.collections.api.set.ordered.MutableOrderedSet} - a modifiable ordered set, like {@link java.util.LinkedHashSet}.
  *   </li>
