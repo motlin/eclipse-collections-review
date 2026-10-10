@@ -29,6 +29,7 @@ import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.factory.SortedMaps;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.api.map.sorted.MutableSortedMap;
@@ -376,6 +377,12 @@ public class ImmutableTreeMap<K, V>
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
         ArrayIterate.forEachWithIndex(this.values, fromIndex, toIndex, objectIntProcedure);
+    }
+
+    @Override
+    public ImmutableList<V> distinct()
+    {
+        return ArrayIterate.distinct(this.values).toImmutable();
     }
 
     protected class ImmutableSortedMapKeySet extends AbstractSet<K> implements Serializable
