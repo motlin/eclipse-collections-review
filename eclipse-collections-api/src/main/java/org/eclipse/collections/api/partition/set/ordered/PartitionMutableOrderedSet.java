@@ -23,4 +23,7 @@ public interface PartitionMutableOrderedSet<T> extends PartitionOrderedSet<T>, P
 
     @Override
     MutableOrderedSet<T> getRejected();
+
+    @Override
+    PartitionImmutableOrderedSet<T> toImmutable();
 }
