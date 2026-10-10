@@ -152,14 +152,6 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
 
     @Override
     @Test
-    default void ReversibleIterable_detectLastIndex()
-    {
-        // TODO Support detectLastIndex() for sorted bags.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
-    }
-
-    @Override
-    @Test
     default void ReversibleIterable_asReversed()
     {
         // TODO Support asReversed() for sorted bags.
