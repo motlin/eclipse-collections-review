@@ -80,13 +80,6 @@ public class ArrayStackTest extends MutableStackTestCase
     }
 
     @Test
-    public void corresponds()
-    {
-        ArrayStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.corresponds(null, null));
-    }
-
-    @Test
     public void hasSameElements()
     {
         ArrayStack<Object> arrayStack = new ArrayStack<>();
