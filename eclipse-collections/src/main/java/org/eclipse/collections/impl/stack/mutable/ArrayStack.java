@@ -1257,7 +1257,9 @@ public class ArrayStack<T> implements MutableStack<T>, Externalizable
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.delegate.size());
+        int lastIndex = this.delegate.size() - 1;
+        this.delegate.forEachWithIndex(lastIndex - fromIndex, lastIndex - toIndex, (each, index) -> objectIntProcedure.value(each, lastIndex - index));
     }
 
     @Override
