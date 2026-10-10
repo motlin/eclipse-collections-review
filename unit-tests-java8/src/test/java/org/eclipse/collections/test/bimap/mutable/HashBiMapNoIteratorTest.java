@@ -105,15 +105,6 @@ public class HashBiMapNoIteratorTest implements MutableBiMapTestCase, NoIterator
 
     @Override
     @Test
-    public void Map_replaceAll()
-    {
-        // TODO: Optimize HashBiMap.replaceAll() to avoid delegating to iterator().
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2");
-        assertThrows(AssertionError.class, () -> map.replaceAll((k, v) -> v + k));
-    }
-
-    @Override
-    @Test
     public void Map_values_forEach()
     {
         // TODO: Optimize HashBiMap.values().forEach() to avoid delegating to iterator().

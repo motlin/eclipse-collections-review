@@ -19,7 +19,9 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.eclipse.collections.api.RichIterable;
@@ -225,6 +227,13 @@ abstract class AbstractMutableBiMap<K, V> extends AbstractBiMap<K, V> implements
         V put = this.delegate.put(key, value);
         this.inverse.delegate.put(value, key);
         return put;
+    }
+
+    @Override
+    public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function)
+    {
+        Objects.requireNonNull(function);
+        this.delegate.forEachKeyValue((key, value) -> this.put(key, function.apply(key, value)));
     }
 
     @Override
