@@ -546,7 +546,18 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        int index = 0;
+        ImmutableStack<T> pointer = this;
+        while (pointer.notEmpty())
+        {
+            if (predicate.accept(pointer.peek()))
+            {
+                return index;
+            }
+            index++;
+            pointer = pointer.pop();
+        }
+        return -1;
     }
 
     @Override

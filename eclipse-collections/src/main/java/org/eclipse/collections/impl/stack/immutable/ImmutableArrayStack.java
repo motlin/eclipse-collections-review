@@ -1131,7 +1131,8 @@ final class ImmutableArrayStack<T> implements ImmutableStack<T>, Serializable
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        int index = this.delegate.detectLastIndex(predicate);
+        return index == -1 ? -1 : this.delegate.size() - 1 - index;
     }
 
     @Override
