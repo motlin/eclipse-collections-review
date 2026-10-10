@@ -33,6 +33,7 @@ import org.eclipse.collections.api.list.primitive.FloatList;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.list.primitive.LongList;
 import org.eclipse.collections.api.list.primitive.ShortList;
+import org.eclipse.collections.api.multimap.orderedset.OrderedSetMultimap;
 import org.eclipse.collections.api.ordered.ReversibleIterable;
 import org.eclipse.collections.api.partition.set.ordered.PartitionOrderedSet;
 import org.eclipse.collections.api.set.SetIterable;
@@ -143,6 +144,12 @@ public interface OrderedSet<T>
 
     @Override
     OrderedSet<T> dropWhile(Predicate<? super T> predicate);
+
+    @Override
+    <V> OrderedSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function);
+
+    @Override
+    <V> OrderedSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function);
 
     @Override
     OrderedSet<Pair<T, Integer>> zipWithIndex();
