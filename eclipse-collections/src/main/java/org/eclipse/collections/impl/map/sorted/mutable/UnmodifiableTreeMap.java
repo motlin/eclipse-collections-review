@@ -1336,7 +1336,7 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super V, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        return this.getMutableSortedMap().corresponds(other, predicate);
     }
 
     @Override
