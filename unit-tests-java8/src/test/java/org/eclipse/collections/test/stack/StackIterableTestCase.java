@@ -154,14 +154,6 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
 
     @Override
     @Test
-    default void OrderedIterable_corresponds()
-    {
-        // TODO Support corresponds() for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).corresponds(Lists.mutable.with(3, 2, 1), Object::equals));
-    }
-
-    @Override
-    @Test
     default void OrderedIterable_detectIndex()
     {
         // TODO Support detectIndex() for stacks.

@@ -764,7 +764,7 @@ final class ImmutableEmptyStack<T>
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super T, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        return other.isEmpty();
     }
 
     public boolean hasSameElements(OrderedIterable<T> other)
