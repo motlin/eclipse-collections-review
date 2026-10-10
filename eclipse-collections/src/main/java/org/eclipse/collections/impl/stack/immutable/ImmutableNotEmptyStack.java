@@ -503,7 +503,30 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.size);
+        if (fromIndex <= toIndex)
+        {
+            ImmutableStack<T> pointer = this.pop(fromIndex);
+            for (int i = fromIndex; i <= toIndex; i++)
+            {
+                objectIntProcedure.value(pointer.peek(), i);
+                pointer = pointer.pop();
+            }
+        }
+        else
+        {
+            Object[] range = new Object[fromIndex - toIndex + 1];
+            ImmutableStack<T> pointer = this.pop(toIndex);
+            for (int i = 0; i < range.length; i++)
+            {
+                range[i] = pointer.peek();
+                pointer = pointer.pop();
+            }
+            for (int i = range.length - 1; i >= 0; i--)
+            {
+                objectIntProcedure.value((T) range[i], toIndex + i);
+            }
+        }
     }
 
     @Override
