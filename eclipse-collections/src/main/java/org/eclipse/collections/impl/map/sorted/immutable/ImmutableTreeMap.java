@@ -15,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -74,6 +75,13 @@ public class ImmutableTreeMap<K, V>
         }
         this.keys = keysCopy;
         this.values = valuesCopy;
+    }
+
+    private ImmutableTreeMap(K[] keys, V[] values, Comparator<? super K> comparator)
+    {
+        this.keys = keys;
+        this.values = values;
+        this.comparator = comparator;
     }
 
     public static <K, V> ImmutableSortedMap<K, V> newMap(SortedMap<K, V> sortedMap)
@@ -383,6 +391,20 @@ public class ImmutableTreeMap<K, V>
     public ImmutableList<V> distinct()
     {
         return ArrayIterate.distinct(this.values).toImmutable();
+    }
+
+    @Override
+    public ImmutableSortedMap<K, V> toReversed()
+    {
+        int size = this.keys.length;
+        K[] reversedKeys = (K[]) new Object[size];
+        V[] reversedValues = (V[]) new Object[size];
+        for (int i = 0; i < size; i++)
+        {
+            reversedKeys[i] = this.keys[size - 1 - i];
+            reversedValues[i] = this.values[size - 1 - i];
+        }
+        return new ImmutableTreeMap<>(reversedKeys, reversedValues, Collections.reverseOrder(this.comparator));
     }
 
     protected class ImmutableSortedMapKeySet extends AbstractSet<K> implements Serializable
