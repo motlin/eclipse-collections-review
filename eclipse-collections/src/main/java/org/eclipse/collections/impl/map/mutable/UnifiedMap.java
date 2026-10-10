@@ -3456,28 +3456,40 @@ public class UnifiedMap<K, V> extends AbstractMutableMap<K, V>
         @Override
         public boolean remove(Object o)
         {
-            // this is so slow that the extra overhead of the iterator won't be noticeable
-            if (o == null)
+            Object[] table = UnifiedMap.this.table;
+            for (int i = 0; i < table.length; i += 2)
             {
-                for (Iterator<V> it = this.iterator(); it.hasNext(); )
+                Object cur = table[i];
+                if (cur == CHAINED_KEY)
                 {
-                    if (it.next() == null)
+                    if (this.removeFirstFromChainByValue((Object[]) table[i + 1], i, o))
                     {
-                        it.remove();
                         return true;
                     }
                 }
-            }
-            else
-            {
-                for (Iterator<V> it = this.iterator(); it.hasNext(); )
+                else if (cur != null && UnifiedMap.nullSafeEquals(o, table[i + 1]))
                 {
-                    V o2 = it.next();
-                    if (o == o2 || o2.equals(o))
-                    {
-                        it.remove();
-                        return true;
-                    }
+                    table[i] = null;
+                    table[i + 1] = null;
+                    UnifiedMap.this.occupied--;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean removeFirstFromChainByValue(Object[] chain, int tableIndex, Object value)
+        {
+            for (int i = 0; i < chain.length; i += 2)
+            {
+                if (chain[i] == null)
+                {
+                    return false;
+                }
+                if (UnifiedMap.nullSafeEquals(value, chain[i + 1]))
+                {
+                    UnifiedMap.this.overwriteWithLastElementFromChain(chain, tableIndex, i);
+                    return true;
                 }
             }
             return false;
