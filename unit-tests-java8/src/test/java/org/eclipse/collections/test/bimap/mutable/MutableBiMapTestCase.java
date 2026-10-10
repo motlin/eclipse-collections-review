@@ -11,8 +11,13 @@
 package org.eclipse.collections.test.bimap.mutable;
 
 import org.eclipse.collections.api.bimap.MutableBiMap;
+import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.test.map.mutable.MapTestCase;
 import org.junit.jupiter.api.Test;
+
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface MutableBiMapTestCase extends MutableUnsortedBiMapTestCase, MapTestCase
 {
@@ -64,5 +69,22 @@ public interface MutableBiMapTestCase extends MutableUnsortedBiMapTestCase, MapT
     {
         MutableUnsortedBiMapTestCase.super.Object_equalsAndHashCode();
         MapTestCase.super.Object_equalsAndHashCode();
+    }
+
+    @Override
+    @Test
+    default void Map_replaceAll()
+    {
+        MapTestCase.super.Map_replaceAll();
+
+        MutableBiMap<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
+        map.replaceAll((k, v) -> v + k);
+        assertEquals(Maps.mutable.with("11", 1, "22", 2, "33", 3), map.inverse());
+
+        MutableBiMap<Integer, String> map2 = this.newWithKeysValues(1, "1", 2, "2");
+        assertThrows(IllegalArgumentException.class, () -> map2.replaceAll((k, v) -> null));
+        // replaceAll() replaces values one key at a time, so the keys before the duplicate are already replaced
+        assertIterablesEqual(this.newWithKeysValues(1, null, 2, "2"), map2);
+        assertEquals(Maps.mutable.with(null, 1, "2", 2), map2.inverse());
     }
 }
