@@ -464,7 +464,7 @@ public class ImmutableOrderedSetAdapter<T>
     @Override
     public ParallelSetIterable<T> asParallel(ExecutorService executorService, int batchSize)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asParallel() not implemented yet");
+        return this.delegate.asParallel(executorService, batchSize);
     }
 
     @Override
