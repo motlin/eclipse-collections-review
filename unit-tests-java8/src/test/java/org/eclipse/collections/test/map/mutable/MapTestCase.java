@@ -1065,6 +1065,41 @@ public interface MapTestCase extends OrderingTypeTrait
                 this.newWithKeysValues(3, "Three", 1, "One"),
                 map);
 
+        // Keys 0, 17 and 34 share a bucket in UnifiedMap and UnifiedMapWithHashingStrategy, so these removals walk a collision chain
+        Map<Integer, String> chainOfThree = this.newWithKeysValues(0, "0", 17, "17", 34, "34");
+        // Miss in a chain whose last slot is empty
+        assertFalse(chainOfThree.values().remove("51"));
+        assertIterablesEqual(
+                this.newWithKeysValues(0, "0", 17, "17", 34, "34"),
+                chainOfThree);
+        // Middle of the chain
+        assertTrue(chainOfThree.values().remove("17"));
+        assertIterablesEqual(
+                this.newWithKeysValues(0, "0", 34, "34"),
+                chainOfThree);
+        // End of the chain
+        assertTrue(chainOfThree.values().remove("34"));
+        assertIterablesEqual(
+                this.newWithKeysValues(0, "0"),
+                chainOfThree);
+
+        Map<Integer, String> chainOfTwo = this.newWithKeysValues(0, "0", 17, "17");
+        // Miss in a chain with no empty slot
+        assertFalse(chainOfTwo.values().remove("34"));
+        assertIterablesEqual(
+                this.newWithKeysValues(0, "0", 17, "17"),
+                chainOfTwo);
+        // Start of the chain
+        assertTrue(chainOfTwo.values().remove("0"));
+        assertIterablesEqual(
+                this.newWithKeysValues(17, "17"),
+                chainOfTwo);
+        // Last entry left in the chain
+        assertTrue(chainOfTwo.values().remove("17"));
+        assertIterablesEqual(
+                this.newWithKeysValues(),
+                chainOfTwo);
+
         // Removing through values() keeps the remaining keys in order
         Map<String, Integer> orderedMap = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
         orderedMap.values().remove(2);
