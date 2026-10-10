@@ -787,7 +787,7 @@ final class ImmutableEmptyStack<T>
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return -1;
     }
 
     @Override
