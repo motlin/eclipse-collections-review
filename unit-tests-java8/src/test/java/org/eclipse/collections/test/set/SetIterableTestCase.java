@@ -10,9 +10,14 @@
 
 package org.eclipse.collections.test.set;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+
+import org.eclipse.collections.api.factory.Bags;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.ParallelSetIterable;
 import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.impl.test.Verify;
 import org.eclipse.collections.test.CollisionsTestCase;
@@ -23,6 +28,9 @@ import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesNotEqual;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public interface SetIterableTestCase extends RichIterableUniqueTestCase, CollisionsTestCase
 {
@@ -90,5 +98,27 @@ public interface SetIterableTestCase extends RichIterableUniqueTestCase, Collisi
     {
         SetIterable<Integer> union = this.newWith(3, 2, 1).union(this.newWith(5, 4, 3));
         assertIterablesEqual(this.newWith(5, 4, 3, 2, 1), union);
+    }
+
+    @Test
+    default void SetIterable_asParallel()
+    {
+        ExecutorService executorService = ForkJoinPool.commonPool();
+
+        // A batch size of 3 splits the 10 elements into several batches, the last one partial
+        ParallelSetIterable<Integer> parallel = this.newWith(10, 9, 8, 7, 6, 5, 4, 3, 2, 1).asParallel(executorService, 3);
+        assertEquals(Sets.mutable.with(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), parallel.toSet());
+        assertEquals(Sets.mutable.with(10, 8, 6, 4, 2), parallel.select(each -> each % 2 == 0).toSet());
+        assertEquals(Sets.mutable.with(9, 7, 5, 3, 1), parallel.reject(each -> each % 2 == 0).toSet());
+        assertEquals(Bags.mutable.with(1, 0, 2, 1, 0, 2, 1, 0, 2, 1), parallel.collect(each -> each % 3).toBag());
+        assertEquals(7, parallel.count(each -> each > 3));
+        assertTrue(parallel.anySatisfy(each -> each == 1));
+        assertFalse(parallel.anySatisfy(each -> each > 10));
+        assertTrue(parallel.allSatisfy(each -> each > 0));
+        assertFalse(parallel.allSatisfy(each -> each > 1));
+        assertEquals(Integer.valueOf(1), parallel.detect(each -> each == 1));
+        assertNull(parallel.detect(each -> each > 10));
+
+        assertEquals(Sets.mutable.empty(), this.<Integer>newWith().asParallel(executorService, 3).toSet());
     }
 }

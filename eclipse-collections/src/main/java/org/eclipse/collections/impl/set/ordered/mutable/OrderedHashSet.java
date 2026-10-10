@@ -69,6 +69,16 @@ import org.eclipse.collections.impl.block.procedure.PartitionPredicate2Procedure
 import org.eclipse.collections.impl.block.procedure.PartitionProcedure;
 import org.eclipse.collections.impl.block.procedure.SelectInstancesOfProcedure;
 import org.eclipse.collections.impl.collection.mutable.AbstractMutableCollection;
+import org.eclipse.collections.impl.lazy.AbstractLazyIterable;
+import org.eclipse.collections.impl.lazy.parallel.AbstractBatch;
+import org.eclipse.collections.impl.lazy.parallel.AbstractParallelIterable;
+import org.eclipse.collections.impl.lazy.parallel.bag.CollectUnsortedBagBatch;
+import org.eclipse.collections.impl.lazy.parallel.bag.FlatCollectUnsortedBagBatch;
+import org.eclipse.collections.impl.lazy.parallel.bag.UnsortedBagBatch;
+import org.eclipse.collections.impl.lazy.parallel.set.AbstractParallelUnsortedSetIterable;
+import org.eclipse.collections.impl.lazy.parallel.set.RootUnsortedSetBatch;
+import org.eclipse.collections.impl.lazy.parallel.set.SelectUnsortedSetBatch;
+import org.eclipse.collections.impl.lazy.parallel.set.UnsortedSetBatch;
 import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.partition.set.ordered.PartitionOrderedSetAdapter;
 import org.eclipse.collections.impl.utility.Iterate;
@@ -593,6 +603,211 @@ public class OrderedHashSet<T>
             OrderedHashSet.this.remove(OrderedHashSet.this.elementAt(this.position - 1));
             this.count--;
             this.lastReturned = false;
+        }
+    }
+
+    private final class OrderedHashSetParallelUnsortedIterable extends AbstractParallelUnsortedSetIterable<T, RootUnsortedSetBatch<T>>
+    {
+        private final ExecutorService executorService;
+        private final int batchSize;
+
+        private OrderedHashSetParallelUnsortedIterable(ExecutorService executorService, int batchSize)
+        {
+            this.executorService = executorService;
+            this.batchSize = batchSize;
+        }
+
+        @Override
+        public ExecutorService getExecutorService()
+        {
+            return this.executorService;
+        }
+
+        @Override
+        public int getBatchSize()
+        {
+            return this.batchSize;
+        }
+
+        @Override
+        public LazyIterable<RootUnsortedSetBatch<T>> split()
+        {
+            return new OrderedHashSetParallelSplitLazyIterable();
+        }
+
+        @Override
+        public void forEach(Procedure<? super T> procedure)
+        {
+            AbstractParallelIterable.forEach(this, procedure);
+        }
+
+        @Override
+        public boolean anySatisfy(Predicate<? super T> predicate)
+        {
+            return AbstractParallelIterable.anySatisfy(this, predicate);
+        }
+
+        @Override
+        public boolean allSatisfy(Predicate<? super T> predicate)
+        {
+            return AbstractParallelIterable.allSatisfy(this, predicate);
+        }
+
+        @Override
+        public T detect(Predicate<? super T> predicate)
+        {
+            return AbstractParallelIterable.detect(this, predicate);
+        }
+
+        @Override
+        public Object[] toArray()
+        {
+            return OrderedHashSet.this.toArray();
+        }
+
+        @Override
+        public <E> E[] toArray(E[] array)
+        {
+            return OrderedHashSet.this.toArray(array);
+        }
+
+        private final class OrderedHashSetParallelSplitIterator implements Iterator<RootUnsortedSetBatch<T>>
+        {
+            private int chunkStartIndex;
+
+            @Override
+            public boolean hasNext()
+            {
+                return this.chunkStartIndex < OrderedHashSet.this.orderedElementsOccupied;
+            }
+
+            @Override
+            public RootUnsortedSetBatch<T> next()
+            {
+                if (!this.hasNext())
+                {
+                    throw new NoSuchElementException();
+                }
+                int remaining = OrderedHashSet.this.orderedElementsOccupied - this.chunkStartIndex;
+                int chunkEndIndex = this.chunkStartIndex + Math.min(OrderedHashSetParallelUnsortedIterable.this.batchSize, remaining);
+                RootUnsortedSetBatch<T> batch = new OrderedHashSetBatch(this.chunkStartIndex, chunkEndIndex);
+                this.chunkStartIndex = chunkEndIndex;
+                return batch;
+            }
+
+            @Override
+            public void remove()
+            {
+                throw new UnsupportedOperationException("Cannot call remove() on " + this.getClass().getSimpleName());
+            }
+        }
+
+        private final class OrderedHashSetParallelSplitLazyIterable
+                extends AbstractLazyIterable<RootUnsortedSetBatch<T>>
+        {
+            @Override
+            public void each(Procedure<? super RootUnsortedSetBatch<T>> procedure)
+            {
+                for (RootUnsortedSetBatch<T> chunk : this)
+                {
+                    procedure.value(chunk);
+                }
+            }
+
+            @Override
+            public Iterator<RootUnsortedSetBatch<T>> iterator()
+            {
+                return new OrderedHashSetParallelSplitIterator();
+            }
+        }
+    }
+
+    private final class OrderedHashSetBatch extends AbstractBatch<T> implements RootUnsortedSetBatch<T>
+    {
+        private final int chunkStartIndex;
+        private final int chunkEndIndex;
+
+        private OrderedHashSetBatch(int chunkStartIndex, int chunkEndIndex)
+        {
+            this.chunkStartIndex = chunkStartIndex;
+            this.chunkEndIndex = chunkEndIndex;
+        }
+
+        @Override
+        public void forEach(Procedure<? super T> procedure)
+        {
+            Object[] localElements = OrderedHashSet.this.orderedElements;
+            for (int i = this.chunkStartIndex; i < this.chunkEndIndex; i++)
+            {
+                if (isLive(localElements[i]))
+                {
+                    procedure.value(toNonSentinel(localElements[i]));
+                }
+            }
+        }
+
+        @Override
+        public boolean anySatisfy(Predicate<? super T> predicate)
+        {
+            Object[] localElements = OrderedHashSet.this.orderedElements;
+            for (int i = this.chunkStartIndex; i < this.chunkEndIndex; i++)
+            {
+                if (isLive(localElements[i]) && predicate.accept(toNonSentinel(localElements[i])))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean allSatisfy(Predicate<? super T> predicate)
+        {
+            Object[] localElements = OrderedHashSet.this.orderedElements;
+            for (int i = this.chunkStartIndex; i < this.chunkEndIndex; i++)
+            {
+                if (isLive(localElements[i]) && !predicate.accept(toNonSentinel(localElements[i])))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public T detect(Predicate<? super T> predicate)
+        {
+            Object[] localElements = OrderedHashSet.this.orderedElements;
+            for (int i = this.chunkStartIndex; i < this.chunkEndIndex; i++)
+            {
+                if (isLive(localElements[i]))
+                {
+                    T element = toNonSentinel(localElements[i]);
+                    if (predicate.accept(element))
+                    {
+                        return element;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public UnsortedSetBatch<T> select(Predicate<? super T> predicate)
+        {
+            return new SelectUnsortedSetBatch<>(this, predicate);
+        }
+
+        @Override
+        public <V> UnsortedBagBatch<V> collect(Function<? super T, ? extends V> function)
+        {
+            return new CollectUnsortedBagBatch<>(this, function);
+        }
+
+        @Override
+        public <V> UnsortedBagBatch<V> flatCollect(Function<? super T, ? extends Iterable<V>> function)
+        {
+            return new FlatCollectUnsortedBagBatch<>(this, function);
         }
     }
 
@@ -1209,7 +1424,12 @@ public class OrderedHashSet<T>
     @Override
     public ParallelSetIterable<T> asParallel(ExecutorService executorService, int batchSize)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asParallel() not implemented yet");
+        Objects.requireNonNull(executorService);
+        if (batchSize < 1)
+        {
+            throw new IllegalArgumentException("batchSize must be greater than zero, but was: " + batchSize);
+        }
+        return new OrderedHashSetParallelUnsortedIterable(executorService, batchSize);
     }
 
     @Override
