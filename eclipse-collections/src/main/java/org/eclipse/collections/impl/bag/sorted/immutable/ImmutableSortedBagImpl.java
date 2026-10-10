@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -790,6 +791,20 @@ class ImmutableSortedBagImpl<T>
         }
 
         return output.toImmutable();
+    }
+
+    @Override
+    public ImmutableSortedBag<T> toReversed()
+    {
+        int length = this.elements.length;
+        T[] reversedElements = (T[]) new Object[length];
+        int[] reversedOccurrences = new int[length];
+        for (int i = 0; i < length; i++)
+        {
+            reversedElements[i] = this.elements[length - 1 - i];
+            reversedOccurrences[i] = this.occurrences[length - 1 - i];
+        }
+        return new ImmutableSortedBagImpl<>(reversedElements, reversedOccurrences, Collections.reverseOrder(this.comparator));
     }
 
     @Override
