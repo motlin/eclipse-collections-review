@@ -69,6 +69,7 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
+import org.eclipse.collections.impl.stack.mutable.ArrayStack;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.MapIterate;
 
@@ -370,7 +371,7 @@ public abstract class AbstractMutableSortedMap<K, V> extends AbstractMutableMapI
     @Override
     public MutableStack<V> toStack()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toStack() not implemented yet");
+        return ArrayStack.newStack(this.values());
     }
 
     @Override

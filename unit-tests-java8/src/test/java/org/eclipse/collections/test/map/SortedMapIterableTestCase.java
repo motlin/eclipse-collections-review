@@ -161,14 +161,6 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
 
     @Override
     @Test
-    default void OrderedIterable_toStack()
-    {
-        // TODO Support toStack() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toStack());
-    }
-
-    @Override
-    @Test
     default void OrderedIterable_detectIndex()
     {
         // TODO Support detectIndex() for sorted maps.

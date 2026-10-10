@@ -1354,7 +1354,7 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public MutableStack<V> toStack()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toStack() not implemented yet");
+        return this.getMutableSortedMap().toStack();
     }
 
     @Override
