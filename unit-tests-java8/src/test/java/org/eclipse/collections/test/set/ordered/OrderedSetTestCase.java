@@ -13,11 +13,13 @@ package org.eclipse.collections.test.set.ordered;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.OrderedSets;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.multimap.orderedset.OrderedSetMultimap;
 import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
 import org.eclipse.collections.api.set.ordered.OrderedSet;
 import org.eclipse.collections.api.stack.MutableStack;
 import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.list.Interval;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.OrderedIterableTestCase;
 import org.eclipse.collections.test.list.TransformsToListTrait;
@@ -53,6 +55,22 @@ public interface OrderedSetTestCase extends SetIterableTestCase, OrderedIterable
     {
         SetIterable<Integer> union = this.newWith(3, 2, 1).union(this.newWith(5, 4, 3));
         assertIterablesEqual(this.newWith(3, 2, 1, 5, 4), union);
+    }
+
+    @Override
+    @Test
+    default void RichIterable_groupBy()
+    {
+        SetIterableTestCase.super.RichIterable_groupBy();
+
+        // Each group is an ordered set that keeps the source iteration order
+        OrderedSetMultimap<Boolean, Integer> groupBy = this.newWith(4, 3, 2, 1).groupBy(each -> each % 2 != 0);
+        assertIterablesEqual(OrderedSets.immutable.with(3, 1), groupBy.get(true));
+        assertIterablesEqual(OrderedSets.immutable.with(4, 2), groupBy.get(false));
+
+        OrderedSetMultimap<Integer, Integer> groupByEach = this.newWith(4, 3, 2, 1).groupByEach(each -> Interval.fromTo(-1, -each));
+        assertIterablesEqual(OrderedSets.immutable.with(4, 3, 2, 1), groupByEach.get(-1));
+        assertIterablesEqual(OrderedSets.immutable.with(4, 3), groupByEach.get(-3));
     }
 
     @Test

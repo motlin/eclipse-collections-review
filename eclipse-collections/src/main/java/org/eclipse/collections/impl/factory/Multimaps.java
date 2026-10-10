@@ -17,6 +17,8 @@ import org.eclipse.collections.api.multimap.bag.ImmutableBagMultimap;
 import org.eclipse.collections.api.multimap.bag.MutableBagMultimap;
 import org.eclipse.collections.api.multimap.list.ImmutableListMultimap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
+import org.eclipse.collections.api.multimap.orderedset.ImmutableOrderedSetMultimap;
+import org.eclipse.collections.api.multimap.orderedset.MutableOrderedSetMultimap;
 import org.eclipse.collections.api.multimap.set.ImmutableSetMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.multimap.sortedbag.ImmutableSortedBagMultimap;
@@ -31,6 +33,8 @@ import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.multimap.list.ImmutableListMultimapImpl;
 import org.eclipse.collections.impl.multimap.set.ImmutableSetMultimapImpl;
 import org.eclipse.collections.impl.multimap.set.UnifiedSetMultimap;
+import org.eclipse.collections.impl.multimap.set.ordered.ImmutableOrderedSetMultimapImpl;
+import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.multimap.set.sorted.ImmutableSortedSetMultimapImpl;
 import org.eclipse.collections.impl.multimap.set.sorted.TreeSortedSetMultimap;
 
@@ -51,6 +55,7 @@ public final class Multimaps
         public final ImmutableListMultimapFactory list = new ImmutableListMultimapFactory();
         public final ImmutableSetMultimapFactory set = new ImmutableSetMultimapFactory();
         public final ImmutableSortedSetMultimapFactory sortedSet = new ImmutableSortedSetMultimapFactory();
+        public final ImmutableOrderedSetMultimapFactory orderedSet = new ImmutableOrderedSetMultimapFactory();
         public final ImmutableBagMultimapFactory bag = new ImmutableBagMultimapFactory();
         public final ImmutableSortedBagMultimapFactory sortedBag = new ImmutableSortedBagMultimapFactory();
         /**
@@ -236,6 +241,69 @@ public final class Multimaps
                 treeSortedSetMultimap.put(key2, value2);
                 treeSortedSetMultimap.put(key3, value3);
                 return treeSortedSetMultimap.toImmutable();
+            }
+        }
+
+        public static final class ImmutableOrderedSetMultimapFactory
+        {
+            private static final ImmutableOrderedSetMultimap<Object, Object> EMPTY = new ImmutableOrderedSetMultimapImpl<>(Maps.immutable.with());
+
+            private ImmutableOrderedSetMultimapFactory()
+            {
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> empty()
+            {
+                return (ImmutableOrderedSetMultimap<K, V>) EMPTY;
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> of()
+            {
+                return this.empty();
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> with()
+            {
+                return this.empty();
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> of(K key, V value)
+            {
+                return this.with(key, value);
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> with(K key, V value)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key, value);
+                return orderedHashSetMultimap.toImmutable();
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> of(K key1, V value1, K key2, V value2)
+            {
+                return this.with(key1, value1, key2, value2);
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> with(K key1, V value1, K key2, V value2)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key1, value1);
+                orderedHashSetMultimap.put(key2, value2);
+                return orderedHashSetMultimap.toImmutable();
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> of(K key1, V value1, K key2, V value2, K key3, V value3)
+            {
+                return this.with(key1, value1, key2, value2, key3, value3);
+            }
+
+            public <K, V> ImmutableOrderedSetMultimap<K, V> with(K key1, V value1, K key2, V value2, K key3, V value3)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key1, value1);
+                orderedHashSetMultimap.put(key2, value2);
+                orderedHashSetMultimap.put(key3, value3);
+                return orderedHashSetMultimap.toImmutable();
             }
         }
 
@@ -447,6 +515,7 @@ public final class Multimaps
         public final MutableListMultimapFactory list = new MutableListMultimapFactory();
         public final MutableSetMultimapFactory set = new MutableSetMultimapFactory();
         public final MutableSortedSetMultimapFactory sortedSet = new MutableSortedSetMultimapFactory();
+        public final MutableOrderedSetMultimapFactory orderedSet = new MutableOrderedSetMultimapFactory();
         public final MutableBagMultimapFactory bag = new MutableBagMultimapFactory();
         public final MutableSortedBagMultimapFactory sortedBag = new MutableSortedBagMultimapFactory();
 
@@ -644,6 +713,72 @@ public final class Multimaps
             public <K, V> MutableSortedSetMultimap<K, V> withAll(Multimap<? extends K, ? extends V> multimap)
             {
                 return new TreeSortedSetMultimap<>(multimap);
+            }
+        }
+
+        public static final class MutableOrderedSetMultimapFactory
+        {
+            private MutableOrderedSetMultimapFactory()
+            {
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> empty()
+            {
+                return OrderedHashSetMultimap.newMultimap();
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> of()
+            {
+                return this.empty();
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> with()
+            {
+                return this.empty();
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> of(K key, V value)
+            {
+                return this.with(key, value);
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> with(K key, V value)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key, value);
+                return orderedHashSetMultimap;
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> of(K key1, V value1, K key2, V value2)
+            {
+                return this.with(key1, value1, key2, value2);
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> with(K key1, V value1, K key2, V value2)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key1, value1);
+                orderedHashSetMultimap.put(key2, value2);
+                return orderedHashSetMultimap;
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> of(K key1, V value1, K key2, V value2, K key3, V value3)
+            {
+                return this.with(key1, value1, key2, value2, key3, value3);
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> with(K key1, V value1, K key2, V value2, K key3, V value3)
+            {
+                OrderedHashSetMultimap<K, V> orderedHashSetMultimap = OrderedHashSetMultimap.newMultimap();
+                orderedHashSetMultimap.put(key1, value1);
+                orderedHashSetMultimap.put(key2, value2);
+                orderedHashSetMultimap.put(key3, value3);
+                return orderedHashSetMultimap;
+            }
+
+            public <K, V> MutableOrderedSetMultimap<K, V> withAll(Multimap<? extends K, ? extends V> multimap)
+            {
+                return new OrderedHashSetMultimap<>(multimap);
             }
         }
 
