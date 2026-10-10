@@ -31,6 +31,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.factory.SortedMaps;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
@@ -337,5 +338,11 @@ final class ImmutableEmptySortedMap<K, V>
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
         ListIterate.rangeCheck(fromIndex, toIndex, 0);
+    }
+
+    @Override
+    public ImmutableList<V> distinct()
+    {
+        return Lists.immutable.empty();
     }
 }

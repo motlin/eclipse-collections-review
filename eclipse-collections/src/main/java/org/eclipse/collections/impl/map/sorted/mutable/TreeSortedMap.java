@@ -528,7 +528,7 @@ public class TreeSortedMap<K, V>
     @Override
     public MutableList<V> distinct()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".distinct() not implemented yet");
+        return this.asLazy().distinct().toList();
     }
 
     @Override
