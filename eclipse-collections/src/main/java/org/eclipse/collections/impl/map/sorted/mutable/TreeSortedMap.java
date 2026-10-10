@@ -411,6 +411,21 @@ public class TreeSortedMap<K, V>
     }
 
     @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        int index = this.treeMap.size() - 1;
+        for (V each : this.treeMap.descendingMap().values())
+        {
+            if (predicate.accept(each))
+            {
+                return index;
+            }
+            index--;
+        }
+        return -1;
+    }
+
+    @Override
     public MutableSortedMap<K, V> take(int count)
     {
         if (count < 0)
