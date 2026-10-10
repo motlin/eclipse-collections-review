@@ -370,6 +370,81 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
             assertEquals("b3", map.get(b));
         }
 
+        // Compaction keeps the current capacity while it leaves free slots for at least a quarter of the live entries.
+        {
+            // A 16-slot index table has 10 dense slots. With 8 live entries, compacting leaves 2 free, exactly a quarter.
+            OrderedHashMap<HashCountingKey, Integer> map = new OrderedHashMap<>(10);
+            List<HashCountingKey> hashKeys = new ArrayList<>();
+            for (int i = 0; i < 10; i++)
+            {
+                hashKeys.add(new HashCountingKey(i));
+                map.put(hashKeys.get(i), i);
+            }
+            map.removeKey(hashKeys.get(0));
+            map.removeKey(hashKeys.get(1));
+            assertEquals(8, map.size());
+            assertEquals(16, getIndicesHashTableLength(map));
+            assertEquals(10, getOrderedKeyValuesOccupied(map));
+
+            hashKeys.forEach(key -> key.hashCodeCalls = 0);
+            map.put(hashKeys.get(0), 10);
+            // Compaction hashes no key; key 0 is hashed by the probe before and after it.
+            List<Integer> hashCodeCalls = new ArrayList<>();
+            for (HashCountingKey key : hashKeys)
+            {
+                hashCodeCalls.add(key.hashCodeCalls);
+            }
+            assertEquals(List.of(2, 0, 0, 0, 0, 0, 0, 0, 0, 0), hashCodeCalls);
+            assertEquals(16, getIndicesHashTableLength(map));
+            assertEquals(20, getOrderedKeyValuesLength(map));
+            assertEquals(9, getOrderedKeyValuesOccupied(map));
+            List<HashCountingKey> expectedKeys = new ArrayList<>(hashKeys.subList(2, 10));
+            expectedKeys.add(hashKeys.get(0));
+            assertEquals(expectedKeys, new ArrayList<>(map.keySet()));
+            assertEquals(List.of(2, 3, 4, 5, 6, 7, 8, 9, 10), new ArrayList<>(map.values()));
+
+            // Removing and re-adding one interior key at a time, the 9-entry map compacts every 2 cycles, (size - 1) / 4.
+            List<Integer> occupiedAfterEachCycle = new ArrayList<>();
+            for (int i = 2; i < 6; i++)
+            {
+                map.removeKey(hashKeys.get(i));
+                map.put(hashKeys.get(i), i);
+                occupiedAfterEachCycle.add(getOrderedKeyValuesOccupied(map));
+            }
+            assertEquals(List.of(10, 9, 10, 9), occupiedAfterEachCycle);
+            assertEquals(16, getIndicesHashTableLength(map));
+            assertEquals(List.of(hashKeys.get(6), hashKeys.get(7), hashKeys.get(8), hashKeys.get(9), hashKeys.get(0), hashKeys.get(2), hashKeys.get(3), hashKeys.get(4), hashKeys.get(5)), new ArrayList<>(map.keySet()));
+            assertEquals(List.of(6, 7, 8, 9, 10, 2, 3, 4, 5), new ArrayList<>(map.values()));
+        }
+        {
+            // With 9 live entries, compacting would leave 1 free, less than a quarter, so the table grows to 32 slots.
+            OrderedHashMap<HashCountingKey, Integer> map = new OrderedHashMap<>(10);
+            List<HashCountingKey> hashKeys = new ArrayList<>();
+            for (int i = 0; i < 10; i++)
+            {
+                hashKeys.add(new HashCountingKey(i));
+                map.put(hashKeys.get(i), i);
+            }
+            map.removeKey(hashKeys.get(0));
+            assertEquals(9, map.size());
+            assertEquals(16, getIndicesHashTableLength(map));
+            assertEquals(10, getOrderedKeyValuesOccupied(map));
+
+            hashKeys.forEach(key -> key.hashCodeCalls = 0);
+            map.put(hashKeys.get(0), 10);
+            // The rehash hashes every other live key once.
+            List<Integer> hashCodeCalls = new ArrayList<>();
+            for (HashCountingKey key : hashKeys)
+            {
+                hashCodeCalls.add(key.hashCodeCalls);
+            }
+            assertEquals(List.of(2, 1, 1, 1, 1, 1, 1, 1, 1, 1), hashCodeCalls);
+            assertEquals(32, getIndicesHashTableLength(map));
+            assertEquals(42, getOrderedKeyValuesLength(map));
+            assertEquals(10, getOrderedKeyValuesOccupied(map));
+            assertEquals(10, getIndicesHashTableOccupied(map));
+        }
+
         // Delete-heavy churn reuses the same capacity instead of growing.
         {
             OrderedHashMap<String, Integer> map = new OrderedHashMap<>();
@@ -617,8 +692,9 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         assertEquals(6, capacityMap.size());
         assertEquals(10, getOrderedKeyValuesOccupied(capacityMap));
 
+        // Compacting leaves 4 free slots for 6 live entries, at least a quarter, so the table keeps its capacity.
         capacityMap.put(101, 101);
-        assertEquals(32, getIndicesHashTableLength(capacityMap));
+        assertEquals(16, getIndicesHashTableLength(capacityMap));
         assertEquals(7, getOrderedKeyValuesOccupied(capacityMap));
 
         // Hash collision: remove first colliding key, second still reachable
