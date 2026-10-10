@@ -11,7 +11,6 @@
 package org.eclipse.collections.test.list.mutable;
 
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.CompositeFastList;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -43,20 +42,5 @@ public class CompositeFastListTest implements MutableListTestCase
     {
         // TODO: Implement CompositeFastList.clone().
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).clone());
-    }
-
-    @Override
-    @Test
-    public void List_subList_subList_addAll()
-    {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith("A", "B", "C", "D").subList(0, 3).subList(0, 2).addAll(0, Lists.mutable.with("E")));
-    }
-
-    @Override
-    @Test
-    public void List_addAll()
-    {
-        // TODO: Implement CompositeFastList.addAll(int, Collection).
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).addAll(1, Lists.mutable.with(8, 9)));
     }
 }
