@@ -97,6 +97,7 @@ import org.eclipse.collections.impl.lazy.EmptyLazyIterable;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.ListIterate;
 
 final class ImmutableEmptyStack<T>
         extends AbstractRichIterable<T>
@@ -774,7 +775,7 @@ final class ImmutableEmptyStack<T>
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, 0);
     }
 
     @Override

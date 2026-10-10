@@ -106,6 +106,7 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack;
 import org.eclipse.collections.impl.utility.LazyIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
 
 /**
@@ -1248,7 +1249,9 @@ public class ArrayStack<T> implements MutableStack<T>, Externalizable
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, this.delegate.size());
+        int lastIndex = this.delegate.size() - 1;
+        this.delegate.forEach(lastIndex - startIndex, lastIndex - endIndex, procedure);
     }
 
     @Override

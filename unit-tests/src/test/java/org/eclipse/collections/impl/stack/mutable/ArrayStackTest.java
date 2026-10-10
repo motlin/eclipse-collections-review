@@ -94,13 +94,6 @@ public class ArrayStackTest extends MutableStackTestCase
     }
 
     @Test
-    public void forEach_exception()
-    {
-        MutableStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.forEach(0, 1, null));
-    }
-
-    @Test
     public void forEachWithIndex_exception()
     {
         MutableStack<Object> arrayStack = new ArrayStack<>();
