@@ -1288,7 +1288,7 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public MutableSortedMap<K, V> toReversed()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
+        return this.getMutableSortedMap().toReversed();
     }
 
     @Override
