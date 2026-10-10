@@ -42,12 +42,6 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     }
 
     @Override
-    default boolean supportsForEachFromToReverseIteration()
-    {
-        return false;
-    }
-
-    @Override
     default <T> SortedBag<T> getExpectedFiltered(T... elements)
     {
         return new TreeBag<>(Comparators.reverseNaturalOrder(), Lists.immutable.with(elements));
@@ -136,23 +130,15 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO: Support toReversed() for sorted bags.
+        // TODO Support toReversed() for sorted bags.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
-    }
-
-    @Override
-    @Test
-    default void ReversibleIterable_reverseForEach()
-    {
-        // TODO: Support reverseForEach() for sorted bags, which rejects the reversed index range it delegates to.
-        assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
 
     @Override
     @Test
     default void ReversibleIterable_detectLastIndex()
     {
-        // TODO: Support detectLastIndex() for sorted bags.
+        // TODO Support detectLastIndex() for sorted bags.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
     }
 
