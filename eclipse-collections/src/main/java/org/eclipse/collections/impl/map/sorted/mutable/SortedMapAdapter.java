@@ -14,10 +14,12 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.SortedMap;
 import java.util.function.BiFunction;
 
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.SortedMaps;
@@ -32,6 +34,7 @@ import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.utility.ArrayIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.MapIterate;
 
 /**
@@ -171,6 +174,40 @@ public class SortedMapAdapter<K, V>
     public MutableSortedMap<K, V> subMap(K fromKey, K toKey)
     {
         return SortedMapAdapter.adapt(this.delegate.subMap(fromKey, toKey));
+    }
+
+    @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ListIterate.rangeCheck(startIndex, endIndex, this.delegate.size());
+        if (startIndex <= endIndex)
+        {
+            Iterator<V> iterator = this.delegate.values().iterator();
+            for (int i = 0; i < startIndex; i++)
+            {
+                iterator.next();
+            }
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                procedure.value(iterator.next());
+            }
+        }
+        else if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            Iterator<V> iterator = navigableMap.descendingMap().values().iterator();
+            for (int i = navigableMap.size() - 1; i > startIndex; i--)
+            {
+                iterator.next();
+            }
+            for (int i = startIndex; i >= endIndex; i--)
+            {
+                procedure.value(iterator.next());
+            }
+        }
+        else
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() with a reverse range not implemented yet for a SortedMap that is not a NavigableMap");
+        }
     }
 
     @Override
