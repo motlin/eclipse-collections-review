@@ -47,13 +47,6 @@ public class CompositeFastListTest extends AbstractListTestCase
         return result;
     }
 
-    @Override
-    @Test
-    public void testClone()
-    {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith().clone());
-    }
-
     @Test
     public void size()
     {
