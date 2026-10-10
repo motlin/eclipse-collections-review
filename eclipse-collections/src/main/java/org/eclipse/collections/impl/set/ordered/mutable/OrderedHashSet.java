@@ -16,7 +16,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -1199,13 +1198,13 @@ public class OrderedHashSet<T>
     @Override
     public MutableOrderedSet<T> asUnmodifiable()
     {
-        return OrderedSetAdapter.adapt(Collections.unmodifiableSet(this));
+        return UnmodifiableMutableOrderedSet.of(this);
     }
 
     @Override
     public MutableOrderedSet<T> asSynchronized()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asSynchronized() not implemented yet");
+        return SynchronizedMutableOrderedSet.of(this);
     }
 
     @Override
