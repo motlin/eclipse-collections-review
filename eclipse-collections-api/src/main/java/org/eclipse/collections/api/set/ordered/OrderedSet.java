@@ -162,4 +162,7 @@ public interface OrderedSet<T>
 
     @Override
     OrderedSet<T> drop(int count);
+
+    @Override
+    ImmutableOrderedSet<T> toImmutable();
 }
