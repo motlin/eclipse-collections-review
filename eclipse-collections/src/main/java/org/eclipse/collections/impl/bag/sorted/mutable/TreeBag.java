@@ -704,7 +704,21 @@ public class TreeBag<T>
             throw new IllegalArgumentException("Count must be greater than zero, but was: " + count);
         }
 
-        return IterableIterate.drop(this, count, this.newEmpty());
+        MutableSortedBag<T> result = this.newEmpty();
+        Counter remaining = new Counter(count);
+        this.items.forEachKeyValue((key, value) -> {
+            int occurrences = value.getCount();
+            if (remaining.getCount() >= occurrences)
+            {
+                remaining.add(-occurrences);
+            }
+            else
+            {
+                result.addOccurrences(key, occurrences - remaining.getCount());
+                remaining.reset();
+            }
+        });
+        return result;
     }
 
     @Override
