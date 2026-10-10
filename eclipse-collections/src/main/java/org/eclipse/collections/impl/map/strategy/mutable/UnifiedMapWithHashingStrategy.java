@@ -3652,6 +3652,12 @@ public class UnifiedMapWithHashingStrategy<K, V> extends AbstractMutableMap<K, V
         }
 
         @Override
+        public void forEach(Consumer<? super V> action)
+        {
+            UnifiedMapWithHashingStrategy.this.forEachValue(action::accept);
+        }
+
+        @Override
         public void forEach(Procedure<? super V> procedure)
         {
             UnifiedMapWithHashingStrategy.this.forEachValue(procedure);
