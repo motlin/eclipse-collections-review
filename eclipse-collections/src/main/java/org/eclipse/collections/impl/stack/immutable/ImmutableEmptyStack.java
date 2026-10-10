@@ -781,7 +781,7 @@ final class ImmutableEmptyStack<T>
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, 0);
     }
 
     @Override
