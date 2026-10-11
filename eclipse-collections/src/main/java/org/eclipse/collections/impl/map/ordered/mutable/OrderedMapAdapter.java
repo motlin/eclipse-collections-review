@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -545,7 +546,32 @@ public class OrderedMapAdapter<K, V>
     @Override
     public int detectLastIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectLastIndex() not implemented yet");
+        if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            int i = navigableMap.size() - 1;
+            for (V each : navigableMap.descendingMap().values())
+            {
+                if (predicate.accept(each))
+                {
+                    return i;
+                }
+                i--;
+            }
+            return -1;
+        }
+
+        // Cannot short-circuit: LinkedHashMap has no reverse view before Java 21's SequencedMap.reversed(), and the library compiles with --release 17.
+        int result = -1;
+        int i = 0;
+        for (V each : this.delegate.values())
+        {
+            if (predicate.accept(each))
+            {
+                result = i;
+            }
+            i++;
+        }
+        return result;
     }
 
     @Override
