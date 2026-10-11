@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.eclipse.collections.impl.map.ordered.mutable.UnmodifiableMutableOrderedMap;
@@ -27,6 +29,7 @@ import org.eclipse.collections.test.map.mutable.UnmodifiableMutableMapIterableTe
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -252,8 +255,14 @@ public class UnmodifiableMutableOrderedMapTest
     @Test
     public void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for OrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).forEach(0, 1, each -> { }));
+        MutableOrderedMap<Integer, Integer> map = this.newWithKeysValues(1, 10, 2, 20, 3, 30);
+
+        MutableList<Integer> forward = Lists.mutable.empty();
+        map.forEach(1, 2, forward::add);
+        assertIterablesEqual(Lists.immutable.with(20, 30), forward);
+
+        // TODO Support reverse ranges for OrderedMapAdapter without copying.
+        assertThrows(UnsupportedOperationException.class, () -> map.forEach(2, 1, each -> { }));
     }
 
     @Override
@@ -268,7 +277,7 @@ public class UnmodifiableMutableOrderedMapTest
     @Test
     public void ReversibleIterable_reverseForEach()
     {
-        // TODO Support reverseForEach for OrderedMapAdapter (depends on forEach(int, int)).
+        // TODO Support reverseForEach for OrderedMapAdapter (depends on reverse ranges in forEach(int, int)).
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
 
