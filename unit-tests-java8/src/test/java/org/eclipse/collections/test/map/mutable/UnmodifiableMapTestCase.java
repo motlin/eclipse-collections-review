@@ -137,6 +137,8 @@ public interface UnmodifiableMapTestCase extends MapTestCase
 
         assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(1, "One"));
         assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(4, "4"));
+        assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(1, null));
+        assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(4, null));
         assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
     }
 
@@ -163,6 +165,8 @@ public interface UnmodifiableMapTestCase extends MapTestCase
         assertThrows(UnsupportedOperationException.class, () -> map.replace(2, "2", "Two"));
         assertThrows(UnsupportedOperationException.class, () -> map.replace(3, "wrong", "Three"));
         assertThrows(UnsupportedOperationException.class, () -> map.replace(4, "4", "Four"));
+        assertThrows(UnsupportedOperationException.class, () -> map.replace(1, null));
+        assertThrows(UnsupportedOperationException.class, () -> map.replace(1, "1", null));
         assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
     }
 
@@ -239,6 +243,12 @@ public interface UnmodifiableMapTestCase extends MapTestCase
             return null;
         }));
         assertThrows(UnsupportedOperationException.class, () -> map.merge(4, "4", (v1, v2) -> {
+            fail("Expected lambda not to be called on unmodifiable map");
+            return null;
+        }));
+        // Throws before checking for null arguments
+        assertThrows(UnsupportedOperationException.class, () -> map.merge(1, "1", null));
+        assertThrows(UnsupportedOperationException.class, () -> map.merge(1, null, (v1, v2) -> {
             fail("Expected lambda not to be called on unmodifiable map");
             return null;
         }));
