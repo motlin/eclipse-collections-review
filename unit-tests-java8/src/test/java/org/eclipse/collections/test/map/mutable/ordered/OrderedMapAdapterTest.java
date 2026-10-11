@@ -12,9 +12,13 @@ package org.eclipse.collections.test.map.mutable.ordered;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.eclipse.collections.test.map.MapKeySetTestCase;
@@ -22,6 +26,7 @@ import org.eclipse.collections.test.map.MapValuesCollectionTestCase;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -71,24 +76,82 @@ public class OrderedMapAdapterTest implements MutableOrderedMapTestCase
     @Test
     public void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for OrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).forEach(0, 1, each -> { }));
+        MutableOrderedMap<Integer, Integer> map = this.newWithKeysValues(1, 10, 2, 20, 3, 30);
+
+        MutableList<Integer> forward = Lists.mutable.empty();
+        map.forEach(1, 2, forward::add);
+        assertIterablesEqual(Lists.immutable.with(20, 30), forward);
+
+        // TODO Support reverse ranges for delegates other than NavigableMap without copying.
+        assertThrows(UnsupportedOperationException.class, () -> map.forEach(2, 1, each -> { }));
+
+        // A NavigableMap delegate walks reverse ranges through its descending view
+        MutableList<Integer> reverse = Lists.mutable.empty();
+        OrderedMapAdapter.adapt(new TreeMap<>(Map.of(1, 10, 2, 20, 3, 30, 4, 40))).forEach(2, 1, reverse::add);
+        assertIterablesEqual(Lists.immutable.with(30, 20), reverse);
     }
 
     @Override
     @Test
     public void OrderedIterable_forEachWithIndex_from_to()
     {
-        // TODO Support indexed traversal for OrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).forEachWithIndex(0, 1, (each, index) -> { }));
+        MutableOrderedMap<Integer, Integer> map = this.newWithKeysValues(1, 10, 2, 20, 3, 30);
+
+        MutableList<Integer> forward = Lists.mutable.empty();
+        MutableList<Integer> forwardIndexes = Lists.mutable.empty();
+        map.forEachWithIndex(1, 2, (each, index) ->
+        {
+            forward.add(each);
+            forwardIndexes.add(index);
+        });
+        assertIterablesEqual(Lists.immutable.with(20, 30), forward);
+        assertIterablesEqual(Lists.immutable.with(1, 2), forwardIndexes);
+
+        // TODO Support reverse ranges for delegates other than NavigableMap without copying.
+        assertThrows(UnsupportedOperationException.class, () -> map.forEachWithIndex(2, 1, (each, index) -> { }));
+
+        // A NavigableMap delegate walks reverse ranges through its descending view
+        MutableList<Integer> reverse = Lists.mutable.empty();
+        MutableList<Integer> reverseIndexes = Lists.mutable.empty();
+        OrderedMapAdapter.adapt(new TreeMap<>(Map.of(1, 10, 2, 20, 3, 30, 4, 40))).forEachWithIndex(2, 1, (each, index) ->
+        {
+            reverse.add(each);
+            reverseIndexes.add(index);
+        });
+        assertIterablesEqual(Lists.immutable.with(30, 20), reverse);
+        assertIterablesEqual(Lists.immutable.with(2, 1), reverseIndexes);
     }
 
     @Override
     @Test
     public void ReversibleIterable_reverseForEach()
     {
-        // TODO Support reverseForEach for OrderedMapAdapter (depends on forEach(int, int)).
+        // TODO Support reverseForEach for delegates other than NavigableMap (depends on reverse ranges in forEach(int, int)).
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+
+        // A NavigableMap delegate walks reverse ranges through its descending view
+        MutableList<Integer> values = Lists.mutable.empty();
+        OrderedMapAdapter.adapt(new TreeMap<>(Map.of(1, 10, 2, 20, 3, 30))).reverseForEach(values::add);
+        assertIterablesEqual(Lists.immutable.with(30, 20, 10), values);
+    }
+
+    @Override
+    @Test
+    public void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO Support reverseForEachWithIndex for delegates other than NavigableMap (depends on reverse ranges in forEachWithIndex(int, int)).
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
+
+        // A NavigableMap delegate walks reverse ranges through its descending view
+        MutableList<Integer> values = Lists.mutable.empty();
+        MutableList<Integer> indexes = Lists.mutable.empty();
+        OrderedMapAdapter.adapt(new TreeMap<>(Map.of(1, 10, 2, 20, 3, 30))).reverseForEachWithIndex((each, index) ->
+        {
+            values.add(each);
+            indexes.add(index);
+        });
+        assertIterablesEqual(Lists.immutable.with(30, 20, 10), values);
+        assertIterablesEqual(Lists.immutable.with(2, 1, 0), indexes);
     }
 
     @Nested
