@@ -570,7 +570,36 @@ public class OrderedMapAdapter<K, V>
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.size());
+        if (fromIndex <= toIndex)
+        {
+            Iterator<V> iterator = this.delegate.values().iterator();
+            for (int i = 0; i <= toIndex; i++)
+            {
+                V each = iterator.next();
+                if (i >= fromIndex)
+                {
+                    objectIntProcedure.value(each, i);
+                }
+            }
+        }
+        else if (this.delegate instanceof NavigableMap)
+        {
+            NavigableMap<K, V> navigableMap = (NavigableMap<K, V>) this.delegate;
+            Iterator<V> iterator = navigableMap.descendingMap().values().iterator();
+            for (int i = navigableMap.size() - 1; i >= toIndex; i--)
+            {
+                V each = iterator.next();
+                if (i <= fromIndex)
+                {
+                    objectIntProcedure.value(each, i);
+                }
+            }
+        }
+        else
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        }
     }
 
     @Override
