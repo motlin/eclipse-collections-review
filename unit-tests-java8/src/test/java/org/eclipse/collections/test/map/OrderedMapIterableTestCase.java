@@ -183,6 +183,26 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Ordered
     }
 
     @Test
+    default void ReversibleIterable_reverseForEachWithIndex()
+    {
+        OrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
+
+        MutableList<Integer> values = Lists.mutable.empty();
+        MutableList<Integer> indexes = Lists.mutable.empty();
+        map.reverseForEachWithIndex((each, index) ->
+        {
+            values.add(each);
+            indexes.add(index);
+        });
+        assertIterablesEqual(Lists.immutable.with(3, 2, 1), values);
+        assertIterablesEqual(Lists.immutable.with(2, 1, 0), indexes);
+
+        MutableList<Integer> empty = Lists.mutable.empty();
+        this.<String, Integer>newWithKeysValues().reverseForEachWithIndex((each, index) -> empty.add(each));
+        assertIterablesEqual(Lists.immutable.empty(), empty);
+    }
+
+    @Test
     default void ReversibleIterable_asReversed()
     {
         assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).asReversed());
