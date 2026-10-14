@@ -41,17 +41,15 @@ public interface UnsortedBagTestCase extends UnorderedIterableTestCase, BagTestC
         return Bags.mutable.with(elements);
     }
 
+    @Override
     @Test
-    default void UnsortedBag_forEachWith()
+    default void InternalIterable_forEachWith()
     {
-        UnsortedBag<Integer> bag = this.newWith(3, 3, 3, 2, 2, 1);
-        MutableBag<Integer> result = Bags.mutable.with();
+        BagTestCase.super.InternalIterable_forEachWith();
+
+        // forEachWith() passes the same parameter instance for every occurrence
         Object sentinel = new Object();
-        bag.forEachWith((argument1, argument2) -> {
-            result.add(argument1);
-            assertSame(sentinel, argument2);
-        }, sentinel);
-        assertIterablesEqual(Bags.immutable.with(3, 3, 3, 2, 2, 1), result);
+        this.newWith(3, 3, 3, 2, 2, 1).forEachWith((each, parameter) -> assertSame(sentinel, parameter), sentinel);
     }
 
     @Override
