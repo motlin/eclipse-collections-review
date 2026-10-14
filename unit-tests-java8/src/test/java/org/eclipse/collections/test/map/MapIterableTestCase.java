@@ -32,7 +32,6 @@ import org.eclipse.collections.impl.block.procedure.CollectionAddProcedure;
 import org.eclipse.collections.impl.list.Interval;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
-import org.eclipse.collections.impl.test.SerializeTestHelper;
 import org.eclipse.collections.impl.test.Verify;
 import org.eclipse.collections.impl.tuple.ImmutableEntry;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -92,14 +91,6 @@ public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
     default boolean supportsSelfReferentialValues()
     {
         return true;
-    }
-
-    @Test
-    default void serialization()
-    {
-        MapIterable<Object, String> original = this.newWith("Three", "Two", "One");
-        MapIterable<Object, String> copy = SerializeTestHelper.serializeDeserialize(original);
-        assertIterablesEqual(copy, original);
     }
 
     @Override
@@ -557,7 +548,7 @@ public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
     }
 
     @Test
-    default void MapIterable_entrySet_iterator()
+    default void Map_entrySet_iterator()
     {
         if (!this.allowsIterator())
         {

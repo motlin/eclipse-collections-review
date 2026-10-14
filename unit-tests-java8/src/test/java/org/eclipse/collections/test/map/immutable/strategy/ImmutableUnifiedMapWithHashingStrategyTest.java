@@ -64,7 +64,7 @@ public class ImmutableUnifiedMapWithHashingStrategyTest implements ImmutableMapT
     }
 
     @Test
-    public void sanity()
+    public void ImmutableUnifiedMapWithHashingStrategy_constructor()
     {
         assertEquals("ImmutableUnifiedMapWithHashingStrategy", this.newWith(1, 2, 3, 4, 5).getClass().getSimpleName());
     }
