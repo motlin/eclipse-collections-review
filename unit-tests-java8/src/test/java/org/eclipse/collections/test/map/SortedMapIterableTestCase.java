@@ -20,7 +20,7 @@ import org.eclipse.collections.api.map.OrderedMap;
 import org.eclipse.collections.api.map.sorted.SortedMapIterable;
 import org.eclipse.collections.api.partition.ordered.PartitionOrderedIterable;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
-import org.eclipse.collections.test.OrderedIterableTestCase;
+import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.list.TransformsToListTrait;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public interface SortedMapIterableTestCase extends MapIterableTestCase, OrderedIterableTestCase, TransformsToListTrait
+public interface SortedMapIterableTestCase extends MapIterableTestCase, ReversibleIterableTestCase, TransformsToListTrait
 {
     @Override
     <T> SortedMapIterable<Object, T> newWith(T... elements);
@@ -189,5 +189,37 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, OrderedI
     {
         // TODO Support detectIndex() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectIndex(each -> true));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_toReversed()
+    {
+        // TODO Support toReversed() for sorted maps.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_reverseForEach()
+    {
+        // TODO Support reverseForEach() for sorted maps.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_detectLastIndex()
+    {
+        // TODO Support detectLastIndex() for sorted maps.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_asReversed()
+    {
+        // TODO Support asReversed() for sorted maps.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).asReversed());
     }
 }
