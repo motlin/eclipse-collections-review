@@ -16,12 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.map.ImmutableOrderedMap;
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.api.partition.ordered.PartitionOrderedIterable;
 import org.eclipse.collections.impl.map.ordered.mutable.SynchronizedMutableOrderedMap;
 import org.eclipse.collections.impl.test.Verify;
-import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.MutableOrderedIterableTestCase;
 import org.eclipse.collections.test.map.OrderedMapIterableTestCase;
 import org.eclipse.collections.test.map.mutable.MutableMapIterableTestCase;
@@ -367,21 +365,6 @@ public interface MutableOrderedMapTestCase extends OrderedMapIterableTestCase, M
 
     @Override
     @Test
-    default void MutableMapIterable_getIfAbsentPut()
-    {
-        MutableMapIterableTestCase.super.MutableMapIterable_getIfAbsentPut();
-
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2);
-        map.getIfAbsentPut("C", () -> 3);
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), map.keySet());
-
-        map.getIfAbsentPut("B", () -> 99);
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), map.keySet());
-        assertEquals(Integer.valueOf(2), map.get("B"));
-    }
-
-    @Override
-    @Test
     default void MutableMapIterable_updateValue()
     {
         MutableMapIterableTestCase.super.MutableMapIterable_updateValue();
@@ -408,68 +391,24 @@ public interface MutableOrderedMapTestCase extends OrderedMapIterableTestCase, M
         assertEquals(List.of(1, 3, 5), new ArrayList<>(map.values()));
     }
 
-    @Test
-    default void MutableMapIterable_newEmpty()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1);
-        MutableOrderedMap<String, Integer> empty = map.newEmpty();
-        assertTrue(empty.isEmpty());
-
-        empty.put("B", 2);
-        assertEquals(1, empty.size());
-        assertFalse(map.containsKey("B"));
-    }
-
-    @Test
-    default void MutableMapIterable_withKeyValue()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues();
-        map.withKeyValue("A", 1).withKeyValue("B", 2).withKeyValue("C", 3);
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), map.keySet());
-        assertEquals(List.of(1, 2, 3), new ArrayList<>(map.values()));
-
-        map.withKeyValue("B", 99);
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), map.keySet());
-        assertEquals(Integer.valueOf(99), map.get("B"));
-    }
-
+    @Override
     @Test
     default void MutableMapIterable_withoutKey()
     {
+        MutableMapIterableTestCase.super.MutableMapIterable_withoutKey();
+
         MutableOrderedMap<String, Integer> map = this.newWithKeysValues();
         map.withKeyValue("A", 1).withKeyValue("B", 2).withKeyValue("C", 3).withKeyValue("D", 4);
         map.withoutKey("B");
         Verify.assertIterablesEqual(Lists.immutable.with("A", "C", "D"), map.keySet());
     }
 
-    @Test
-    default void MutableMapIterable_withAllKeyValues()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues();
-        map.withKeyValue("A", 1);
-        map.withAllKeyValues(List.of(
-                Tuples.pair("B", 2),
-                Tuples.pair("C", 3),
-                Tuples.pair("D", 4)));
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C", "D"), map.keySet());
-        assertEquals(List.of(1, 2, 3, 4), new ArrayList<>(map.values()));
-    }
-
-    @Test
-    default void MutableMapIterable_withAllKeyValueArguments()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues();
-        map.withKeyValue("A", 1);
-        map.withAllKeyValueArguments(
-                Tuples.pair("B", 2),
-                Tuples.pair("C", 3));
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), map.keySet());
-        assertEquals(List.of(1, 2, 3), new ArrayList<>(map.values()));
-    }
-
+    @Override
     @Test
     default void MutableMapIterable_withoutAllKeys()
     {
+        MutableMapIterableTestCase.super.MutableMapIterable_withoutAllKeys();
+
         MutableOrderedMap<String, Integer> map = this.newWithKeysValues();
         map.withKeyValue("A", 1)
                 .withKeyValue("B", 2)
@@ -481,22 +420,12 @@ public interface MutableOrderedMapTestCase extends OrderedMapIterableTestCase, M
         assertEquals(List.of(1, 3, 5), new ArrayList<>(map.values()));
     }
 
-    @Test
-    default void MutableMapIterable_asUnmodifiable()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
-
-        MutableOrderedMap<String, Integer> unmodifiable = map.asUnmodifiable();
-        Verify.assertIterablesEqual(Lists.immutable.with("A", "B", "C"), unmodifiable.keySet());
-        assertEquals(Integer.valueOf(2), unmodifiable.get("B"));
-        assertThrows(UnsupportedOperationException.class, () -> unmodifiable.put("D", 4));
-        assertThrows(UnsupportedOperationException.class, () -> unmodifiable.removeKey("A"));
-        assertThrows(UnsupportedOperationException.class, unmodifiable::clear);
-    }
-
+    @Override
     @Test
     default void MutableMapIterable_asSynchronized()
     {
+        MutableMapIterableTestCase.super.MutableMapIterable_asSynchronized();
+
         MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
 
         MutableOrderedMap<String, Integer> synchronizedMap = map.asSynchronized();
@@ -592,15 +521,5 @@ public interface MutableOrderedMapTestCase extends OrderedMapIterableTestCase, M
             values.add(v);
         }
         assertEquals(List.of(1, 2, 3), values);
-    }
-
-    @Test
-    default void MutableOrderedMap_toImmutable()
-    {
-        MutableOrderedMap<String, Integer> mutable = this.newWithKeysValues("A", 1, "B", 2);
-        ImmutableOrderedMap<String, Integer> immutable = mutable.toImmutable();
-        mutable.put("C", 3);
-        assertEquals(3, mutable.size());
-        assertEquals(2, immutable.size());
     }
 }
