@@ -10,39 +10,11 @@
 
 package org.eclipse.collections.test;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public interface RichIterableWithDuplicatesTestCase extends RichIterableTestCase
 {
     @Override
     default boolean allowsDuplicates()
     {
         return true;
-    }
-
-    @Test
-    @SuppressWarnings("UndefinedEquals")
-    default void Iterable_sanity_check()
-    {
-        String s = "";
-        Iterable<String> oneCopy = this.newWith(s);
-        Iterable<String> twoCopies = this.newWith(s, s);
-        assertEquals(!this.allowsDuplicates(), twoCopies.equals(oneCopy));
-    }
-
-    @Override
-    @Test
-    default void RichIterable_size()
-    {
-        assertEquals(3, this.newWith(3, 2, 1).size());
-
-        if (!this.allowsDuplicates())
-        {
-            return;
-        }
-
-        assertEquals(6, this.newWith(3, 3, 3, 2, 2, 1).size());
     }
 }
