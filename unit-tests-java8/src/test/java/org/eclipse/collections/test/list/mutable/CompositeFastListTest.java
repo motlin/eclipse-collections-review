@@ -26,10 +26,13 @@ public class CompositeFastListTest implements MutableListTestCase
     public final <T> MutableList<T> newWith(T... elements)
     {
         RichIterable<RichIterable<T>> chunks = FastList.wrapCopy(elements).chunk(3);
-        MutableList<T> result = new CompositeFastList<>();
+        CompositeFastList<T> result = new CompositeFastList<>();
+        // Empty inner lists before, between, and after the chunks make every contract test skip over them
+        result.addComposited(FastList.newList());
         for (RichIterable<T> chunk : chunks)
         {
-            result.addAll(FastList.newList(chunk));
+            result.addComposited(FastList.newList(chunk));
+            result.addComposited(FastList.newList());
         }
         return result;
     }
