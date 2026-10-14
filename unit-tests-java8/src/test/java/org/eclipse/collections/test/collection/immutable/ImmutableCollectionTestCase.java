@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test;
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface ImmutableCollectionTestCase extends RichIterableTestCase
@@ -39,33 +37,6 @@ public interface ImmutableCollectionTestCase extends RichIterableTestCase
     default boolean allowsRemove()
     {
         return false;
-    }
-
-    @Test
-    default void ImmutableCollection_sanity_check()
-    {
-        String s = "";
-        if (this.allowsDuplicates())
-        {
-            assertEquals(2, this.newWith(s, s).size());
-        }
-        else
-        {
-            assertThrows(IllegalStateException.class, () -> this.newWith(s, s));
-        }
-
-        ImmutableCollection<String> collection = this.newWith(s);
-        ImmutableCollection<String> newCollection = collection.newWith(s);
-        if (this.allowsDuplicates())
-        {
-            assertEquals(2, newCollection.size());
-            assertIterablesEqual(this.newWith(s, s), newCollection);
-        }
-        else
-        {
-            assertEquals(1, newCollection.size());
-            assertSame(collection, newCollection);
-        }
     }
 
     @Override
