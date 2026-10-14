@@ -36,6 +36,12 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     <T> SortedBag<T> newWith(T... elements);
 
     @Override
+    default OrderingType getOrderingType()
+    {
+        return OrderingType.SORTED_REVERSE_NATURAL;
+    }
+
+    @Override
     default boolean supportsForEachFromToReverseIteration()
     {
         return false;

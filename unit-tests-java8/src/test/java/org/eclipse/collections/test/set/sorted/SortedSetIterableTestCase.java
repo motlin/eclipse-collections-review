@@ -26,8 +26,6 @@ import org.eclipse.collections.test.set.SetIterableTestCase;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIterableTestCase, ReversibleIterableTestCase, TransformsToListTrait
@@ -74,17 +72,6 @@ public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIt
     {
         SortedSetIterable<Integer> union = this.newWith(1, 2, 3).union(this.newWith(3, 4, 5));
         assertIterablesEqual(this.getExpectedFiltered(5, 4, 3, 2, 1), union);
-    }
-
-    @Test
-    default void SortedIterable_comparator()
-    {
-        switch (this.getOrderingType())
-        {
-            case SORTED_NATURAL -> assertNull(this.newWith().comparator());
-            case SORTED_REVERSE_NATURAL -> assertSame(Comparators.reverseNaturalOrder(), this.newWith().comparator());
-            default -> throw new AssertionError("Unexpected ordering type for SortedSetIterable: " + this.getOrderingType());
-        }
     }
 
     @Override

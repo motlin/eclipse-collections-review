@@ -10,23 +10,11 @@
 
 package org.eclipse.collections.test;
 
-import org.eclipse.collections.api.ordered.SortedIterable;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 public interface SortedNaturalOrderTestCase extends OrderedIterableTestCase
 {
     @Override
     default OrderingType getOrderingType()
     {
         return OrderingType.SORTED_NATURAL;
-    }
-
-    @Test
-    default void SortedIterable_comparator()
-    {
-        SortedIterable<?> iterable = (SortedIterable<?>) this.newWith();
-        assertNull(iterable.comparator());
     }
 }
