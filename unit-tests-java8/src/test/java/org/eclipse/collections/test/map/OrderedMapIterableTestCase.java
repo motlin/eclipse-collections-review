@@ -140,18 +140,6 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Reversi
 
     @Override
     @Test
-    default void MapIterable_collectValues()
-    {
-        MapIterableTestCase.super.MapIterable_collectValues();
-
-        OrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3, "D", 4);
-
-        OrderedMap<String, Integer> collected = map.collectValues((key, value) -> value * 10);
-        assertIterablesEqual(this.newWithKeysValues("A", 10, "B", 20, "C", 30, "D", 40), collected);
-    }
-
-    @Override
-    @Test
     default void ReversibleIterable_detectLastIndex()
     {
         ReversibleIterableTestCase.super.ReversibleIterable_detectLastIndex();
