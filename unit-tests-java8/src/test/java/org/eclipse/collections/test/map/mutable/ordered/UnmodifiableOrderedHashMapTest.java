@@ -10,17 +10,13 @@
 
 package org.eclipse.collections.test.map.mutable.ordered;
 
-import java.util.List;
-
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedHashMap;
 import org.eclipse.collections.impl.map.ordered.mutable.UnmodifiableMutableOrderedMap;
-import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.FixedSizeIterableTestCase;
 import org.eclipse.collections.test.map.mutable.UnmodifiableMutableMapIterableTestCase;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -131,14 +127,14 @@ public class UnmodifiableOrderedHashMapTest
     @Test
     public void Map_keySet_remove()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).keySet().remove("A"));
+        UnmodifiableMutableMapIterableTestCase.super.Map_keySet_remove();
     }
 
     @Override
     @Test
     public void Map_values_remove()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).values().remove(1));
+        UnmodifiableMutableMapIterableTestCase.super.Map_values_remove();
     }
 
     @Override
@@ -166,46 +162,35 @@ public class UnmodifiableOrderedHashMapTest
     @Test
     public void MutableMapIterable_withKeyValue()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).withKeyValue("B", 2));
+        UnmodifiableMutableMapIterableTestCase.super.MutableMapIterable_withKeyValue();
     }
 
     @Override
     @Test
     public void MutableMapIterable_withoutKey()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).withoutKey("A"));
+        UnmodifiableMutableMapIterableTestCase.super.MutableMapIterable_withoutKey();
     }
 
     @Override
     @Test
     public void MutableMapIterable_withAllKeyValues()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).withAllKeyValues(List.of(Tuples.pair("B", 2))));
+        UnmodifiableMutableMapIterableTestCase.super.MutableMapIterable_withAllKeyValues();
     }
 
     @Override
     @Test
     public void MutableMapIterable_withAllKeyValueArguments()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).withAllKeyValueArguments(Tuples.pair("B", 2)));
+        UnmodifiableMutableMapIterableTestCase.super.MutableMapIterable_withAllKeyValueArguments();
     }
 
     @Override
     @Test
     public void MutableMapIterable_withoutAllKeys()
     {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1, "B", 2).withoutAllKeys(List.of("A")));
-    }
-
-    @Override
-    @Test
-    public void OrderedIterable_getFirst_getLast_afterMutableOrderedMapMutations()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2);
-        assertEquals(Integer.valueOf(1), map.getFirst());
-        assertEquals(Integer.valueOf(2), map.getLast());
-        assertThrows(UnsupportedOperationException.class, () -> map.removeKey("A"));
-        assertThrows(UnsupportedOperationException.class, () -> map.put("C", 3));
+        UnmodifiableMutableMapIterableTestCase.super.MutableMapIterable_withoutAllKeys();
     }
 
     @Override
@@ -220,13 +205,5 @@ public class UnmodifiableOrderedHashMapTest
     public void Map_clear()
     {
         assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).clear());
-    }
-
-    @Override
-    @Test
-    public void MutableOrderedMap_toImmutable()
-    {
-        MutableOrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2);
-        assertEquals(2, map.toImmutable().size());
     }
 }

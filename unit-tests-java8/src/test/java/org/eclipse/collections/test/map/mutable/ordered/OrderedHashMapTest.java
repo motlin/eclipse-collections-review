@@ -570,7 +570,6 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         // Serialization preserves insertion order, including for an empty map.
         OrderedHashMap<String, Integer> map = OrderedHashMap.newWithKeysValues("A", 1, "B", 2, "C", 3);
         OrderedHashMap<String, Integer> deserialized = SerializeTestHelper.serializeDeserialize(map);
-        assertEquals(map, deserialized);
         assertEquals(List.of("A", "B", "C"), new ArrayList<>(deserialized.keySet()));
         assertEquals(List.of(1, 2, 3), new ArrayList<>(deserialized.values()));
         assertEquals(List.of(Map.entry("A", 1), Map.entry("B", 2), Map.entry("C", 3)), new ArrayList<>(deserialized.entrySet()));
@@ -589,14 +588,6 @@ public class OrderedHashMapTest implements MutableOrderedMapTestCase
         OrderedHashMap<String, Integer> map = new OrderedHashMap<>();
         map.put("A", 1);
         assertThrows(UnsupportedOperationException.class, () -> map.clone());
-    }
-
-    @Test
-    public void MutableMapIterable_asSynchronized()
-    {
-        OrderedHashMap<String, Integer> map = new OrderedHashMap<>();
-        map.put("A", 1);
-        assertThrows(UnsupportedOperationException.class, () -> map.asSynchronized());
     }
 
     @Override

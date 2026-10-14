@@ -17,9 +17,11 @@ import java.util.Optional;
 
 import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.factory.Bags;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.map.ImmutableMapIterable;
 import org.eclipse.collections.api.map.MutableMapIterable;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates2;
@@ -214,6 +216,124 @@ public interface MutableMapIterableTestCase extends MapIterableTestCase, MapTest
         assertSame(predicateException, actualException2);
         assertIterablesEqual(this.newWithKeysValues(1, "One", 2, "Two"), map8);
         assertEquals(2, map8.size());
+    }
+
+    @Test
+    default void MutableMapIterable_newEmpty()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two");
+        MutableMapIterable<Integer, String> empty = map.newEmpty();
+        assertIterablesEqual(this.newWithKeysValues(), empty);
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), map);
+
+        empty.put(1, "One");
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_withKeyValue()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two");
+        assertSame(map, map.withKeyValue(1, "One"));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "One"), map);
+
+        assertSame(map, map.withKeyValue(2, "Two2"));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two2", 1, "One"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_withoutKey()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
+        assertSame(map, map.withoutKey(2));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 1, "One"), map);
+
+        assertSame(map, map.withoutKey(4));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 1, "One"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_withAllKeyValues()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three");
+        assertSame(map, map.withAllKeyValues(Lists.mutable.with(Tuples.pair(2, "Two"), Tuples.pair(1, "One"))));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "One"), map);
+
+        assertSame(map, map.withAllKeyValues(Lists.mutable.with(Tuples.pair(2, "Two2"))));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two2", 1, "One"), map);
+
+        assertSame(map, map.withAllKeyValues(Lists.mutable.empty()));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two2", 1, "One"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_withAllKeyValueArguments()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three");
+        assertSame(map, map.withAllKeyValueArguments(Tuples.pair(2, "Two"), Tuples.pair(1, "One")));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "One"), map);
+
+        assertSame(map, map.withAllKeyValueArguments(Tuples.pair(2, "Two2")));
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two2", 1, "One"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_withoutAllKeys()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(4, "Four", 3, "Three", 2, "Two", 1, "One");
+        assertSame(map, map.withoutAllKeys(Lists.mutable.with(3, 1, 5)));
+        assertIterablesEqual(this.newWithKeysValues(4, "Four", 2, "Two"), map);
+
+        assertSame(map, map.withoutAllKeys(Lists.mutable.empty()));
+        assertIterablesEqual(this.newWithKeysValues(4, "Four", 2, "Two"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_asUnmodifiable()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two");
+        MutableMapIterable<Integer, String> unmodifiable = map.asUnmodifiable();
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), unmodifiable);
+        assertThrows(UnsupportedOperationException.class, () -> unmodifiable.put(1, "One"));
+        assertThrows(UnsupportedOperationException.class, () -> unmodifiable.removeKey(3));
+        assertThrows(UnsupportedOperationException.class, unmodifiable::clear);
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), map);
+    }
+
+    @Test
+    default void MutableMapIterable_asSynchronized()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two");
+        MutableMapIterable<Integer, String> synchronizedMap = map.asSynchronized();
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), synchronizedMap);
+
+        if (!this.allowsPut())
+        {
+            assertThrows(UnsupportedOperationException.class, () -> synchronizedMap.put(1, "One"));
+            assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two"), map);
+            return;
+        }
+
+        // Writes through the synchronized view reach the map, and writes to the map show through the view
+        synchronizedMap.put(1, "One");
+        assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "One"), map);
+        map.removeKey(3);
+        assertIterablesEqual(this.newWithKeysValues(2, "Two", 1, "One"), synchronizedMap);
+    }
+
+    @Test
+    default void MutableMapIterable_toImmutable()
+    {
+        MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two");
+        ImmutableMapIterable<Integer, String> immutable = map.toImmutable();
+        assertEquals(Maps.mutable.with(3, "Three", 2, "Two"), immutable);
+
+        if (this.allowsPut())
+        {
+            // The immutable copy does not see later changes to the source map
+            map.put(1, "One");
+            assertEquals(Maps.mutable.with(3, "Three", 2, "Two"), immutable);
+        }
     }
 
     @Test
