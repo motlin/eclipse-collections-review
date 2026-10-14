@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.factory.Bags;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.test.Verify;
@@ -63,6 +64,11 @@ public interface MapTestCase
     }
 
     default boolean supportsNonComparableKeys()
+    {
+        return true;
+    }
+
+    default boolean allowsDuplicateValues()
     {
         return true;
     }
@@ -122,6 +128,9 @@ public interface MapTestCase
 
         if (!this.allowsPut())
         {
+            Map<Object, Object> selfKey = this.newWithKeysValues();
+            assertThrows(UnsupportedOperationException.class, () -> selfKey.put(selfKey, "value"));
+            assertEquals(this.newWithKeysValues(), selfKey);
             return;
         }
 
@@ -135,6 +144,13 @@ public interface MapTestCase
         }
 
         Map<Object, Object> selfValue = this.newWithKeysValues();
+        if (!this.allowsDuplicateValues())
+        {
+            // Maps with unique values hash each value when it is put, so a map can't hold itself as a value
+            assertThrows(StackOverflowError.class, () -> selfValue.put("key", selfValue));
+            return;
+        }
+
         selfValue.put("key", selfValue);
 
         assertEquals(selfValue, selfValue);
@@ -263,6 +279,81 @@ public interface MapTestCase
         expected.add(ImmutableEntry.of(2, "Two"));
         expected.add(ImmutableEntry.of(3, "Three"));
         assertEquals(expected, map.entrySet());
+
+        // The entrySet's own equals compares values as well as keys
+        Set<Map.Entry<Integer, String>> wrongValue = new HashSet<>();
+        wrongValue.add(ImmutableEntry.of(1, "One"));
+        wrongValue.add(ImmutableEntry.of(2, "Two"));
+        wrongValue.add(ImmutableEntry.of(3, "Wrong"));
+        assertNotEquals(map.entrySet(), wrongValue);
+
+        // A set of the same size that repeats a key is not equal
+        Set<Map.Entry<Integer, String>> duplicateKey = new HashSet<>();
+        duplicateKey.add(ImmutableEntry.of(1, "One"));
+        duplicateKey.add(ImmutableEntry.of(1, "Wrong"));
+        duplicateKey.add(ImmutableEntry.of(2, "Two"));
+        assertNotEquals(map.entrySet(), duplicateKey);
+
+        // contains and containsAll compare values as well as keys
+        Set<Map.Entry<Integer, String>> entrySet = map.entrySet();
+        assertTrue(entrySet.contains(ImmutableEntry.of(1, "One")));
+        assertTrue(entrySet.contains(ImmutableEntry.of(3, "Three")));
+        assertFalse(entrySet.contains(ImmutableEntry.of(1, "Wrong")));
+        assertFalse(entrySet.contains(ImmutableEntry.of(4, "Four")));
+        assertFalse(entrySet.contains("Not an entry"));
+        assertTrue(entrySet.containsAll(Lists.mutable.with(ImmutableEntry.of(1, "One"), ImmutableEntry.of(1, "One"), ImmutableEntry.of(2, "Two"))));
+        assertFalse(entrySet.containsAll(Lists.mutable.with(ImmutableEntry.of(1, "One"), ImmutableEntry.of(1, "Wrong"))));
+        assertFalse(entrySet.containsAll(Lists.mutable.with(ImmutableEntry.of(1, "One"), ImmutableEntry.of(4, "Four"))));
+
+        Map<Integer, String> empty = this.newWithKeysValues();
+        assertEquals(new HashSetNoIterator<>(), empty.entrySet());
+        assertNotEquals(empty.entrySet(), wrongValue);
+        assertFalse(empty.entrySet().contains(ImmutableEntry.of(1, "One")));
+        assertTrue(empty.entrySet().containsAll(Lists.mutable.empty()));
+
+        Map<Integer, String> single = this.newWithKeysValues(1, "One");
+        Set<Map.Entry<Integer, String>> singleExpected = new HashSet<>();
+        singleExpected.add(ImmutableEntry.of(1, "One"));
+        Set<Map.Entry<Integer, String>> singleWrongValue = new HashSet<>();
+        singleWrongValue.add(ImmutableEntry.of(1, "Wrong"));
+        assertEquals(single.entrySet(), singleExpected);
+        assertNotEquals(single.entrySet(), singleWrongValue);
+        assertTrue(single.entrySet().contains(ImmutableEntry.of(1, "One")));
+        assertFalse(single.entrySet().contains(ImmutableEntry.of(1, "Wrong")));
+        assertFalse(single.entrySet().contains(ImmutableEntry.of(2, "One")));
+
+        Map<Integer, String> many = this.newWithKeysValues(
+                1, "1", 2, "2", 3, "3", 4, "4", 5, "5", 6, "6", 7, "7", 8, "8", 9, "9", 10, "10");
+        Set<Map.Entry<Integer, String>> manyExpected = new HashSet<>();
+        Set<Map.Entry<Integer, String>> manyWrongValue = new HashSet<>();
+        for (int i = 1; i <= 10; i++)
+        {
+            assertTrue(many.entrySet().contains(ImmutableEntry.of(i, String.valueOf(i))));
+            assertFalse(many.entrySet().contains(ImmutableEntry.of(i, "Wrong")));
+            manyExpected.add(ImmutableEntry.of(i, String.valueOf(i)));
+            manyWrongValue.add(ImmutableEntry.of(i, i == 10 ? "Wrong" : String.valueOf(i)));
+        }
+        assertFalse(many.entrySet().contains(ImmutableEntry.of(11, "11")));
+        assertEquals(many.entrySet(), manyExpected);
+        assertNotEquals(many.entrySet(), manyWrongValue);
+        assertTrue(many.entrySet().containsAll(manyExpected));
+        assertFalse(many.entrySet().containsAll(manyWrongValue));
+
+        if (this.supportsNullValues())
+        {
+            Map<Integer, String> nullValue = this.newWithKeysValues(1, null, 2, "Two");
+            Set<Map.Entry<Integer, String>> nullValueExpected = new HashSet<>();
+            nullValueExpected.add(ImmutableEntry.of(1, null));
+            nullValueExpected.add(ImmutableEntry.of(2, "Two"));
+            Set<Map.Entry<Integer, String>> nullValueWrong = new HashSet<>();
+            nullValueWrong.add(ImmutableEntry.of(1, "Wrong"));
+            nullValueWrong.add(ImmutableEntry.of(2, "Two"));
+            assertEquals(nullValue.entrySet(), nullValueExpected);
+            assertNotEquals(nullValue.entrySet(), nullValueWrong);
+            assertTrue(nullValue.entrySet().contains(ImmutableEntry.of(1, null)));
+            assertFalse(nullValue.entrySet().contains(ImmutableEntry.of(1, "Wrong")));
+            assertFalse(nullValue.entrySet().contains(ImmutableEntry.of(2, null)));
+        }
     }
 
     @Test
@@ -658,7 +749,13 @@ public interface MapTestCase
         });
         assertIterablesEqual(this.newWithKeysValues(1, "11", 2, "22", 3, "33"), map);
 
-        if (this.supportsNullValues())
+        if (!this.allowsDuplicateValues())
+        {
+            // Values must stay unique, so replacing several values with the same value throws
+            Map<Integer, String> map2 = this.newWithKeysValues(1, "1", 2, "2");
+            assertThrows(IllegalArgumentException.class, () -> map2.replaceAll((k, v) -> null));
+        }
+        else if (this.supportsNullValues())
         {
             Map<Integer, String> map2 = this.newWithKeysValues(1, "1", 2, "2");
             map2.replaceAll((k, v) -> null);
@@ -826,6 +923,11 @@ public interface MapTestCase
         MutableBag<String> actual = Bags.mutable.empty();
         map.values().forEach(actual::add);
         assertEquals(Bags.immutable.with("Three", "Two", "One"), actual);
+
+        if (!this.allowsDuplicateValues())
+        {
+            return;
+        }
 
         // values().forEach() visits a repeated value once per key
         Map<Integer, String> mapWithDuplicateValues = this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three");
