@@ -36,6 +36,12 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     <T> SortedBag<T> newWith(T... elements);
 
     @Override
+    default OrderingType getOrderingType()
+    {
+        return OrderingType.SORTED_REVERSE_NATURAL;
+    }
+
+    @Override
     default boolean supportsForEachFromToReverseIteration()
     {
         return false;
@@ -103,16 +109,27 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
         assertEquals("{3=3, 2=2, 1=1}", this.newWith(3, 3, 3, 2, 2, 1).toStringOfItemToCount());
     }
 
+    @Override
     @Test
-    default void SortedBag_forEachWith()
+    default void InternalIterable_forEachWith()
     {
+        BagTestCase.super.InternalIterable_forEachWith();
+
+        // forEachWith() visits every occurrence in sorted order
         SortedBag<Integer> bag = this.newWith(3, 3, 3, 2, 2, 1);
         MutableList<Integer> result = Lists.mutable.with();
         bag.forEachWith((argument1, argument2) -> {
             result.add(argument1);
             result.add(argument2);
         }, 0);
-        assertIterablesEqual(Lists.immutable.with(3, 0, 3, 0, 3, 0, 2, 0, 2, 0, 1, 0), result);
+        assertIterablesEqual(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(1, 0, 2, 0, 2, 0, 3, 0, 3, 0, 3, 0);
+                    case SORTED_REVERSE_NATURAL -> Lists.immutable.with(3, 0, 3, 0, 3, 0, 2, 0, 2, 0, 1, 0);
+                    default -> throw new AssertionError("Unexpected ordering type for SortedBag: " + this.getOrderingType());
+                },
+                result);
     }
 
     @Override

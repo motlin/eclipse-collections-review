@@ -142,14 +142,14 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
     }
 
     @Test
-    default void OrderedIterable_getFirstOptional_empty()
-    {
-        assertSame(Optional.empty(), ((OrderedIterable<?>) this.newWith()).getFirstOptional());
-    }
-
-    @Test
     default void OrderedIterable_getFirstOptional()
     {
+        // getFirstOptional() is empty for an empty iterable
+        assertSame(Optional.empty(), ((OrderedIterable<?>) this.newWith()).getFirstOptional());
+
+        // getFirstOptional() throws when the element is null
+        assertThrows(NullPointerException.class, () -> ((OrderedIterable<?>) this.newWith(new Object[]{null})).getFirstOptional());
+
         OrderedIterable<Integer> iterable = (OrderedIterable<Integer>) this.newWith(3, 2, 1);
         switch (this.getOrderingType())
         {
@@ -175,20 +175,14 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
     }
 
     @Test
-    default void OrderedIterable_getFirstOptional_null_element()
-    {
-        assertThrows(NullPointerException.class, () -> ((OrderedIterable<?>) this.newWith(new Object[]{null})).getFirstOptional());
-    }
-
-    @Test
-    default void OrderedIterable_getLastOptional_empty()
-    {
-        assertSame(Optional.empty(), ((OrderedIterable<?>) this.newWith()).getLastOptional());
-    }
-
-    @Test
     default void OrderedIterable_getLastOptional()
     {
+        // getLastOptional() is empty for an empty iterable
+        assertSame(Optional.empty(), ((OrderedIterable<?>) this.newWith()).getLastOptional());
+
+        // getLastOptional() throws when the element is null
+        assertThrows(NullPointerException.class, () -> ((OrderedIterable<?>) this.newWith(new Object[]{null})).getLastOptional());
+
         OrderedIterable<Integer> iterable = (OrderedIterable<Integer>) this.newWith(3, 2, 1);
         switch (this.getOrderingType())
         {
@@ -211,12 +205,6 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
             case SORTED_NATURAL -> assertEquals(Optional.of(3), iterableWithDuplicates.getLastOptional());
             default -> fail("Unexpected value: " + this.getOrderingType());
         }
-    }
-
-    @Test
-    default void OrderedIterable_getLastOptional_null_element()
-    {
-        assertThrows(NullPointerException.class, () -> ((OrderedIterable<?>) this.newWith(new Object[]{null})).getLastOptional());
     }
 
     @Override
