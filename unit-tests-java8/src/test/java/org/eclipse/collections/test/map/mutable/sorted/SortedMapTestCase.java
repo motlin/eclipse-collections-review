@@ -56,21 +56,13 @@ public interface SortedMapTestCase extends MapTestCase
     }
 
     @Test
-    default void SortedMap_comparator_isOneOfExpected()
-    {
-        SortedMap<Integer, String> map = this.newWithKeysValues(3, "3", 1, "1", 2, "2");
-        Comparator<? super Integer> comparator = map.comparator();
-
-        assertThat(this.isNaturalOrder(comparator) || this.isReverseOrder(comparator))
-                .as("Comparator must be either null (natural order) or reverse order, but was: %s", comparator)
-                .isTrue();
-    }
-
-    @Test
     default void SortedMap_comparator()
     {
         SortedMap<Integer, String> map = this.newWithKeysValues(2, "2", 4, "4", 6, "6");
         Comparator<? super Integer> comparator = map.comparator();
+        assertThat(this.isNaturalOrder(comparator) || this.isReverseOrder(comparator))
+                .as("Comparator must be either null (natural order) or reverse order, but was: %s", comparator)
+                .isTrue();
 
         if (this.isNaturalOrder(comparator))
         {
@@ -166,9 +158,13 @@ public interface SortedMapTestCase extends MapTestCase
         }
     }
 
+    @Override
     @Test
-    default void SortedMap_entrySet_iterator_order()
+    default void Map_entrySet()
     {
+        MapTestCase.super.Map_entrySet();
+
+        // entrySet() iterates in comparator order
         SortedMap<Integer, String> map = this.newWithKeysValues(2, "2", 4, "4", 6, "6");
         Comparator<? super Integer> comparator = map.comparator();
 
@@ -188,9 +184,13 @@ public interface SortedMapTestCase extends MapTestCase
         }
     }
 
+    @Override
     @Test
-    default void SortedMap_keySet_iterator_order()
+    default void Map_keySet()
     {
+        MapTestCase.super.Map_keySet();
+
+        // keySet() iterates in comparator order
         SortedMap<Integer, String> map = this.newWithKeysValues(2, "2", 4, "4", 6, "6");
         Comparator<? super Integer> comparator = map.comparator();
 
@@ -210,9 +210,13 @@ public interface SortedMapTestCase extends MapTestCase
         }
     }
 
+    @Override
     @Test
-    default void SortedMap_values_iterator_order()
+    default void Map_values()
     {
+        MapTestCase.super.Map_values();
+
+        // values() iterates in comparator order
         SortedMap<Integer, String> map = this.newWithKeysValues(2, "2", 4, "4", 6, "6");
         Comparator<? super Integer> comparator = map.comparator();
 

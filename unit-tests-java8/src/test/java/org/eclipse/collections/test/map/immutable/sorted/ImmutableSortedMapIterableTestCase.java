@@ -71,9 +71,9 @@ public interface ImmutableSortedMapIterableTestCase extends SortedMapIterableTes
 
     @Override
     @Test
-    default void MapIterable_entrySet_iterator()
+    default void Map_entrySet_iterator()
     {
-        SortedMapIterableTestCase.super.MapIterable_entrySet_iterator();
+        SortedMapIterableTestCase.super.Map_entrySet_iterator();
 
         // The entrySet iterator does not support remove(), before or after next()
         Map<Integer, String> map = this.<Integer, String>newWithKeysValues(3, "Three", 2, "Two", 1, "One").castToMap();
