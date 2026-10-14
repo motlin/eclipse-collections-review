@@ -84,6 +84,8 @@ public interface MutableCollectionUniqueTestCase extends MutableCollectionTestCa
     @Test
     default void MutableCollection_injectIntoWith()
     {
+        MutableCollectionTestCase.super.MutableCollection_injectIntoWith();
+
         MutableCollection<Integer> collection = this.newWith(4, 3, 2, 1);
         assertEquals(Integer.valueOf(51), collection.injectIntoWith(1, (argument1, argument2, argument3) -> argument1 + argument2 + argument3, 10));
     }
