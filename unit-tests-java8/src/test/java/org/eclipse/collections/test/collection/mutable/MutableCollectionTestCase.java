@@ -34,21 +34,6 @@ public interface MutableCollectionTestCase extends CollectionTestCase, RichItera
     @Override
     <T> MutableCollection<T> newWith(T... elements);
 
-    @Test
-    default void MutableCollection_iterationOrder()
-    {
-        MutableCollection<Integer> injectIntoWithIterationOrder = this.newMutableForFilter();
-        this.getInstanceUnderTest().injectIntoWith(
-                0,
-                (a, b, c) ->
-                {
-                    injectIntoWithIterationOrder.add(b);
-                    return 0;
-                },
-                0);
-        assertIterablesEqual(this.newMutableForFilter(4, 4, 4, 4, 3, 3, 3, 2, 2, 1), injectIntoWithIterationOrder);
-    }
-
     // TODO try to make the return type of newWith and getInstanceUnderTest a generic parameter
     @Override
     default MutableCollection<Integer> getInstanceUnderTest()
@@ -271,6 +256,23 @@ public interface MutableCollectionTestCase extends CollectionTestCase, RichItera
     @Test
     default void MutableCollection_injectIntoWith()
     {
+        // injectIntoWith() visits elements in iteration order
+        MutableCollection<Integer> injectIntoWithIterationOrder = this.newMutableForFilter();
+        this.getInstanceUnderTest().injectIntoWith(
+                0,
+                (a, b, c) ->
+                {
+                    injectIntoWithIterationOrder.add(b);
+                    return 0;
+                },
+                0);
+        assertIterablesEqual(this.newMutableForFilter(4, 4, 4, 4, 3, 3, 3, 2, 2, 1), injectIntoWithIterationOrder);
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
         MutableCollection<Integer> collection = this.newWith(4, 4, 4, 4, 3, 3, 3, 2, 2, 1);
         assertEquals(Integer.valueOf(81), collection.injectIntoWith(1, (a, b, c) -> a + b + c, 5));
     }
