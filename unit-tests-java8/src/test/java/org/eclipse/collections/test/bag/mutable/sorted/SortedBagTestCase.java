@@ -16,6 +16,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.bag.sorted.mutable.TreeBag;
 import org.eclipse.collections.impl.block.factory.Comparators;
+import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.SortedIterableTestCase;
 import org.eclipse.collections.test.bag.BagTestCase;
 import org.eclipse.collections.test.domain.A;
@@ -26,9 +27,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 // TODO linked bag
-public interface SortedBagTestCase extends SortedIterableTestCase, BagTestCase, TransformsToListTrait
+public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIterableTestCase, BagTestCase, TransformsToListTrait
 {
     @Override
     <T> SortedBag<T> newWith(T... elements);
@@ -111,5 +113,37 @@ public interface SortedBagTestCase extends SortedIterableTestCase, BagTestCase, 
             result.add(argument2);
         }, 0);
         assertIterablesEqual(Lists.immutable.with(3, 0, 3, 0, 3, 0, 2, 0, 2, 0, 1, 0), result);
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_toReversed()
+    {
+        // TODO: Support toReversed() for sorted bags.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_reverseForEach()
+    {
+        // TODO: Support reverseForEach() for sorted bags, which rejects the reversed index range it delegates to.
+        assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_detectLastIndex()
+    {
+        // TODO: Support detectLastIndex() for sorted bags.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_asReversed()
+    {
+        // TODO: Support asReversed() for sorted bags.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).asReversed());
     }
 }
