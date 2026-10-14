@@ -40,25 +40,21 @@ public interface ImmutableStackTestCase extends StackIterableTestCase
     }
 
     @Test
-    default void MutableStack_pop()
+    default void ImmutableStack_pop()
     {
         ImmutableStack<Integer> immutableStack = this.newWith(5, 1, 4, 2, 3);
         ImmutableStack<Integer> poppedStack = immutableStack.pop();
         assertIterablesEqual(Stacks.immutable.withReversed(1, 4, 2, 3), poppedStack);
         assertIterablesEqual(Stacks.immutable.withReversed(5, 1, 4, 2, 3), immutableStack);
-    }
 
-    @Test
-    default void ImmutableStack_pop_throws()
-    {
-        ImmutableStack<Integer> immutableStack = this.newWith(5, 1, 4, 2, 3);
+        // pop() throws once the stack is empty
         ImmutableStack<Integer> emptyStack = immutableStack.pop().pop().pop().pop().pop();
         assertSame(Stacks.immutable.with(), emptyStack);
         assertThrows(EmptyStackException.class, emptyStack::pop);
     }
 
     @Test
-    default void MutableStack_peekAndPop()
+    default void ImmutableStack_peekAndPop()
     {
         ImmutableStack<Integer> immutableStack = this.newWith(5, 1, 4, 2, 3);
         Pair<Integer, ImmutableStack<Integer>> elementAndStack = immutableStack.peekAndPop();
@@ -67,12 +63,8 @@ public interface ImmutableStackTestCase extends StackIterableTestCase
         assertEquals(Integer.valueOf(5), poppedElement);
         assertIterablesEqual(Stacks.immutable.withReversed(1, 4, 2, 3), poppedStack);
         assertIterablesEqual(Stacks.immutable.withReversed(5, 1, 4, 2, 3), immutableStack);
-    }
 
-    @Test
-    default void ImmutableStack_peekAndPop_throws()
-    {
-        ImmutableStack<Integer> immutableStack = this.newWith(5, 1, 4, 2, 3);
+        // pop() throws once peekAndPop() has emptied the stack
         ImmutableStack<Integer> emptyStack = immutableStack.peekAndPop().getTwo()
                 .peekAndPop().getTwo()
                 .peekAndPop().getTwo()
