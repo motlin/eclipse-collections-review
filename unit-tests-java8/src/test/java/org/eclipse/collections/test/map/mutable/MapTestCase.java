@@ -67,6 +67,11 @@ public interface MapTestCase
         return true;
     }
 
+    default boolean allowsDuplicateValues()
+    {
+        return true;
+    }
+
     default void Iterable_toString()
     {
         Map<String, Integer> map = this.newWithKeysValues("Two", 2, "One", 1);
@@ -122,6 +127,9 @@ public interface MapTestCase
 
         if (!this.allowsPut())
         {
+            Map<Object, Object> selfKey = this.newWithKeysValues();
+            assertThrows(UnsupportedOperationException.class, () -> selfKey.put(selfKey, "value"));
+            assertEquals(this.newWithKeysValues(), selfKey);
             return;
         }
 
@@ -135,6 +143,13 @@ public interface MapTestCase
         }
 
         Map<Object, Object> selfValue = this.newWithKeysValues();
+        if (!this.allowsDuplicateValues())
+        {
+            // Maps with unique values hash each value when it is put, so a map can't hold itself as a value
+            assertThrows(StackOverflowError.class, () -> selfValue.put("key", selfValue));
+            return;
+        }
+
         selfValue.put("key", selfValue);
 
         assertEquals(selfValue, selfValue);
@@ -658,7 +673,13 @@ public interface MapTestCase
         });
         assertIterablesEqual(this.newWithKeysValues(1, "11", 2, "22", 3, "33"), map);
 
-        if (this.supportsNullValues())
+        if (!this.allowsDuplicateValues())
+        {
+            // Values must stay unique, so replacing several values with the same value throws
+            Map<Integer, String> map2 = this.newWithKeysValues(1, "1", 2, "2");
+            assertThrows(IllegalArgumentException.class, () -> map2.replaceAll((k, v) -> null));
+        }
+        else if (this.supportsNullValues())
         {
             Map<Integer, String> map2 = this.newWithKeysValues(1, "1", 2, "2");
             map2.replaceAll((k, v) -> null);
@@ -826,6 +847,11 @@ public interface MapTestCase
         MutableBag<String> actual = Bags.mutable.empty();
         map.values().forEach(actual::add);
         assertEquals(Bags.immutable.with("Three", "Two", "One"), actual);
+
+        if (!this.allowsDuplicateValues())
+        {
+            return;
+        }
 
         // values().forEach() visits a repeated value once per key
         Map<Integer, String> mapWithDuplicateValues = this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three");

@@ -79,7 +79,7 @@ public class HashBiMapNoIteratorTest implements MutableBiMapTestCase, NoIterator
 
     @Override
     @Test
-    public void MapIterable_keySet_equals()
+    public void Map_keySet_equals()
     {
         // HashBiMap.keySet().equals() delegates to the other Map's entrySet()
         Map<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
@@ -92,7 +92,7 @@ public class HashBiMapNoIteratorTest implements MutableBiMapTestCase, NoIterator
 
     @Override
     @Test
-    public void MapIterable_entrySet_equals()
+    public void Map_entrySet_equals()
     {
         // HashBiMap.entrySet().equals() delegates to the other Map's entrySet()
         Map<Integer, String> map = this.newWithKeysValues(1, "One", 2, "Two", 3, "Three");
@@ -101,6 +101,24 @@ public class HashBiMapNoIteratorTest implements MutableBiMapTestCase, NoIterator
         expected.add(ImmutableEntry.of(2, "Two"));
         expected.add(ImmutableEntry.of(3, "Three"));
         assertThrows(AssertionError.class, () -> map.entrySet().equals(expected));
+    }
+
+    @Override
+    @Test
+    public void Map_replaceAll()
+    {
+        // TODO: Optimize HashBiMap.replaceAll() to avoid delegating to iterator().
+        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2");
+        assertThrows(AssertionError.class, () -> map.replaceAll((k, v) -> v + k));
+    }
+
+    @Override
+    @Test
+    public void Map_values_forEach()
+    {
+        // TODO: Optimize HashBiMap.values().forEach() to avoid delegating to iterator().
+        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2");
+        assertThrows(AssertionError.class, () -> map.values().forEach(each -> { }));
     }
 
     public static class HashBiMapNoIterator<K, V> extends HashBiMap<K, V>

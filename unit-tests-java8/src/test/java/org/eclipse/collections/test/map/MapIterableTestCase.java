@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.collection.MutableCollection;
@@ -528,46 +527,6 @@ public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
         MutableCollection<String> forEach2 = this.newMutableForFilter();
         map2.forEach((key, value) -> forEach2.add(key + value));
         assertIterablesEqual(this.newMutableForFilter("3Three", "2Two", "1Three"), forEach2);
-    }
-
-    @Test
-    default void MapIterable_keySet_equals()
-    {
-        Map<Integer, String> map = (Map<Integer, String>) this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
-        Set<Integer> expected = new HashSetNoIterator<>();
-        expected.add(3);
-        expected.add(2);
-        expected.add(1);
-        assertEquals(expected, map.keySet());
-    }
-
-    @Test
-    default void MapIterable_keySet_forEach()
-    {
-        Map<Integer, String> map = (Map<Integer, String>) this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
-        MutableSet<Integer> actual = Sets.mutable.with();
-        map.keySet().forEach(actual::add);
-        assertEquals(Sets.immutable.with(3, 2, 1), actual);
-    }
-
-    @Test
-    default void MapIterable_entrySet_equals()
-    {
-        Map<Integer, String> map = (Map<Integer, String>) this.newWithKeysValues(1, "One", 2, "Two", 3, "Three");
-        Set<Map.Entry<Integer, String>> expected = new HashSetNoIterator<>();
-        expected.add(ImmutableEntry.of(1, "One"));
-        expected.add(ImmutableEntry.of(2, "Two"));
-        expected.add(ImmutableEntry.of(3, "Three"));
-        assertEquals(expected, map.entrySet());
-    }
-
-    @Test
-    default void MapIterable_entrySet_forEach()
-    {
-        Map<Integer, String> map = (Map<Integer, String>) this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
-        MutableSet<String> actual = Sets.mutable.with();
-        map.entrySet().forEach(each -> actual.add(each.getValue()));
-        assertEquals(Sets.immutable.with("Three", "Two", "One"), actual);
     }
 
     @Test

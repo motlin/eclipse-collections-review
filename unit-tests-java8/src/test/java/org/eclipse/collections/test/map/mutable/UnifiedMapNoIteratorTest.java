@@ -133,20 +133,6 @@ public class UnifiedMapNoIteratorTest implements MutableMapTestCase, NoIteratorT
 
     @Override
     @Test
-    public void MapIterable_keySet_equals()
-    {
-        this.Map_keySet_equals();
-    }
-
-    @Override
-    @Test
-    public void MapIterable_entrySet_equals()
-    {
-        this.Map_entrySet_equals();
-    }
-
-    @Override
-    @Test
     public void MutableMapIterable_updateValue()
     {
         /*
