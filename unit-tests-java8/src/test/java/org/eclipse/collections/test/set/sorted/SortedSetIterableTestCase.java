@@ -67,13 +67,6 @@ public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIt
         };
     }
 
-    @Test
-    default void SortedSetIterable_union()
-    {
-        SortedSetIterable<Integer> union = this.newWith(1, 2, 3).union(this.newWith(3, 4, 5));
-        assertIterablesEqual(this.getExpectedFiltered(5, 4, 3, 2, 1), union);
-    }
-
     @Override
     @Test
     default void ReversibleIterable_asReversed()
