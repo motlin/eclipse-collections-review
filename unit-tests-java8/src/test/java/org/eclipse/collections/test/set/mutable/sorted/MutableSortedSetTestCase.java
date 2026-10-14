@@ -50,6 +50,14 @@ public interface MutableSortedSetTestCase extends SortedSetIterableTestCase, Mut
 
     @Override
     @Test
+    default void Object_equalsAndHashCode()
+    {
+        SortedSetIterableTestCase.super.Object_equalsAndHashCode();
+        MutableCollectionUniqueTestCase.super.Object_equalsAndHashCode();
+    }
+
+    @Override
+    @Test
     default void ReversibleIterable_toReversed()
     {
         SortedSetIterableTestCase.super.ReversibleIterable_toReversed();
