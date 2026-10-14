@@ -132,9 +132,12 @@ public interface MutableListTestCase extends MutableCollectionTestCase, ListTest
         assertNotSame(empty, empty.reversed());
     }
 
+    @Override
     @Test
-    default void MutableList_toReversed()
+    default void ReversibleIterable_toReversed()
     {
+        ListIterableTestCase.super.ReversibleIterable_toReversed();
+
         MutableList<Integer> list = this.newWith(3, 2, 1);
         MutableList<Integer> reversed = list.toReversed();
         assertIterablesEqual(Lists.immutable.with(1, 2, 3), reversed);

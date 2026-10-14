@@ -21,12 +21,13 @@ import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.OrderedIterableWithDuplicatesTestCase;
+import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public interface ListIterableTestCase extends OrderedIterableWithDuplicatesTestCase, TransformsToListTrait
+public interface ListIterableTestCase extends OrderedIterableWithDuplicatesTestCase, ReversibleIterableTestCase, TransformsToListTrait
 {
     @Override
     <T> ListIterable<T> newWith(T... elements);
