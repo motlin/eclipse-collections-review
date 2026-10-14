@@ -23,6 +23,7 @@ import org.eclipse.collections.api.factory.Bags;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.Multimap;
@@ -50,6 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
 {
@@ -273,6 +275,18 @@ public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
         MapIterable<Integer, String> map = this.newWithKeysValues(3, "3", 2, "2", 1, "1");
         map.forEachKey(CollectionAddProcedure.on(result));
         Verify.assertSetsEqual(UnifiedSet.newSetWith(1, 2, 3), result);
+
+        // forEachKey() follows the map's iteration order
+        MapIterable<String, Integer> orderedMap = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
+        MutableList<String> keys = Lists.mutable.empty();
+        orderedMap.forEachKey(keys::add);
+        switch (this.getOrderingType())
+        {
+            case UNORDERED -> assertEquals(Bags.immutable.with("A", "B", "C"), Bags.immutable.withAll(keys));
+            case INSERTION_ORDER, SORTED_NATURAL -> assertEquals(Lists.immutable.with("A", "B", "C"), keys);
+            case SORTED_REVERSE_NATURAL -> assertEquals(Lists.immutable.with("C", "B", "A"), keys);
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
     }
 
     @Test
@@ -282,6 +296,18 @@ public interface MapIterableTestCase extends RichIterableWithDuplicatesTestCase
         MapIterable<Integer, String> map = this.newWithKeysValues(3, "3", 2, "2", 1, "1");
         map.forEachValue(CollectionAddProcedure.on(result));
         Verify.assertSetsEqual(UnifiedSet.newSetWith("1", "2", "3"), result);
+
+        // forEachValue() follows the map's iteration order
+        MapIterable<String, Integer> orderedMap = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
+        MutableList<Integer> values = Lists.mutable.empty();
+        orderedMap.forEachValue(values::add);
+        switch (this.getOrderingType())
+        {
+            case UNORDERED -> assertEquals(Bags.immutable.with(1, 2, 3), Bags.immutable.withAll(values));
+            case INSERTION_ORDER, SORTED_NATURAL -> assertEquals(Lists.immutable.with(1, 2, 3), values);
+            case SORTED_REVERSE_NATURAL -> assertEquals(Lists.immutable.with(3, 2, 1), values);
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
     }
 
     @Test
