@@ -408,8 +408,15 @@ public interface IterableTestCase
     }
 
     @Test
+    @SuppressWarnings("UndefinedEquals")
     default void Object_equalsAndHashCode()
     {
+        // Two copies of an element are not equal to one copy
+        if (this.allowsDuplicates())
+        {
+            assertNotEquals(this.newWith("", ""), this.newWith(""));
+        }
+
         Iterable<Integer> iterable = this.newWith(3, 2, 1);
 
         if (!this.allowsIterator() && iterable instanceof Set<?>)
