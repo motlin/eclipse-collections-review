@@ -62,15 +62,15 @@ public interface ListIterableTestCase extends OrderedIterableWithDuplicatesTestC
                 result);
     }
 
+    @Override
     @Test
-    default void ListIterable_indexOf()
+    default void OrderedIterable_indexOf()
     {
-        ListIterable<Integer> integers = this.newWith(1, 2, 2, 3, 3, 3, 4, 4, 4, 4);
-        assertEquals(3, integers.indexOf(3));
-        assertEquals(-1, integers.indexOf(0));
-        assertEquals(-1, integers.indexOf(null));
-        ListIterable<Integer> integers2 = this.newWith(1, 2, 2, null, 3, 3, 3, null, 4, 4, 4, 4);
-        assertEquals(3, integers2.indexOf(null));
+        ReversibleIterableTestCase.super.OrderedIterable_indexOf();
+
+        // Lists can hold null, so indexOf(null) finds the first null
+        assertEquals(-1, this.newWith(3, 2, 1).indexOf(null));
+        assertEquals(1, this.newWith(3, null, 1, null).indexOf(null));
     }
 
     @Test
