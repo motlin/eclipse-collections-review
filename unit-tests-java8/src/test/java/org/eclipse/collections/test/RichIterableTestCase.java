@@ -136,6 +136,11 @@ public interface RichIterableTestCase extends IterableTestCase
         return true;
     }
 
+    default boolean supportsNull()
+    {
+        return true;
+    }
+
     @Test
     default void newMutable_sanity()
     {
