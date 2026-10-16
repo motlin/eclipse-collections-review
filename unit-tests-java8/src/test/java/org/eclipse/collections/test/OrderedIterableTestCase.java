@@ -636,6 +636,66 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
         }
     }
 
+    @Test
+    default void OrderedIterable_indexOf()
+    {
+        OrderedIterable<Integer> iterable = (OrderedIterable<Integer>) this.newWith(3, 2, 1);
+        switch (this.getOrderingType())
+        {
+            case SORTED_NATURAL ->
+            {
+                assertEquals(0, iterable.indexOf(1));
+                assertEquals(1, iterable.indexOf(2));
+                assertEquals(2, iterable.indexOf(3));
+            }
+            case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL ->
+            {
+                assertEquals(0, iterable.indexOf(3));
+                assertEquals(1, iterable.indexOf(2));
+                assertEquals(2, iterable.indexOf(1));
+            }
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
+        assertEquals(-1, iterable.indexOf(99));
+        assertEquals(-1, ((OrderedIterable<Integer>) this.<Integer>newWith()).indexOf(1));
+
+        if (this.supportsNull())
+        {
+            // indexOf(null) finds the first null
+            assertEquals(-1, iterable.indexOf(null));
+            assertEquals(1, ((OrderedIterable<Integer>) this.newWith(3, null, 1)).indexOf(null));
+        }
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        OrderedIterable<Integer> iterableWithDuplicates = (OrderedIterable<Integer>) this.newWith(3, 3, 3, 2, 2, 1);
+        switch (this.getOrderingType())
+        {
+            case SORTED_NATURAL ->
+            {
+                assertEquals(0, iterableWithDuplicates.indexOf(1));
+                assertEquals(1, iterableWithDuplicates.indexOf(2));
+                assertEquals(3, iterableWithDuplicates.indexOf(3));
+            }
+            case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL ->
+            {
+                assertEquals(0, iterableWithDuplicates.indexOf(3));
+                assertEquals(3, iterableWithDuplicates.indexOf(2));
+                assertEquals(5, iterableWithDuplicates.indexOf(1));
+            }
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
+        assertEquals(-1, iterableWithDuplicates.indexOf(99));
+
+        if (this.supportsNull())
+        {
+            assertEquals(1, ((OrderedIterable<Integer>) this.newWith(3, null, 1, null)).indexOf(null));
+        }
+    }
+
     default boolean supportsForEachFromToReverseIteration()
     {
         return true;

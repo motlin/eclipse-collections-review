@@ -63,17 +63,6 @@ public interface ListIterableTestCase extends OrderedIterableWithDuplicatesTestC
     }
 
     @Test
-    default void ListIterable_indexOf()
-    {
-        ListIterable<Integer> integers = this.newWith(1, 2, 2, 3, 3, 3, 4, 4, 4, 4);
-        assertEquals(3, integers.indexOf(3));
-        assertEquals(-1, integers.indexOf(0));
-        assertEquals(-1, integers.indexOf(null));
-        ListIterable<Integer> integers2 = this.newWith(1, 2, 2, null, 3, 3, 3, null, 4, 4, 4, 4);
-        assertEquals(3, integers2.indexOf(null));
-    }
-
-    @Test
     default void ListIterable_lastIndexOf()
     {
         ListIterable<Integer> integers = this.newWith(1, 2, 2, 3, 3, 3, 4, 4, 4, 4);
