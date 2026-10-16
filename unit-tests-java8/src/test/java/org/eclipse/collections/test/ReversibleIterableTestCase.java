@@ -63,6 +63,50 @@ public interface ReversibleIterableTestCase extends OrderedIterableTestCase
     }
 
     @Test
+    default void ReversibleIterable_reverseForEachWithIndex()
+    {
+        ReversibleIterable<Integer> iterable = (ReversibleIterable<Integer>) this.newWith(3, 2, 1);
+        MutableList<Integer> result = Lists.mutable.empty();
+        MutableList<Integer> indexes = Lists.mutable.empty();
+        iterable.reverseForEachWithIndex((each, index) ->
+        {
+            result.add(each);
+            indexes.add(index);
+        });
+        switch (this.getOrderingType())
+        {
+            case INSERTION_ORDER, SORTED_REVERSE_NATURAL -> assertEquals(Lists.immutable.with(1, 2, 3), result);
+            case SORTED_NATURAL -> assertEquals(Lists.immutable.with(3, 2, 1), result);
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
+        assertEquals(Lists.immutable.with(2, 1, 0), indexes);
+
+        ReversibleIterable<Integer> empty = (ReversibleIterable<Integer>) this.<Integer>newWith();
+        empty.reverseForEachWithIndex((each, index) -> fail());
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        ReversibleIterable<Integer> iterableWithDuplicates = (ReversibleIterable<Integer>) this.newWith(3, 3, 3, 2, 2, 1);
+        MutableList<Integer> resultWithDuplicates = Lists.mutable.empty();
+        MutableList<Integer> indexesWithDuplicates = Lists.mutable.empty();
+        iterableWithDuplicates.reverseForEachWithIndex((each, index) ->
+        {
+            resultWithDuplicates.add(each);
+            indexesWithDuplicates.add(index);
+        });
+        switch (this.getOrderingType())
+        {
+            case INSERTION_ORDER, SORTED_REVERSE_NATURAL -> assertEquals(Lists.immutable.with(1, 2, 2, 3, 3, 3), resultWithDuplicates);
+            case SORTED_NATURAL -> assertEquals(Lists.immutable.with(3, 3, 3, 2, 2, 1), resultWithDuplicates);
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
+        assertEquals(Lists.immutable.with(5, 4, 3, 2, 1, 0), indexesWithDuplicates);
+    }
+
+    @Test
     default void ReversibleIterable_detectLastIndex()
     {
         ReversibleIterable<Integer> iterable = (ReversibleIterable<Integer>) this.newWith(3, 2, 1);

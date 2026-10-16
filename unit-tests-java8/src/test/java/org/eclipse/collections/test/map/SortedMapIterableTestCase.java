@@ -193,6 +193,14 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
 
     @Override
     @Test
+    default void OrderedIterable_indexOf()
+    {
+        // TODO: Support indexOf() for sorted maps, which throws because detectIndex() is not implemented.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).indexOf(3));
+    }
+
+    @Override
+    @Test
     default void ReversibleIterable_toReversed()
     {
         // TODO Support toReversed() for sorted maps.
@@ -205,6 +213,14 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     {
         // TODO Support reverseForEach() for sorted maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO: Support reverseForEachWithIndex() for sorted maps, which throws because forEachWithIndex(int, int, ObjectIntProcedure) is not implemented.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
     }
 
     @Override

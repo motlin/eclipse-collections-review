@@ -170,6 +170,14 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
 
     @Override
     @Test
+    default void OrderedIterable_indexOf()
+    {
+        // TODO: Support indexOf() for stacks, which throws because detectIndex() is not implemented.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).indexOf(3));
+    }
+
+    @Override
+    @Test
     default void OrderedIterable_toStack()
     {
         // StackIterable.toStack() keeps the stack's order, so the top of the stack stays on top

@@ -210,6 +210,14 @@ public class ImmutableOrderedMapTest
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
 
+    @Override
+    @Test
+    public void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO: Support reverseForEachWithIndex() for ImmutableOrderedMapAdapter (depends on forEachWithIndex(int, int, ObjectIntProcedure)).
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
+    }
+
     @Nested
     public class KeySetView implements UnmodifiableMapKeySetTestCase
     {

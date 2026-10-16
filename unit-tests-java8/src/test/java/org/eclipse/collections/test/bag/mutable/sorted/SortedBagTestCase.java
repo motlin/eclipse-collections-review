@@ -150,6 +150,14 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
 
     @Override
     @Test
+    default void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO: Support reverseForEachWithIndex() for sorted bags, which rejects the reversed index range it delegates to.
+        assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
+    }
+
+    @Override
+    @Test
     default void ReversibleIterable_detectLastIndex()
     {
         // TODO Support detectLastIndex() for sorted bags.
