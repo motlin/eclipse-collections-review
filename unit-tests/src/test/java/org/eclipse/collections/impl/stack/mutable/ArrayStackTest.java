@@ -80,37 +80,9 @@ public class ArrayStackTest extends MutableStackTestCase
     }
 
     @Test
-    public void corresponds()
-    {
-        ArrayStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.corresponds(null, null));
-    }
-
-    @Test
     public void hasSameElements()
     {
         ArrayStack<Object> arrayStack = new ArrayStack<>();
         assertThrows(UnsupportedOperationException.class, () -> arrayStack.hasSameElements(null));
-    }
-
-    @Test
-    public void forEach_exception()
-    {
-        MutableStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.forEach(0, 1, null));
-    }
-
-    @Test
-    public void forEachWithIndex_exception()
-    {
-        MutableStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.forEachWithIndex(0, 1, null));
-    }
-
-    @Test
-    public void detectIndex()
-    {
-        ArrayStack<Object> arrayStack = new ArrayStack<>();
-        assertThrows(UnsupportedOperationException.class, () -> arrayStack.detectIndex(null));
     }
 }

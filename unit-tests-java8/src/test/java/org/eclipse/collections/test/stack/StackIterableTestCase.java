@@ -134,38 +134,22 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
     @Test
     default void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(5, 7, each -> { }));
+        OrderedIterableWithDuplicatesTestCase.super.OrderedIterable_forEach_from_to();
 
-        // TODO Support reverse indexed traversal for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(7, 5, each -> { }));
+        // Every index is out of bounds for an empty stack
+        StackIterable<Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEach(0, 0, each -> fail()));
     }
 
     @Override
     @Test
     default void OrderedIterable_forEachWithIndex_from_to()
     {
-        // TODO Support indexed traversal with index for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(5, 7, (each, index) -> { }));
+        OrderedIterableWithDuplicatesTestCase.super.OrderedIterable_forEachWithIndex_from_to();
 
-        // TODO Support reverse indexed traversal with index for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(7, 5, (each, index) -> { }));
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_corresponds()
-    {
-        // TODO Support corresponds() for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).corresponds(Lists.mutable.with(3, 2, 1), Object::equals));
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_detectIndex()
-    {
-        // TODO Support detectIndex() for stacks.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectIndex(each -> true));
+        // Every index is out of bounds for an empty stack
+        StackIterable<Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEachWithIndex(0, 0, (each, index) -> fail()));
     }
 
     @Override
