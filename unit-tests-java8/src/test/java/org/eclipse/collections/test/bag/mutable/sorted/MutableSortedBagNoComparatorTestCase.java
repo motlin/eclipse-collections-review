@@ -12,8 +12,6 @@ package org.eclipse.collections.test.bag.mutable.sorted;
 
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.api.bag.sorted.SortedBag;
-import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.bag.sorted.mutable.TreeBag;
 import org.eclipse.collections.test.MutableSortedNaturalOrderTestCase;
 import org.junit.jupiter.api.Test;
@@ -87,18 +85,5 @@ public interface MutableSortedBagNoComparatorTestCase extends SortedBagTestCase,
         assertIterablesEqual(TreeBag.newBagWith(2, 3), mutableBag);
         assertTrue(mutableBag.removeOccurrences(2, 2));
         assertIterablesEqual(TreeBag.newBagWith(3), mutableBag);
-    }
-
-    @Override
-    @Test
-    default void SortedBag_forEachWith()
-    {
-        SortedBag<Integer> bag = this.newWith(1, 2, 2, 3, 3, 3);
-        MutableList<Integer> result = Lists.mutable.with();
-        bag.forEachWith((argument1, argument2) -> {
-            result.add(argument1);
-            result.add(argument2);
-        }, 0);
-        assertIterablesEqual(Lists.immutable.with(1, 0, 2, 0, 2, 0, 3, 0, 3, 0, 3, 0), result);
     }
 }
