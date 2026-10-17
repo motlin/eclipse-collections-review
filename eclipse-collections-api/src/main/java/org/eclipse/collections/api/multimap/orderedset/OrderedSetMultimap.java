@@ -39,6 +39,9 @@ public interface OrderedSetMultimap<K, V>
     MutableOrderedSetMultimap<K, V> toMutable();
 
     @Override
+    ImmutableOrderedSetMultimap<K, V> toImmutable();
+
+    @Override
     OrderedSetMultimap<K, V> selectKeysValues(Predicate2<? super K, ? super V> predicate);
 
     @Override
