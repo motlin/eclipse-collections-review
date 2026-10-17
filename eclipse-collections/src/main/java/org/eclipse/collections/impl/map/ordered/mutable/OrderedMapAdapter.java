@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -82,6 +83,7 @@ import org.eclipse.collections.impl.tuple.AbstractImmutableEntry;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.LazyIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.MapIterate;
 
 /**
@@ -533,13 +535,69 @@ public class OrderedMapAdapter<K, V>
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, this.size());
+        if (startIndex <= endIndex)
+        {
+            Iterator<V> iterator = this.delegate.values().iterator();
+            for (int i = 0; i <= endIndex; i++)
+            {
+                V each = iterator.next();
+                if (i >= startIndex)
+                {
+                    procedure.value(each);
+                }
+            }
+        }
+        else if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            Iterator<V> iterator = navigableMap.descendingMap().values().iterator();
+            for (int i = navigableMap.size() - 1; i >= endIndex; i--)
+            {
+                V each = iterator.next();
+                if (i <= startIndex)
+                {
+                    procedure.value(each);
+                }
+            }
+        }
+        else
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        }
     }
 
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.size());
+        if (fromIndex <= toIndex)
+        {
+            Iterator<V> iterator = this.delegate.values().iterator();
+            for (int i = 0; i <= toIndex; i++)
+            {
+                V each = iterator.next();
+                if (i >= fromIndex)
+                {
+                    objectIntProcedure.value(each, i);
+                }
+            }
+        }
+        else if (this.delegate instanceof NavigableMap<K, V> navigableMap)
+        {
+            Iterator<V> iterator = navigableMap.descendingMap().values().iterator();
+            for (int i = navigableMap.size() - 1; i >= toIndex; i--)
+            {
+                V each = iterator.next();
+                if (i <= fromIndex)
+                {
+                    objectIntProcedure.value(each, i);
+                }
+            }
+        }
+        else
+        {
+            throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        }
     }
 
     @Override
