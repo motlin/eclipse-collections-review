@@ -69,6 +69,31 @@ public class OrderedHashMapJMHTest
     }
 
     @State(Scope.Thread)
+    public static class InteriorChurnState
+    {
+        @Param({"1000", "10000", "100000"})
+        public int size;
+
+        private Integer[] oldestKeys;
+        private OrderedHashMap<Integer, Integer> orderedHashMap;
+        private LinkedHashMap<Integer, Integer> linkedHashMap;
+
+        @Setup
+        public void setUp()
+        {
+            Integer[] keys = shuffledKeys(this.size);
+            this.oldestKeys = Arrays.copyOf(keys, 10);
+            this.orderedHashMap = new OrderedHashMap<>();
+            this.linkedHashMap = new LinkedHashMap<>();
+            for (Integer key : keys)
+            {
+                this.orderedHashMap.put(key, key);
+                this.linkedHashMap.put(key, key);
+            }
+        }
+    }
+
+    @State(Scope.Thread)
     public static class RemovePutChurnState
     {
         @Param({"1000", "10000", "100000"})
@@ -238,6 +263,31 @@ public class OrderedHashMapJMHTest
             result += entry.getValue();
         }
         return result;
+    }
+
+    // Removes and re-adds the oldest keys of a large map, so every removal is interior and leaves a tombstone.
+    @Benchmark
+    public OrderedHashMap<Integer, Integer> orderedHashMapInteriorChurn(InteriorChurnState state)
+    {
+        OrderedHashMap<Integer, Integer> localMap = state.orderedHashMap;
+        for (Integer key : state.oldestKeys)
+        {
+            localMap.removeKey(key);
+            localMap.put(key, key);
+        }
+        return localMap;
+    }
+
+    @Benchmark
+    public LinkedHashMap<Integer, Integer> linkedHashMapInteriorChurn(InteriorChurnState state)
+    {
+        LinkedHashMap<Integer, Integer> localMap = state.linkedHashMap;
+        for (Integer key : state.oldestKeys)
+        {
+            localMap.remove(key);
+            localMap.put(key, key);
+        }
+        return localMap;
     }
 
     @Benchmark
