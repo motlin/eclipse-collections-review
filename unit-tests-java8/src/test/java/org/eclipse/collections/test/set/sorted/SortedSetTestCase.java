@@ -48,17 +48,6 @@ public interface SortedSetTestCase extends CollectionTestCase
         return comparator == Comparator.reverseOrder() || comparator == Comparators.reverseNaturalOrder();
     }
 
-    @Test
-    default void SortedSet_comparator_isOneOfExpected()
-    {
-        SortedSet<Integer> set = this.newWith(1, 2, 3);
-        Comparator<? super Integer> comparator = set.comparator();
-
-        assertThat(this.isNaturalOrder(comparator) || this.isReverseOrder(comparator))
-                .as("Comparator must be either null (natural order) or reverse order, but was: %s", comparator)
-                .isTrue();
-    }
-
     @Override
     @Test
     default void Iterable_remove()
@@ -128,6 +117,9 @@ public interface SortedSetTestCase extends CollectionTestCase
     {
         SortedSet<Integer> set = this.newWith(2, 4, 6);
         Comparator<? super Integer> comparator = set.comparator();
+        assertThat(this.isNaturalOrder(comparator) || this.isReverseOrder(comparator))
+                .as("Comparator must be either null (natural order) or reverse order, but was: %s", comparator)
+                .isTrue();
 
         if (this.isNaturalOrder(comparator))
         {
