@@ -11,9 +11,11 @@
 package org.eclipse.collections.test;
 
 import org.eclipse.collections.api.ordered.SortedIterable;
+import org.eclipse.collections.impl.block.factory.Comparators;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public interface SortedIterableTestCase extends OrderedIterableTestCase, NoDetectOptionalNullTestCase
 {
@@ -26,17 +28,14 @@ public interface SortedIterableTestCase extends OrderedIterableTestCase, NoDetec
         return false;
     }
 
-    @Override
     @Test
-    default void RichIterable_min_max_non_comparable()
+    default void SortedIterable_comparator()
     {
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object()));
-    }
-
-    @Override
-    @Test
-    default void RichIterable_minOptional_maxOptional_non_comparable()
-    {
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object()));
+        switch (this.getOrderingType())
+        {
+            case SORTED_NATURAL -> assertNull(this.newWith().comparator());
+            case SORTED_REVERSE_NATURAL -> assertSame(Comparators.reverseNaturalOrder(), this.newWith().comparator());
+            default -> throw new AssertionError("Unexpected ordering type for SortedIterable: " + this.getOrderingType());
+        }
     }
 }

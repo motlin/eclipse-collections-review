@@ -315,14 +315,11 @@ public interface RichIterableTestCase extends IterableTestCase
     }
 
     @Test
-    default void RichIterable_size_empty()
-    {
-        assertEquals(0, this.newWith().size());
-    }
-
-    @Test
     default void RichIterable_size()
     {
+        // size() is zero for an empty iterable
+        assertEquals(0, this.newWith().size());
+
         assertEquals(3, this.newWith(3, 2, 1).size());
 
         if (!this.allowsDuplicates())
@@ -450,6 +447,7 @@ public interface RichIterableTestCase extends IterableTestCase
     {
         RichIterable<Integer> iterable = this.newWith(3, 2, 1);
         Integer last = iterable.getLast();
+        assertNotEquals(iterable.getFirst(), last);
         assertThat(last, isOneOf(3, 2, 1));
         if (this.allowsIterator())
         {
@@ -531,13 +529,6 @@ public interface RichIterableTestCase extends IterableTestCase
         {
             assertThrows(IllegalStateException.class, () -> this.newWith(1, 1).getOnly());
         }
-    }
-
-    @Test
-    default void RichIterable_getFirst_and_getLast()
-    {
-        RichIterable<Integer> iterable = this.newWith(3, 2, 1);
-        assertNotEquals(iterable.getFirst(), iterable.getLast());
     }
 
     @Test
@@ -2819,6 +2810,28 @@ public interface RichIterableTestCase extends IterableTestCase
         assertEquals(Integer.valueOf(-1), this.newWith(1, 0, -1).max(Comparators.reverseNaturalOrder()));
         assertThrows(NoSuchElementException.class, () -> this.newWith().max(Comparators.reverseNaturalOrder()));
 
+        // min() and max() with non-comparable elements
+        if (this.supportsNonComparableElements())
+        {
+            Object sentinel = new Object();
+
+            assertSame(sentinel, this.newWith(sentinel).min());
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).min());
+
+            assertSame(sentinel, this.newWith(sentinel).max());
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).max());
+
+            assertSame(sentinel, this.newWith(sentinel).min(Comparators.reverseNaturalOrder()));
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).min(Comparators.reverseNaturalOrder()));
+
+            assertSame(sentinel, this.newWith(sentinel).max(Comparators.reverseNaturalOrder()));
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).max(Comparators.reverseNaturalOrder()));
+        }
+        else
+        {
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object()));
+        }
+
         if (!this.allowsDuplicates())
         {
             return;
@@ -2860,24 +2873,6 @@ public interface RichIterableTestCase extends IterableTestCase
     }
 
     @Test
-    default void RichIterable_min_max_non_comparable()
-    {
-        Object sentinel = new Object();
-
-        assertSame(sentinel, this.newWith(sentinel).min());
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).min());
-
-        assertSame(sentinel, this.newWith(sentinel).max());
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).max());
-
-        assertSame(sentinel, this.newWith(sentinel).min(Comparators.reverseNaturalOrder()));
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).min(Comparators.reverseNaturalOrder()));
-
-        assertSame(sentinel, this.newWith(sentinel).max(Comparators.reverseNaturalOrder()));
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).max(Comparators.reverseNaturalOrder()));
-    }
-
-    @Test
     default void RichIterable_minOptional_maxOptional()
     {
         assertEquals(Optional.of(-1), this.newWith(-1, 0, 1).minOptional());
@@ -2900,6 +2895,28 @@ public interface RichIterableTestCase extends IterableTestCase
         assertSame(Optional.empty(), this.newWith().maxOptional(Comparators.reverseNaturalOrder()));
         assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).maxOptional(Comparators.reverseNaturalOrder()));
 
+        // minOptional() and maxOptional() with non-comparable elements
+        if (this.supportsNonComparableElements())
+        {
+            Object sentinel = new Object();
+
+            assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional());
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional());
+
+            assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional());
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional());
+
+            assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional(Comparators.reverseNaturalOrder()));
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional(Comparators.reverseNaturalOrder()));
+
+            assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional(Comparators.reverseNaturalOrder()));
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional(Comparators.reverseNaturalOrder()));
+        }
+        else
+        {
+            assertThrows(ClassCastException.class, () -> this.newWith(new Object()));
+        }
+
         if (!this.allowsDuplicates())
         {
             return;
@@ -2916,24 +2933,6 @@ public interface RichIterableTestCase extends IterableTestCase
 
         assertEquals(Optional.of(-1), this.newWith(-1, -1, 0, 0, 1, 1).maxOptional(Comparators.reverseNaturalOrder()));
         assertEquals(Optional.of(-1), this.newWith(1, 1, 0, 0, -1, -1).maxOptional(Comparators.reverseNaturalOrder()));
-    }
-
-    @Test
-    default void RichIterable_minOptional_maxOptional_non_comparable()
-    {
-        Object sentinel = new Object();
-
-        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional());
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional());
-
-        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional());
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional());
-
-        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional(Comparators.reverseNaturalOrder()));
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional(Comparators.reverseNaturalOrder()));
-
-        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional(Comparators.reverseNaturalOrder()));
-        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional(Comparators.reverseNaturalOrder()));
     }
 
     @Test
@@ -3709,27 +3708,6 @@ public interface RichIterableTestCase extends IterableTestCase
     }
 
     @Test
-    default void RichIterable_fused_collectMakeString()
-    {
-        RichIterable<Integer> iterable = this.newWith(0, 1, 8);
-
-        assertEquals(
-                iterable.asLazy().collect(Integer::toUnsignedString).makeString("[", ",", "]"),
-                iterable.makeString(Integer::toUnsignedString, "[", ",", "]"));
-
-        if (!this.allowsDuplicates())
-        {
-            return;
-        }
-
-        RichIterable<Integer> iterableDup = this.newWith(0, 0, 1, 1, 8, 8);
-
-        assertEquals(
-                iterableDup.asLazy().collect(Integer::toUnsignedString).makeString("[", ",", "]"),
-                iterableDup.makeString(Integer::toUnsignedString, "[", ",", "]"));
-    }
-
-    @Test
     default void RichIterable_makeString_appendString()
     {
         RichIterable<Integer> iterable = this.newWith(4, 3, 2, 1);
@@ -3810,6 +3788,26 @@ public interface RichIterableTestCase extends IterableTestCase
         StringBuilder builder3 = new StringBuilder();
         iterable2.appendString(builder3, "[", "/", "]");
         assertEquals(iterable2.makeString("[", "/", "]"), builder3.toString());
+    }
+
+    @Test
+    default void RichIterable_makeString_Function()
+    {
+        // makeString(Function, ...) matches collecting lazily and then calling makeString()
+        RichIterable<Integer> iterable = this.newWith(0, 1, 8);
+        assertEquals(
+                iterable.asLazy().collect(Integer::toUnsignedString).makeString("[", ",", "]"),
+                iterable.makeString(Integer::toUnsignedString, "[", ",", "]"));
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        RichIterable<Integer> iterableDup = this.newWith(0, 0, 1, 1, 8, 8);
+        assertEquals(
+                iterableDup.asLazy().collect(Integer::toUnsignedString).makeString("[", ",", "]"),
+                iterableDup.makeString(Integer::toUnsignedString, "[", ",", "]"));
     }
 
     @Override
