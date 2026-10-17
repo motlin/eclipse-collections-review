@@ -16,6 +16,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -56,7 +57,6 @@ import org.eclipse.collections.api.list.primitive.MutableFloatList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.api.list.primitive.MutableShortList;
-import org.eclipse.collections.api.multimap.orderedset.MutableOrderedSetMultimap;
 import org.eclipse.collections.api.ordered.OrderedIterable;
 import org.eclipse.collections.api.partition.set.ordered.PartitionMutableOrderedSet;
 import org.eclipse.collections.api.set.ParallelSetIterable;
@@ -70,6 +70,7 @@ import org.eclipse.collections.impl.block.procedure.PartitionPredicate2Procedure
 import org.eclipse.collections.impl.block.procedure.PartitionProcedure;
 import org.eclipse.collections.impl.block.procedure.SelectInstancesOfProcedure;
 import org.eclipse.collections.impl.collection.mutable.AbstractMutableCollection;
+import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.partition.set.ordered.PartitionOrderedSetAdapter;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.internal.SetIterables;
@@ -1100,15 +1101,15 @@ public class OrderedHashSet<T>
     }
 
     @Override
-    public <V> MutableOrderedSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function)
+    public <V> OrderedHashSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupBy() not implemented yet");
+        return this.groupBy(function, OrderedHashSetMultimap.newMultimap());
     }
 
     @Override
-    public <V> MutableOrderedSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function)
+    public <V> OrderedHashSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupByEach() not implemented yet");
+        return this.groupByEach(function, OrderedHashSetMultimap.newMultimap());
     }
 
     @Override
@@ -1198,7 +1199,7 @@ public class OrderedHashSet<T>
     @Override
     public MutableOrderedSet<T> asUnmodifiable()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asUnmodifiable() not implemented yet");
+        return OrderedSetAdapter.adapt(Collections.unmodifiableSet(this));
     }
 
     @Override
