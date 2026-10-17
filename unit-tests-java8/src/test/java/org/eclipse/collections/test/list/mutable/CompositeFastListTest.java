@@ -11,15 +11,13 @@
 package org.eclipse.collections.test.list.mutable;
 
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.CompositeFastList;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 public class CompositeFastListTest implements MutableListTestCase
 {
@@ -28,10 +26,13 @@ public class CompositeFastListTest implements MutableListTestCase
     public final <T> MutableList<T> newWith(T... elements)
     {
         RichIterable<RichIterable<T>> chunks = FastList.wrapCopy(elements).chunk(3);
-        MutableList<T> result = new CompositeFastList<>();
+        CompositeFastList<T> result = new CompositeFastList<>();
+        // Empty inner lists before, between, and after the chunks make every contract test skip over them
+        result.addComposited(FastList.newList());
         for (RichIterable<T> chunk : chunks)
         {
-            result.addAll(FastList.newList(chunk));
+            result.addComposited(FastList.newList(chunk));
+            result.addComposited(FastList.newList());
         }
         return result;
     }
@@ -40,39 +41,15 @@ public class CompositeFastListTest implements MutableListTestCase
     @Test
     public void MutableList_clone()
     {
-        // TODO: Implement CompositeFastList.clone().
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).clone());
-    }
+        MutableListTestCase.super.MutableList_clone();
 
-    @Override
-    @Test
-    public void List_subList_subList_addAll()
-    {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith("A", "B", "C", "D").subList(0, 3).subList(0, 2).addAll(0, Lists.mutable.with("E")));
-    }
-
-    @Override
-    @Test
-    public void List_remove()
-    {
-        MutableList<Integer> list = this.newWith(4, 3, 2, 1);
-        assertEquals(Integer.valueOf(4), list.remove(0));
-        assertIterablesEqual(this.newWith(3, 2, 1), list);
-        assertEquals(Integer.valueOf(1), list.remove(list.size() - 1));
-        assertIterablesEqual(this.newWith(3, 2), list);
-        assertThrows(IndexOutOfBoundsException.class, () -> list.remove(list.size()));
-        assertIterablesEqual(this.newWith(3, 2), list);
-
-        // TODO: CompositeFastList.remove(int) does not range check negative indexes, so it decrements size before the inner list throws.
-        assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
-        assertEquals(1, list.size());
-    }
-
-    @Override
-    @Test
-    public void List_addAll()
-    {
-        // TODO: Implement CompositeFastList.addAll(int, Collection).
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).addAll(1, Lists.mutable.with(8, 9)));
+        // A composite with no inner lists clones to an independent empty composite
+        MutableList<Integer> empty = new CompositeFastList<>();
+        MutableList<Integer> clone = empty.clone();
+        assertNotSame(empty, clone);
+        assertIterablesEqual(this.newWith(), clone);
+        clone.add(1);
+        assertIterablesEqual(this.newWith(), empty);
+        assertIterablesEqual(this.newWith(1), clone);
     }
 }
