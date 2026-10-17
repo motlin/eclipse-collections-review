@@ -82,4 +82,12 @@ public class OrderedMapAdapterTest implements MutableOrderedMapTestCase
         // TODO Support reverseForEach for OrderedMapAdapter (depends on forEach(int, int)).
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
     }
+
+    @Override
+    @Test
+    public void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO: Support reverseForEachWithIndex() for OrderedMapAdapter (depends on forEachWithIndex(int, int, ObjectIntProcedure)).
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
+    }
 }
