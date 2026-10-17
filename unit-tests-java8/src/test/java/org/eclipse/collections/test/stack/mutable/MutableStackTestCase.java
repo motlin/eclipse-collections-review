@@ -43,13 +43,8 @@ public interface MutableStackTestCase extends StackIterableTestCase
         MutableStack<Integer> mutableStack = this.newWith(5, 1, 4, 2, 3);
         assertEquals(Integer.valueOf(5), mutableStack.pop());
         assertIterablesEqual(Stacks.immutable.withReversed(1, 4, 2, 3), mutableStack);
-    }
 
-    @Test
-    default void MutableStack_pop_throws()
-    {
-        MutableStack<Integer> mutableStack = this.newWith(5, 1, 4, 2, 3);
-        assertEquals(Integer.valueOf(5), mutableStack.pop());
+        // pop() throws once the stack is empty
         assertEquals(Integer.valueOf(1), mutableStack.pop());
         assertEquals(Integer.valueOf(4), mutableStack.pop());
         assertEquals(Integer.valueOf(2), mutableStack.pop());
