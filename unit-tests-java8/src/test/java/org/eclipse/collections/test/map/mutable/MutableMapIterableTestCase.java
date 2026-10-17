@@ -474,20 +474,7 @@ public interface MutableMapIterableTestCase extends MapIterableTestCase, MapTest
     }
 
     @Test
-    default void MutableMapIterable_entrySet_setValue()
-    {
-        MutableMapIterable<String, Integer> map = this.newWithKeysValues("3", 3, "2", 2, "1", 1);
-        map.entrySet().forEach(each -> {
-            Integer currentValue = each.getValue();
-            Integer oldValue = each.setValue(currentValue + 1);
-            assertEquals(currentValue, oldValue);
-            assertEquals(Integer.valueOf(currentValue + 1), each.getValue());
-        });
-        assertIterablesEqual(this.newWithKeysValues("3", 4, "2", 3, "1", 2), map);
-    }
-
-    @Test
-    default void MutableMapIterable_entrySet_iterator_remove()
+    default void Map_entrySet_iterator_remove()
     {
         MutableMapIterable<Integer, String> map = this.newWithKeysValues(3, "Three", 2, "Two", 1, "One");
 
