@@ -11,11 +11,16 @@
 package org.eclipse.collections.test.map.mutable.ordered;
 
 import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.junit.jupiter.api.Test;
 
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -55,8 +60,24 @@ public class OrderedMapAdapterTest implements MutableOrderedMapTestCase
     @Test
     public void ReversibleIterable_detectLastIndex()
     {
-        // TODO Support detectLastIndex for OrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+        MutableOrderedMapTestCase.super.ReversibleIterable_detectLastIndex();
+
+        // A NavigableMap delegate is searched from the end
+        TreeMap<String, Integer> treeMap = new TreeMap<>();
+        treeMap.put("A", 1);
+        treeMap.put("B", 2);
+        treeMap.put("C", 1);
+        treeMap.put("D", 3);
+        MutableOrderedMap<String, Integer> navigable = OrderedMapAdapter.adapt(treeMap);
+
+        MutableList<Integer> evaluated = Lists.mutable.empty();
+        assertEquals(2, navigable.detectLastIndex(value ->
+        {
+            evaluated.add(value);
+            return value == 1;
+        }));
+        assertIterablesEqual(Lists.immutable.with(3, 1), evaluated);
+        assertEquals(-1, navigable.detectLastIndex(value -> value == 99));
     }
 
     @Override

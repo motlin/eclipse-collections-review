@@ -242,14 +242,6 @@ public class UnmodifiableMutableOrderedMapTest
 
     @Override
     @Test
-    public void ReversibleIterable_detectLastIndex()
-    {
-        // TODO Support detectLastIndex for OrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
-    }
-
-    @Override
-    @Test
     public void OrderedIterable_forEach_from_to()
     {
         // TODO Support indexed traversal for OrderedMapAdapter.
