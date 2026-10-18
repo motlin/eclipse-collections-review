@@ -45,9 +45,9 @@ public class MultiReaderHashBagTest implements MutableBagTestCase, MultiReaderMu
 
     @Override
     @Test
-    public void Iterable_next()
+    public void Iterable_iterator_next()
     {
-        MultiReaderMutableCollectionTestCase.super.Iterable_next();
+        MultiReaderMutableCollectionTestCase.super.Iterable_iterator_next();
 
         MultiReaderHashBag<Integer> iterable = this.newWith(3, 3, 3, 2, 2, 1);
 
@@ -122,9 +122,9 @@ public class MultiReaderHashBagTest implements MutableBagTestCase, MultiReaderMu
 
     @Override
     @Test
-    public void Iterable_hasNext()
+    public void Iterable_iterator_hasNext()
     {
-        MultiReaderMutableCollectionTestCase.super.Iterable_hasNext();
+        MultiReaderMutableCollectionTestCase.super.Iterable_iterator_hasNext();
 
         MultiReaderHashBag<Integer> iterable = this.newWith(3, 3, 3, 2, 2, 1);
         iterable.withReadLockAndDelegate(delegate -> assertTrue(delegate.iterator().hasNext()));

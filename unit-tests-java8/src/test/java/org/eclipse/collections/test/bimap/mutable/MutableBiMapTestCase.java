@@ -52,17 +52,17 @@ public interface MutableBiMapTestCase extends MutableUnsortedBiMapTestCase, MapT
 
     @Override
     @Test
-    default void Iterable_toString()
+    default void Object_toString()
     {
-        // MapTestCase.Iterable_toString() assumes insertion order, which bimaps don't have
-        MutableUnsortedBiMapTestCase.super.Iterable_toString();
+        // MapTestCase.Object_toString() assumes insertion order, which bimaps don't have
+        MutableUnsortedBiMapTestCase.super.Object_toString();
     }
 
     @Override
     @Test
-    default void Object_equalsAndHashCode()
+    default void Object_equals_hashCode()
     {
-        MutableUnsortedBiMapTestCase.super.Object_equalsAndHashCode();
-        MapTestCase.super.Object_equalsAndHashCode();
+        MutableUnsortedBiMapTestCase.super.Object_equals_hashCode();
+        MapTestCase.super.Object_equals_hashCode();
     }
 }
