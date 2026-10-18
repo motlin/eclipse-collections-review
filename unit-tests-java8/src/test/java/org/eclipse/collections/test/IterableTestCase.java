@@ -409,7 +409,7 @@ public interface IterableTestCase
 
     @Test
     @SuppressWarnings("UndefinedEquals")
-    default void Object_equalsAndHashCode()
+    default void Object_equals_hashCode()
     {
         // Two copies of an element are not equal to one copy
         if (this.allowsDuplicates())
@@ -498,7 +498,7 @@ public interface IterableTestCase
     }
 
     @Test
-    default void Iterable_hasNext()
+    default void Iterable_iterator_hasNext()
     {
         if (!this.allowsIterator())
         {
@@ -510,7 +510,7 @@ public interface IterableTestCase
     }
 
     @Test
-    default void Iterable_next()
+    default void Iterable_iterator_next()
     {
         if (!this.allowsIterator())
         {
@@ -577,7 +577,7 @@ public interface IterableTestCase
     }
 
     @Test
-    default void Iterable_toString()
+    default void Object_toString()
     {
         assertThat(this.newWith(2, 1).toString(), isOneOf("[1, 2]", "[2, 1]"));
         assertThat(this.newWith(3, 2, 1).toString(), isOneOf(

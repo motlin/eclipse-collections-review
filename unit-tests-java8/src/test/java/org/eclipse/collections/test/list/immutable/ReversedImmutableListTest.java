@@ -51,9 +51,9 @@ public class ReversedImmutableListTest implements ImmutableListTestCase
 
     @Override
     @Test
-    public void Object_equalsAndHashCode()
+    public void Object_equals_hashCode()
     {
-        ImmutableListTestCase.super.Object_equalsAndHashCode();
+        ImmutableListTestCase.super.Object_equals_hashCode();
 
         // TODO: Serialize the reversed view as a plain immutable list; writeReplace() returns Lists.immutable.withAll(this), which returns this ReversedImmutableList itself.
         ImmutableList<Integer> reversed = this.newWith(3, 2, 1);
