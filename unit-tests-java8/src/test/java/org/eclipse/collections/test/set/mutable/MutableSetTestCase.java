@@ -45,9 +45,9 @@ public interface MutableSetTestCase extends SetTestCase, UnsortedSetIterableTest
 
     @Override
     @Test
-    default void Iterable_next()
+    default void Iterable_iterator_next()
     {
-        UnsortedSetIterableTestCase.super.Iterable_next();
+        UnsortedSetIterableTestCase.super.Iterable_iterator_next();
     }
 
     @Override
@@ -59,10 +59,10 @@ public interface MutableSetTestCase extends SetTestCase, UnsortedSetIterableTest
 
     @Override
     @Test
-    default void Object_equalsAndHashCode()
+    default void Object_equals_hashCode()
     {
-        UnsortedSetIterableTestCase.super.Object_equalsAndHashCode();
-        MutableCollectionUniqueTestCase.super.Object_equalsAndHashCode();
+        UnsortedSetIterableTestCase.super.Object_equals_hashCode();
+        MutableCollectionUniqueTestCase.super.Object_equals_hashCode();
 
         if (this.allowsRemove())
         {

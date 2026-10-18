@@ -62,9 +62,9 @@ public class ReversedMutableListTest implements MutableListTestCase
 
     @Override
     @Test
-    public void Object_equalsAndHashCode()
+    public void Object_equals_hashCode()
     {
-        MutableListTestCase.super.Object_equalsAndHashCode();
+        MutableListTestCase.super.Object_equals_hashCode();
 
         // writeReplace() serializes the reversed view as a plain FastList
         Verify.assertInstanceOf(FastList.class, SerializeTestHelper.serializeDeserialize(this.newWith(3, 2, 1)));
