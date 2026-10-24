@@ -13,18 +13,17 @@ package org.eclipse.collections.test.collection.mutable;
 import org.eclipse.collections.impl.collection.mutable.AbstractMultiReaderMutableCollection;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isOneOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public interface MultiReaderMutableCollectionTestCase extends MutableCollectionTestCase
 {
     @Override
     <T> AbstractMultiReaderMutableCollection<T> newWith(T... elements);
-
-    @Test
-    default void Iterable_iterator_throws()
-    {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).iterator());
-    }
 
     @Override
     @Test
@@ -37,14 +36,16 @@ public interface MultiReaderMutableCollectionTestCase extends MutableCollectionT
     @Test
     default void Iterable_next()
     {
-        // Multi-reader collections don't support iterator()
+        // Multi-reader collections don't support iterator() outside withReadLockAndDelegate
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).iterator());
     }
 
     @Override
     @Test
     default void Iterable_hasNext()
     {
-        // Multi-reader collections don't support iterator()
+        // Multi-reader collections don't support iterator() outside withReadLockAndDelegate
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).iterator());
     }
 
     @Override
@@ -58,7 +59,16 @@ public interface MultiReaderMutableCollectionTestCase extends MutableCollectionT
     @Test
     default void RichIterable_getLast()
     {
-        // Does not support iterator outside withReadLockAndDelegate
+        // getLast() works outside withReadLockAndDelegate, but iterator() does not, so check it against the ordering type only
+        AbstractMultiReaderMutableCollection<Integer> collection = this.newWith(3, 2, 1);
+        Integer last = collection.getLast();
+        assertNotEquals(collection.getFirst(), last);
+        switch (this.getOrderingType())
+        {
+            case UNORDERED -> assertThat(last, isOneOf(3, 2, 1));
+            case INSERTION_ORDER -> assertThat(last, is(1));
+            default -> fail("Unexpected value: " + this.getOrderingType());
+        }
     }
 
     @Override
