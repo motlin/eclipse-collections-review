@@ -244,6 +244,8 @@ public final class ServiceLoaderUtils
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.ImmutableSetFactory", "org.eclipse.collections.impl.set.immutable.ImmutableSetFactoryImpl");
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.MultiReaderSetFactory", "org.eclipse.collections.impl.set.mutable.MultiReaderMutableSetFactory");
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.MutableSetFactory", "org.eclipse.collections.impl.set.mutable.MutableSetFactoryImpl");
+        FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.ordered.ImmutableOrderedSetFactory", "org.eclipse.collections.impl.set.ordered.immutable.ImmutableOrderedSetFactoryImpl");
+        FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.ordered.MutableOrderedSetFactory", "org.eclipse.collections.impl.set.ordered.mutable.MutableOrderedSetFactoryImpl");
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.primitive.ImmutableBooleanSetFactory", "org.eclipse.collections.impl.set.immutable.primitive.ImmutableBooleanSetFactoryImpl");
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.primitive.ImmutableByteSetFactory", "org.eclipse.collections.impl.set.immutable.primitive.ImmutableByteSetFactoryImpl");
         FACTORY_IMPL.put("org.eclipse.collections.api.factory.set.primitive.ImmutableCharSetFactory", "org.eclipse.collections.impl.set.immutable.primitive.ImmutableCharSetFactoryImpl");
