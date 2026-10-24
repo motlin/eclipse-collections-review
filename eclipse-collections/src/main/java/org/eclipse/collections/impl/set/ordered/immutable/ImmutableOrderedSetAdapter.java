@@ -51,6 +51,7 @@ import org.eclipse.collections.api.set.ordered.ImmutableOrderedSet;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.collection.immutable.AbstractImmutableCollection;
+import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.set.ordered.mutable.OrderedSetAdapter;
 
 /**
@@ -325,13 +326,13 @@ public class ImmutableOrderedSetAdapter<T>
     @Override
     public <V> ImmutableOrderedSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupBy() not implemented yet");
+        return this.groupBy(function, OrderedHashSetMultimap.<V, T>newMultimap()).toImmutable();
     }
 
     @Override
     public <V> ImmutableOrderedSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupByEach() not implemented yet");
+        return this.groupByEach(function, OrderedHashSetMultimap.<V, T>newMultimap()).toImmutable();
     }
 
     @Override
