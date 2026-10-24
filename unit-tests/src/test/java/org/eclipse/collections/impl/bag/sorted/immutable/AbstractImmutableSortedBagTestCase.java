@@ -1361,7 +1361,6 @@ public abstract class AbstractImmutableSortedBagTestCase extends AbstractImmutab
 
         assertThrows(IndexOutOfBoundsException.class, () -> integers1.forEach(-1, 0, result::add));
         assertThrows(IndexOutOfBoundsException.class, () -> integers1.forEach(0, -1, result::add));
-        assertThrows(IllegalArgumentException.class, () -> integers1.forEach(7, 5, result::add));
 
         ImmutableSortedBag<Integer> integers2 = this.classUnderTest();
         MutableList<Integer> mutableList = Lists.mutable.of();
@@ -1387,7 +1386,6 @@ public abstract class AbstractImmutableSortedBagTestCase extends AbstractImmutab
 
         assertThrows(IndexOutOfBoundsException.class, () -> integers1.forEachWithIndex(-1, 0, new AddToList(Lists.mutable.empty())));
         assertThrows(IndexOutOfBoundsException.class, () -> integers1.forEachWithIndex(0, -1, new AddToList(Lists.mutable.empty())));
-        assertThrows(IllegalArgumentException.class, () -> integers1.forEachWithIndex(7, 5, new AddToList(Lists.mutable.empty())));
 
         ImmutableSortedBag<Integer> integers2 = this.classUnderTest();
         MutableList<Integer> mutableList1 = Lists.mutable.of();

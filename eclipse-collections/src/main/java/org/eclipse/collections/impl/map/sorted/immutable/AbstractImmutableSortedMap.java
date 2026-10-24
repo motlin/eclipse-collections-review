@@ -97,6 +97,8 @@ import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
+import org.eclipse.collections.impl.stack.mutable.ArrayStack;
+import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.MapIterate;
 
 public abstract class AbstractImmutableSortedMap<K, V>
@@ -595,7 +597,12 @@ public abstract class AbstractImmutableSortedMap<K, V>
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super V, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        if (this.size() != other.size())
+        {
+            return false;
+        }
+        Iterator<S> otherIterator = other.iterator();
+        return this.allSatisfy(each -> predicate.accept(each, otherIterator.next()));
     }
 
     @Override
@@ -613,13 +620,13 @@ public abstract class AbstractImmutableSortedMap<K, V>
     @Override
     public MutableStack<V> toStack()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toStack() not implemented yet");
+        return ArrayStack.newStack(this.values());
     }
 
     @Override
     public int detectIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return Iterate.detectIndex(this.values(), predicate);
     }
 
     /**

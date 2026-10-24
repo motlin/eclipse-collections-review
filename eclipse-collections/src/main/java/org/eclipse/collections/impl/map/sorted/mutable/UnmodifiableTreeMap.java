@@ -1288,7 +1288,7 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public MutableSortedMap<K, V> toReversed()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
+        return this.getMutableSortedMap().toReversed();
     }
 
     @Override
@@ -1324,42 +1324,42 @@ public class UnmodifiableTreeMap<K, V>
     @Override
     public MutableList<V> distinct()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".distinct() not implemented yet");
+        return this.getMutableSortedMap().distinct();
     }
 
     @Override
     public int detectLastIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectLastIndex() not implemented yet");
+        return this.getMutableSortedMap().detectLastIndex(predicate);
     }
 
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super V, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        return this.getMutableSortedMap().corresponds(other, predicate);
     }
 
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        this.getMutableSortedMap().forEach(startIndex, endIndex, procedure);
     }
 
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        this.getMutableSortedMap().forEachWithIndex(fromIndex, toIndex, objectIntProcedure);
     }
 
     @Override
     public MutableStack<V> toStack()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toStack() not implemented yet");
+        return this.getMutableSortedMap().toStack();
     }
 
     @Override
     public int detectIndex(Predicate<? super V> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return this.getMutableSortedMap().detectIndex(predicate);
     }
 }
