@@ -10,12 +10,8 @@
 
 package org.eclipse.collections.impl.set.ordered.mutable;
 
-import java.util.LinkedHashSet;
-
 import org.eclipse.collections.api.factory.set.ordered.MutableOrderedSetFactory;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
-import org.eclipse.collections.impl.utility.ArrayIterate;
-import org.eclipse.collections.impl.utility.Iterate;
 
 /**
  * @since 14.0
@@ -28,7 +24,7 @@ public class MutableOrderedSetFactoryImpl implements MutableOrderedSetFactory
     @Override
     public <T> MutableOrderedSet<T> empty()
     {
-        return OrderedSetAdapter.adapt(new LinkedHashSet<>());
+        return new OrderedHashSet<>();
     }
 
     @Override
@@ -52,9 +48,7 @@ public class MutableOrderedSetFactoryImpl implements MutableOrderedSetFactory
     @Override
     public <T> MutableOrderedSet<T> with(T... items)
     {
-        LinkedHashSet<T> set = new LinkedHashSet<>();
-        ArrayIterate.addAllTo(items, set);
-        return OrderedSetAdapter.adapt(set);
+        return OrderedHashSet.newSetWith(items);
     }
 
     @Override
@@ -66,8 +60,6 @@ public class MutableOrderedSetFactoryImpl implements MutableOrderedSetFactory
     @Override
     public <T> MutableOrderedSet<T> withAll(Iterable<? extends T> items)
     {
-        LinkedHashSet<T> set = new LinkedHashSet<>();
-        Iterate.addAllTo(items, set);
-        return OrderedSetAdapter.adapt(set);
+        return OrderedHashSet.newSet(items);
     }
 }
