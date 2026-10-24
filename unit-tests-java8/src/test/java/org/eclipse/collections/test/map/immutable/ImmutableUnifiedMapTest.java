@@ -79,7 +79,7 @@ public class ImmutableUnifiedMapTest implements ImmutableMapTestCase
     }
 
     @Test
-    public void sanity()
+    public void ImmutableUnifiedMap_constructor()
     {
         assertEquals("ImmutableUnifiedMap", this.newWith(1, 2, 3, 4, 5).getClass().getSimpleName());
     }
