@@ -10,17 +10,9 @@
 
 package org.eclipse.collections.test.bimap.immutable;
 
-import java.util.Map;
-
 import org.eclipse.collections.impl.bimap.immutable.AbstractImmutableBiMap;
 import org.eclipse.collections.test.map.mutable.UnmodifiableMapTestCase;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public interface ImmutableBiMapTestCase extends ImmutableUnsortedBiMapTestCase, UnmodifiableMapTestCase
 {
@@ -75,56 +67,5 @@ public interface ImmutableBiMapTestCase extends ImmutableUnsortedBiMapTestCase, 
     {
         // MapTestCase.Iterable_toString() assumes insertion order
         ImmutableUnsortedBiMapTestCase.super.Iterable_toString();
-    }
-
-    @Override
-    @Test
-    default void Map_merge()
-    {
-        // TODO: Throw before calling the function, like the unmodifiable maps do; AbstractImmutableBiMap inherits the default java.util.Map.merge(), which calls the function before put() throws.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.merge(3, "4", (v1, v2) -> v1 + v2));
-        assertThrows(UnsupportedOperationException.class, () -> map.merge(4, "4", (v1, v2) -> {
-            fail("Expected lambda not to be called for an absent key");
-            return null;
-        }));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_putIfAbsent()
-    {
-        // TODO: Throw immediately instead of returning the existing value; AbstractImmutableBiMap inherits the default java.util.Map.putIfAbsent().
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertEquals("1", map.putIfAbsent(1, "One"));
-        assertThrows(UnsupportedOperationException.class, () -> map.putIfAbsent(4, "4"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_remove_key_value()
-    {
-        // TODO: Throw immediately instead of returning false for an absent entry; AbstractImmutableBiMap inherits the default java.util.Map.remove(Object, Object).
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.remove(1, "1"));
-        assertFalse(map.remove(2, "wrong"));
-        assertFalse(map.remove(4, "4"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
-    }
-
-    @Override
-    @Test
-    default void Map_replace()
-    {
-        // TODO: Throw immediately instead of returning for an absent key or a mismatched value; AbstractImmutableBiMap inherits the default java.util.Map.replace() methods.
-        Map<Integer, String> map = this.newWithKeysValues(1, "1", 2, "2", 3, "3");
-        assertThrows(UnsupportedOperationException.class, () -> map.replace(1, "One"));
-        assertNull(map.replace(4, "Four"));
-        assertThrows(UnsupportedOperationException.class, () -> map.replace(2, "2", "Two"));
-        assertFalse(map.replace(3, "wrong", "Three"));
-        assertFalse(map.replace(4, "4", "Four"));
-        assertEquals(this.newWithKeysValues(1, "1", 2, "2", 3, "3"), map);
     }
 }
