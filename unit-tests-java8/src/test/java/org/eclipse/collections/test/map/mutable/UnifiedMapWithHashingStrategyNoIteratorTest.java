@@ -160,20 +160,6 @@ public class UnifiedMapWithHashingStrategyNoIteratorTest implements MutableMapTe
         assertThrows(AssertionError.class, () -> map.entrySet().equals(expected));
     }
 
-    @Override
-    @Test
-    public void MapIterable_keySet_equals()
-    {
-        this.Map_keySet_equals();
-    }
-
-    @Override
-    @Test
-    public void MapIterable_entrySet_equals()
-    {
-        this.Map_entrySet_equals();
-    }
-
     public static class UnifiedMapWithHashingStrategyNoIterator<K, V> extends UnifiedMapWithHashingStrategy<K, V>
     {
         public UnifiedMapWithHashingStrategyNoIterator()
