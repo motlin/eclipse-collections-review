@@ -12,6 +12,7 @@ package org.eclipse.collections.impl.bag.sorted.immutable;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -494,6 +495,18 @@ class ImmutableEmptySortedBag<T>
             throw new IllegalArgumentException("Count must be greater than zero, but was: " + count);
         }
         return this;
+    }
+
+    @Override
+    public ImmutableSortedBag<T> toReversed()
+    {
+        return new ImmutableEmptySortedBag<>(Collections.reverseOrder(this.comparator));
+    }
+
+    @Override
+    public int detectLastIndex(Predicate<? super T> predicate)
+    {
+        return -1;
     }
 
     @Override

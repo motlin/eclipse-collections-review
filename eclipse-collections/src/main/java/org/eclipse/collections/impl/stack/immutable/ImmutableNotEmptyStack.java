@@ -72,6 +72,7 @@ import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.Partitio
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.PartitionProcedure;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack.PartitionWhileProcedure;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
 
 final class ImmutableNotEmptyStack<T>
@@ -462,7 +463,21 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super T, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        if (this.size != other.size())
+        {
+            return false;
+        }
+        Iterator<S> otherIterator = other.iterator();
+        ImmutableStack<T> pointer = this;
+        while (pointer.notEmpty())
+        {
+            if (!predicate.accept(pointer.peek(), otherIterator.next()))
+            {
+                return false;
+            }
+            pointer = pointer.pop();
+        }
+        return true;
     }
 
     public boolean hasSameElements(OrderedIterable<T> other)
@@ -473,19 +488,76 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, this.size);
+        if (startIndex <= endIndex)
+        {
+            ImmutableStack<T> pointer = this.pop(startIndex);
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                procedure.value(pointer.peek());
+                pointer = pointer.pop();
+            }
+        }
+        else
+        {
+            Object[] range = new Object[startIndex - endIndex + 1];
+            ImmutableStack<T> pointer = this.pop(endIndex);
+            for (int i = 0; i < range.length; i++)
+            {
+                range[i] = pointer.peek();
+                pointer = pointer.pop();
+            }
+            for (int i = range.length - 1; i >= 0; i--)
+            {
+                procedure.value((T) range[i]);
+            }
+        }
     }
 
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.size);
+        if (fromIndex <= toIndex)
+        {
+            ImmutableStack<T> pointer = this.pop(fromIndex);
+            for (int i = fromIndex; i <= toIndex; i++)
+            {
+                objectIntProcedure.value(pointer.peek(), i);
+                pointer = pointer.pop();
+            }
+        }
+        else
+        {
+            Object[] range = new Object[fromIndex - toIndex + 1];
+            ImmutableStack<T> pointer = this.pop(toIndex);
+            for (int i = 0; i < range.length; i++)
+            {
+                range[i] = pointer.peek();
+                pointer = pointer.pop();
+            }
+            for (int i = range.length - 1; i >= 0; i--)
+            {
+                objectIntProcedure.value((T) range[i], toIndex + i);
+            }
+        }
     }
 
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        int index = 0;
+        ImmutableStack<T> pointer = this;
+        while (pointer.notEmpty())
+        {
+            if (predicate.accept(pointer.peek()))
+            {
+                return index;
+            }
+            index++;
+            pointer = pointer.pop();
+        }
+        return -1;
     }
 
     @Override

@@ -448,6 +448,46 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEach(0, -1, result::add));
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEach(0, 10, result::add));
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEach(10, 0, result::add));
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        // Ranges that start or end inside a run of duplicates
+        OrderedIterable<Integer> integersWithDuplicates = (OrderedIterable<Integer>) this.newWith(3, 3, 3, 2, 2, 1);
+        MutableList<Integer> resultWithDuplicates = Lists.mutable.empty();
+        integersWithDuplicates.forEach(1, 4, resultWithDuplicates::add);
+        assertIterablesEqual(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(2, 2, 3, 3);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(3, 3, 2, 2);
+                },
+                resultWithDuplicates);
+
+        if (this.supportsForEachFromToReverseIteration())
+        {
+            MutableList<Integer> reverseResultWithDuplicates = Lists.mutable.empty();
+            integersWithDuplicates.forEach(4, 1, reverseResultWithDuplicates::add);
+            assertIterablesEqual(
+                    switch (this.getOrderingType())
+                    {
+                        case SORTED_NATURAL -> Lists.immutable.with(3, 3, 2, 2);
+                        case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(2, 2, 3, 3);
+                    },
+                    reverseResultWithDuplicates);
+
+            MutableList<Integer> reverseResultWithDuplicates2 = Lists.mutable.empty();
+            integersWithDuplicates.forEach(2, 0, reverseResultWithDuplicates2::add);
+            assertIterablesEqual(
+                    switch (this.getOrderingType())
+                    {
+                        case SORTED_NATURAL -> Lists.immutable.with(2, 2, 1);
+                        case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(3, 3, 3);
+                    },
+                    reverseResultWithDuplicates2);
+        }
     }
 
     @Test
@@ -499,6 +539,64 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEachWithIndex(0, -1, (each, index) -> { }));
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEachWithIndex(0, 10, (each, index) -> { }));
         assertThrows(IndexOutOfBoundsException.class, () -> integers.forEachWithIndex(10, 0, (each, index) -> { }));
+
+        if (!this.allowsDuplicates())
+        {
+            return;
+        }
+
+        // Ranges that start or end inside a run of duplicates
+        OrderedIterable<Integer> integersWithDuplicates = (OrderedIterable<Integer>) this.newWith(3, 3, 3, 2, 2, 1);
+        MutableList<Integer> resultWithDuplicates = Lists.mutable.empty();
+        MutableList<Integer> indexesWithDuplicates = Lists.mutable.empty();
+        integersWithDuplicates.forEachWithIndex(1, 4, (each, index) ->
+        {
+            resultWithDuplicates.add(each);
+            indexesWithDuplicates.add(index);
+        });
+        assertIterablesEqual(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(2, 2, 3, 3);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(3, 3, 2, 2);
+                },
+                resultWithDuplicates);
+        assertIterablesEqual(Lists.immutable.with(1, 2, 3, 4), indexesWithDuplicates);
+
+        if (this.supportsForEachFromToReverseIteration())
+        {
+            MutableList<Integer> reverseResultWithDuplicates = Lists.mutable.empty();
+            MutableList<Integer> reverseIndexesWithDuplicates = Lists.mutable.empty();
+            integersWithDuplicates.forEachWithIndex(4, 1, (each, index) ->
+            {
+                reverseResultWithDuplicates.add(each);
+                reverseIndexesWithDuplicates.add(index);
+            });
+            assertIterablesEqual(
+                    switch (this.getOrderingType())
+                    {
+                        case SORTED_NATURAL -> Lists.immutable.with(3, 3, 2, 2);
+                        case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(2, 2, 3, 3);
+                    },
+                    reverseResultWithDuplicates);
+            assertIterablesEqual(Lists.immutable.with(4, 3, 2, 1), reverseIndexesWithDuplicates);
+
+            MutableList<Integer> reverseResultWithDuplicates2 = Lists.mutable.empty();
+            MutableList<Integer> reverseIndexesWithDuplicates2 = Lists.mutable.empty();
+            integersWithDuplicates.forEachWithIndex(2, 0, (each, index) ->
+            {
+                reverseResultWithDuplicates2.add(each);
+                reverseIndexesWithDuplicates2.add(index);
+            });
+            assertIterablesEqual(
+                    switch (this.getOrderingType())
+                    {
+                        case SORTED_NATURAL -> Lists.immutable.with(2, 2, 1);
+                        case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(3, 3, 3);
+                    },
+                    reverseResultWithDuplicates2);
+            assertIterablesEqual(Lists.immutable.with(2, 1, 0), reverseIndexesWithDuplicates2);
+        }
     }
 
     @Test
