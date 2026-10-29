@@ -47,13 +47,6 @@ public class CompositeFastListTest extends AbstractListTestCase
         return result;
     }
 
-    @Override
-    @Test
-    public void testClone()
-    {
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith().clone());
-    }
-
     @Test
     public void size()
     {
@@ -195,13 +188,6 @@ public class CompositeFastListTest extends AbstractListTestCase
         CompositeFastList<Integer> reversed = composite.reverseThis();
         assertSame(composite, reversed);
         assertEquals(Interval.oneTo(9), reversed);
-    }
-
-    @Override
-    @Test
-    public void addAllAtIndex()
-    {
-        assertThrows(UnsupportedOperationException.class, super::addAllAtIndex);
     }
 
     @Override

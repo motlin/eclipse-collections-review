@@ -65,7 +65,12 @@ public final class CompositeFastList<E>
     @Override
     public MutableList<E> clone()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".clone() not implemented yet");
+        CompositeFastList<E> result = new CompositeFastList<>();
+        for (int i = 0; i < this.lists.size(); i++)
+        {
+            result.addComposited(this.lists.get(i).clone());
+        }
+        return result;
     }
 
     @Override
@@ -279,7 +284,30 @@ public final class CompositeFastList<E>
     @Override
     public boolean addAll(int index, Collection<? extends E> collection)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".addAll(index, collection) not implemented yet");
+        int localSize = this.size();
+        if (index > localSize || index < 0)
+        {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + localSize);
+        }
+        if (collection.isEmpty())
+        {
+            return false;
+        }
+        if (index == localSize)
+        {
+            return this.addAll(collection);
+        }
+        int p = 0;
+        int currentSize = this.lists.getFirst().size();
+        while (index >= currentSize)
+        {
+            index -= currentSize;
+            currentSize = this.lists.get(++p).size();
+        }
+        int collectionSize = collection.size();
+        this.lists.get(p).addAll(index, collection);
+        this.size += collectionSize;
+        return true;
     }
 
     @Override
