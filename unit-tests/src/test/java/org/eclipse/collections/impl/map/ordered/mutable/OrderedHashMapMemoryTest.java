@@ -51,35 +51,35 @@ public class OrderedHashMapMemoryTest
     @Test
     public void size1()
     {
-        assertOverheadEquals(136L, 136L, new OrderedHashMap<>(), 1);
+        assertOverheadEquals(112L, 112L, new OrderedHashMap<>(), 1);
         assertLinkedHashMapOverheadEquals(184L, 168L, 1);
     }
 
     @Test
     public void size10()
     {
-        assertOverheadEquals(208L, 208L, new OrderedHashMap<>(), 10);
+        assertOverheadEquals(160L, 160L, new OrderedHashMap<>(), 10);
         assertLinkedHashMapOverheadEquals(544L, 456L, 10);
     }
 
     @Test
     public void size100()
     {
-        assertOverheadEquals(2_448L, 2_448L, new OrderedHashMap<>(), 100);
+        assertOverheadEquals(1_936L, 1_936L, new OrderedHashMap<>(), 100);
         assertLinkedHashMapOverheadEquals(5_104L, 4_296L, 100);
     }
 
     @Test
     public void size1_000()
     {
-        assertOverheadEquals(19_176L, 19_176L, new OrderedHashMap<>(), 1_000);
+        assertOverheadEquals(15_080L, 15_080L, new OrderedHashMap<>(), 1_000);
         assertLinkedHashMapOverheadEquals(48_272L, 40_264L, 1_000);
     }
 
     @Test
     public void size10_000()
     {
-        assertOverheadEquals(152_976L, 152_976L, new OrderedHashMap<>(), 10_000);
+        assertOverheadEquals(120_208L, 120_208L, new OrderedHashMap<>(), 10_000);
         assertLinkedHashMapOverheadEquals(465_616L, 385_608L, 10_000);
     }
 }
