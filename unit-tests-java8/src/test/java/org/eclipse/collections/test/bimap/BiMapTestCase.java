@@ -133,9 +133,13 @@ public interface BiMapTestCase extends RichIterableUniqueTestCase, MapIterableTe
                 result);
     }
 
+    @Override
     @Test
-    default void BiMap_toList()
+    default void RichIterable_toList()
     {
+        MapIterableTestCase.super.RichIterable_toList();
+
+        // toList() matches the bimap's value iteration order
         BiMap<Object, Integer> iterable = this.newWithKeysValues(4, 4, 3, 3, 2, 2, 1, 1);
 
         {
