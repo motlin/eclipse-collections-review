@@ -48,12 +48,15 @@ public interface MutableSortedSetTestCase extends SortedSetIterableTestCase, Mut
         MutableSortedIterableTestCase.super.Iterable_remove();
     }
 
+    @Override
     @Test
-    default void MutableSortedSet_toReversed()
+    default void ReversibleIterable_toReversed()
     {
+        SortedSetIterableTestCase.super.ReversibleIterable_toReversed();
+
+        // toReversed() returns a mutable copy that does not share state with the original
         MutableSortedSet<Integer> sortedSet = this.newWith(4, 3, 2, 1);
         MutableSortedSet<Integer> reversed = sortedSet.toReversed();
-        assertIterablesEqual(sortedSet.toList().reverseThis(), reversed.toList());
         assertTrue(reversed.add(99));
         assertIterablesEqual(this.newWith(4, 3, 2, 1), sortedSet);
     }
