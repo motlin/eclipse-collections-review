@@ -34,9 +34,9 @@ public interface MutableSortedSetTestCase extends SortedSetIterableTestCase, Mut
 
     @Override
     @Test
-    default void Iterable_toString()
+    default void Object_toString()
     {
-        NavigableSetTestCase.super.Iterable_toString();
+        NavigableSetTestCase.super.Object_toString();
     }
 
     @Override
@@ -50,10 +50,10 @@ public interface MutableSortedSetTestCase extends SortedSetIterableTestCase, Mut
 
     @Override
     @Test
-    default void Object_equalsAndHashCode()
+    default void Object_equals_hashCode()
     {
-        SortedSetIterableTestCase.super.Object_equalsAndHashCode();
-        MutableCollectionUniqueTestCase.super.Object_equalsAndHashCode();
+        SortedSetIterableTestCase.super.Object_equals_hashCode();
+        MutableCollectionUniqueTestCase.super.Object_equals_hashCode();
     }
 
     @Override
