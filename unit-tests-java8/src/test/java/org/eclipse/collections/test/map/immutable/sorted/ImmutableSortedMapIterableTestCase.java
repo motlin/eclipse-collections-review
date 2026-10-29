@@ -17,6 +17,7 @@ import java.util.Set;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.impl.map.sorted.immutable.AbstractImmutableSortedMap;
+import org.eclipse.collections.impl.test.SerializeTestHelper;
 import org.eclipse.collections.impl.tuple.ImmutableEntry;
 import org.eclipse.collections.test.FixedSizeIterableTestCase;
 import org.eclipse.collections.test.map.SortedMapIterableTestCase;
@@ -67,6 +68,24 @@ public interface ImmutableSortedMapIterableTestCase extends SortedMapIterableTes
     default void Iterable_remove()
     {
         FixedSizeIterableTestCase.super.Iterable_remove();
+    }
+
+    @Override
+    @Test
+    default void serialization()
+    {
+        SortedMapIterableTestCase.super.serialization();
+
+        // entrySet() round-trips to an equal set that iterates in the same sorted order
+        Map<Integer, String> map = this.<Integer, String>newWithKeysValues(3, "Three", 2, "Two", 1, "One").castToMap();
+        Set<Map.Entry<Integer, String>> copy = SerializeTestHelper.serializeDeserialize(map.entrySet());
+        assertEquals(
+                Sets.immutable.with(
+                        ImmutableEntry.of(3, "Three"),
+                        ImmutableEntry.of(2, "Two"),
+                        ImmutableEntry.of(1, "One")),
+                copy);
+        assertEquals(Lists.mutable.withAll(map.entrySet()), Lists.mutable.withAll(copy));
     }
 
     @Override
