@@ -52,7 +52,6 @@ import org.eclipse.collections.api.list.primitive.MutableFloatList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.api.list.primitive.MutableShortList;
-import org.eclipse.collections.api.multimap.orderedset.MutableOrderedSetMultimap;
 import org.eclipse.collections.api.ordered.OrderedIterable;
 import org.eclipse.collections.api.partition.set.ordered.PartitionMutableOrderedSet;
 import org.eclipse.collections.api.set.ParallelSetIterable;
@@ -64,6 +63,7 @@ import org.eclipse.collections.impl.block.procedure.PartitionPredicate2Procedure
 import org.eclipse.collections.impl.block.procedure.PartitionProcedure;
 import org.eclipse.collections.impl.block.procedure.SelectInstancesOfProcedure;
 import org.eclipse.collections.impl.collection.mutable.AbstractCollectionAdapter;
+import org.eclipse.collections.impl.multimap.set.ordered.OrderedHashSetMultimap;
 import org.eclipse.collections.impl.partition.set.ordered.PartitionOrderedSetAdapter;
 import org.eclipse.collections.impl.utility.Iterate;
 import org.eclipse.collections.impl.utility.OrderedIterate;
@@ -359,15 +359,15 @@ public final class OrderedSetAdapter<T>
     }
 
     @Override
-    public <V> MutableOrderedSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function)
+    public <V> OrderedHashSetMultimap<V, T> groupBy(Function<? super T, ? extends V> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupBy() not implemented yet");
+        return Iterate.groupBy(this.delegate, function, OrderedHashSetMultimap.newMultimap());
     }
 
     @Override
-    public <V> MutableOrderedSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function)
+    public <V> OrderedHashSetMultimap<V, T> groupByEach(Function<? super T, ? extends Iterable<V>> function)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".groupByEach() not implemented yet");
+        return Iterate.groupByEach(this.delegate, function, OrderedHashSetMultimap.newMultimap());
     }
 
     @Override
