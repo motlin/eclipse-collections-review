@@ -172,11 +172,4 @@ public interface UnmodifiableMutableMapIterableTestCase
                     throw new AssertionError();
                 }, "test"));
     }
-
-    @Override
-    @Test
-    default void MutableMapIterable_entrySet_setValue()
-    {
-        this.Map_entrySet_setValue();
-    }
 }
