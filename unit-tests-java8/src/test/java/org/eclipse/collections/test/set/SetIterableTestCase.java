@@ -34,9 +34,12 @@ public interface SetIterableTestCase extends RichIterableUniqueTestCase, Collisi
     @Override
     <T> SetIterable<T> newWith(T... elements);
 
+    @Override
     @Test
-    default void equalsAndHashCode()
+    default void Object_equalsAndHashCode()
     {
+        RichIterableUniqueTestCase.super.Object_equalsAndHashCode();
+
         MutableList<Integer> list = Lists.mutable.empty();
         for (Integer collision : COLLISIONS)
         {

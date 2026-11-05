@@ -59,9 +59,10 @@ public interface MutableSetTestCase extends SetTestCase, UnsortedSetIterableTest
 
     @Override
     @Test
-    default void equalsAndHashCode()
+    default void Object_equalsAndHashCode()
     {
-        UnsortedSetIterableTestCase.super.equalsAndHashCode();
+        UnsortedSetIterableTestCase.super.Object_equalsAndHashCode();
+        MutableCollectionUniqueTestCase.super.Object_equalsAndHashCode();
 
         if (this.allowsRemove())
         {
