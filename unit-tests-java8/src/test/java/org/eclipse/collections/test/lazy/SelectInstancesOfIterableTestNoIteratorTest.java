@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SelectInstancesOfIterableTestNoIteratorTest implements LazyNoIteratorTestCase, NoDetectOptionalNullTestCase
 {
@@ -65,6 +66,21 @@ public class SelectInstancesOfIterableTestNoIteratorTest implements LazyNoIterat
         assertEquals(Optional.of(-1), this.newWith(1, 0, -1).maxOptional(Comparators.reverseNaturalOrder()));
         assertSame(Optional.empty(), this.newWith().maxOptional(Comparators.reverseNaturalOrder()));
         assertSame(Optional.empty(), this.newWith(new Object[]{null}).maxOptional(Comparators.reverseNaturalOrder()));
+
+        // minOptional() and maxOptional() with non-comparable elements
+        Object sentinel = new Object();
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional());
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional());
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional());
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional());
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional(Comparators.reverseNaturalOrder()));
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional(Comparators.reverseNaturalOrder()));
     }
 
     @Override
