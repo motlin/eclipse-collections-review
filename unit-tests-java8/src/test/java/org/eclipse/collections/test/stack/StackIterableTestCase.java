@@ -110,11 +110,8 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
     default void StackIterable_peek()
     {
         assertEquals(Integer.valueOf(5), this.newWith(5, 1, 4, 2, 3).peek());
-    }
 
-    @Test
-    default void StackIterable_peek_throws()
-    {
+        // peek() throws on an empty stack
         assertThrows(EmptyStackException.class, () -> this.newWith().peek());
     }
 
@@ -126,11 +123,8 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
         assertEquals(Integer.valueOf(4), this.newWith(5, 1, 4, 2, 3).peekAt(2));
         assertEquals(Integer.valueOf(2), this.newWith(5, 1, 4, 2, 3).peekAt(3));
         assertEquals(Integer.valueOf(3), this.newWith(5, 1, 4, 2, 3).peekAt(4));
-    }
 
-    @Test
-    default void StackIterable_peekAt_throws()
-    {
+        // peekAt() rejects indexes outside the stack
         StackIterable<Integer> stackIterable = this.newWith(5, 1, 4, 2, 3);
         assertThrows(IllegalArgumentException.class, () -> stackIterable.peekAt(-1));
         assertThrows(IllegalArgumentException.class, () -> stackIterable.peekAt(5));

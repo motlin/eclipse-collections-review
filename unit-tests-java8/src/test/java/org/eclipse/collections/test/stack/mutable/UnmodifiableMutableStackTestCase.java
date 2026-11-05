@@ -31,14 +31,7 @@ public interface UnmodifiableMutableStackTestCase extends MutableStackTestCase, 
     {
         MutableStack<Integer> mutableStack = this.newWith(5, 1, 4, 2, 3);
         assertThrows(UnsupportedOperationException.class, () -> mutableStack.pop());
-    }
-
-    @Override
-    @Test
-    default void MutableStack_pop_throws()
-    {
-        MutableStack<Integer> mutableStack = this.newWith();
-        assertThrows(UnsupportedOperationException.class, () -> mutableStack.pop());
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith().pop());
     }
 
     @Override
