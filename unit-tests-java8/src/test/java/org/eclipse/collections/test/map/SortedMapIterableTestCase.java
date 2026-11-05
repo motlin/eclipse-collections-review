@@ -20,11 +20,13 @@ import org.eclipse.collections.api.map.OrderedMap;
 import org.eclipse.collections.api.map.sorted.SortedMapIterable;
 import org.eclipse.collections.api.partition.ordered.PartitionOrderedIterable;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.list.TransformsToListTrait;
 import org.junit.jupiter.api.Test;
 
 import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -141,78 +143,36 @@ public interface SortedMapIterableTestCase extends MapIterableTestCase, Reversib
     @Test
     default void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(5, 7, each -> { }));
+        ReversibleIterableTestCase.super.OrderedIterable_forEach_from_to();
 
-        // TODO Support reverse indexed traversal for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEach(7, 5, each -> { }));
+        // Every index is out of bounds for an empty map
+        SortedMapIterable<Object, Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEach(0, 0, each -> fail()));
     }
 
     @Override
     @Test
     default void OrderedIterable_forEachWithIndex_from_to()
     {
-        // TODO: Support indexed traversal with index for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(5, 7, (each, index) -> { }));
+        ReversibleIterableTestCase.super.OrderedIterable_forEachWithIndex_from_to();
 
-        // TODO: Support reverse indexed traversal with index for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(9, 8, 7, 6, 5, 4, 3, 2, 1, 0).forEachWithIndex(7, 5, (each, index) -> { }));
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_corresponds()
-    {
-        // TODO: Support corresponds() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).corresponds(Lists.mutable.with(3, 2, 1), Object::equals));
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_distinct()
-    {
-        // TODO: Support distinct() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).distinct());
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_toStack()
-    {
-        // TODO: Support toStack() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toStack());
-    }
-
-    @Override
-    @Test
-    default void OrderedIterable_detectIndex()
-    {
-        // TODO: Support detectIndex() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectIndex(each -> true));
+        // Every index is out of bounds for an empty map
+        SortedMapIterable<Object, Integer> empty = this.newWith();
+        assertThrows(IndexOutOfBoundsException.class, () -> empty.forEachWithIndex(0, 0, (each, index) -> fail()));
     }
 
     @Override
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO: Support toReversed() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
-    }
+        ReversibleIterableTestCase.super.ReversibleIterable_toReversed();
 
-    @Override
-    @Test
-    default void ReversibleIterable_reverseForEach()
-    {
-        // TODO: Support reverseForEach() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
-    }
-
-    @Override
-    @Test
-    default void ReversibleIterable_detectLastIndex()
-    {
-        // TODO: Support detectLastIndex() for sorted maps.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+        // The reversed map keeps each value with its key and sorts the keys with the reversed comparator
+        SortedMapIterable<Object, Integer> reversed = this.newWith(3, 2, 1).toReversed();
+        assertEquals(
+                Lists.immutable.with(Tuples.pair(1, 1), Tuples.pair(2, 2), Tuples.pair(3, 3)),
+                reversed.keyValuesView().toList());
+        assertEquals(Lists.immutable.with(1, 2, 3), Lists.mutable.<Object>with(2, 3, 1).sortThis(reversed.comparator()));
     }
 
     @Override

@@ -42,12 +42,6 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     }
 
     @Override
-    default boolean supportsForEachFromToReverseIteration()
-    {
-        return false;
-    }
-
-    @Override
     default <T> SortedBag<T> getExpectedFiltered(T... elements)
     {
         return new TreeBag<>(Comparators.reverseNaturalOrder(), Lists.immutable.with(elements));
@@ -136,24 +130,24 @@ public interface SortedBagTestCase extends SortedIterableTestCase, ReversibleIte
     @Test
     default void ReversibleIterable_toReversed()
     {
-        // TODO: Support toReversed() for sorted bags.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).toReversed());
-    }
+        ReversibleIterableTestCase.super.ReversibleIterable_toReversed();
 
-    @Override
-    @Test
-    default void ReversibleIterable_reverseForEach()
-    {
-        // TODO: Support reverseForEach() for sorted bags, which rejects the reversed index range it delegates to.
-        assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
-    }
-
-    @Override
-    @Test
-    default void ReversibleIterable_detectLastIndex()
-    {
-        // TODO: Support detectLastIndex() for sorted bags.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
+        // The reversed bag keeps every occurrence and sorts with the reversed comparator
+        SortedBag<Integer> reversed = this.newWith(3, 3, 3, 2, 2, 1).toReversed();
+        assertEquals(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(3, 3, 3, 2, 2, 1);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(1, 2, 2, 3, 3, 3);
+                },
+                reversed.toList());
+        assertEquals(
+                switch (this.getOrderingType())
+                {
+                    case SORTED_NATURAL -> Lists.immutable.with(3, 2, 1);
+                    case UNORDERED, INSERTION_ORDER, SORTED_REVERSE_NATURAL -> Lists.immutable.with(1, 2, 3);
+                },
+                Lists.mutable.with(2, 3, 1).sortThis(reversed.comparator()));
     }
 
     @Override

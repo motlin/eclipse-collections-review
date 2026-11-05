@@ -28,6 +28,13 @@ public interface MutableSortedBagTestCase extends SortedBagTestCase, MutableOrde
     <T> MutableSortedBag<T> newWith(T... elements);
 
     @Override
+    default boolean supportsForEachFromToReverseIteration()
+    {
+        // TODO Support reverse ranges in TreeBag, which has no descending traversal of its backing map.
+        return false;
+    }
+
+    @Override
     @Test
     default void MutableBagIterable_addOccurrences()
     {
@@ -61,5 +68,21 @@ public interface MutableSortedBagTestCase extends SortedBagTestCase, MutableOrde
         assertIterablesEqual(TreeBag.newBagWith(Comparators.reverseNaturalOrder(), 3), mutableBag);
 
         assertThrows(IllegalArgumentException.class, () -> mutableBag.removeOccurrences(4, -1));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_reverseForEach()
+    {
+        // TODO Support reverseForEach() for mutable sorted bags, which rejects the reversed index range it delegates to.
+        assertThrows(IllegalArgumentException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_detectLastIndex()
+    {
+        // TODO Support detectLastIndex() for mutable sorted bags, which needs a descending traversal of TreeBag's backing map.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).detectLastIndex(each -> true));
     }
 }

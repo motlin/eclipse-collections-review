@@ -97,6 +97,7 @@ import org.eclipse.collections.impl.lazy.EmptyLazyIterable;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.utility.ListIterate;
 
 final class ImmutableEmptyStack<T>
         extends AbstractRichIterable<T>
@@ -763,7 +764,7 @@ final class ImmutableEmptyStack<T>
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super T, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        return other.isEmpty();
     }
 
     public boolean hasSameElements(OrderedIterable<T> other)
@@ -774,19 +775,19 @@ final class ImmutableEmptyStack<T>
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, 0);
     }
 
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, 0);
     }
 
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        return -1;
     }
 
     @Override

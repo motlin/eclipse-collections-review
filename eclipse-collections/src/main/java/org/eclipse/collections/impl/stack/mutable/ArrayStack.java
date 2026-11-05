@@ -106,6 +106,7 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.partition.stack.PartitionArrayStack;
 import org.eclipse.collections.impl.utility.LazyIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
 
 /**
@@ -1237,7 +1238,19 @@ public class ArrayStack<T> implements MutableStack<T>, Externalizable
     @Override
     public <S> boolean corresponds(OrderedIterable<S> other, Predicate2<? super T, ? super S> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".corresponds() not implemented yet");
+        if (this.delegate.size() != other.size())
+        {
+            return false;
+        }
+        Iterator<S> otherIterator = other.iterator();
+        for (int i = this.delegate.size() - 1; i >= 0; i--)
+        {
+            if (!predicate.accept(this.delegate.get(i), otherIterator.next()))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean hasSameElements(OrderedIterable<T> other)
@@ -1248,18 +1261,23 @@ public class ArrayStack<T> implements MutableStack<T>, Externalizable
     @Override
     public void forEach(int startIndex, int endIndex, Procedure<? super T> procedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEach() not implemented yet");
+        ListIterate.rangeCheck(startIndex, endIndex, this.delegate.size());
+        int lastIndex = this.delegate.size() - 1;
+        this.delegate.forEach(lastIndex - startIndex, lastIndex - endIndex, procedure);
     }
 
     @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".forEachWithIndex() not implemented yet");
+        ListIterate.rangeCheck(fromIndex, toIndex, this.delegate.size());
+        int lastIndex = this.delegate.size() - 1;
+        this.delegate.forEachWithIndex(lastIndex - fromIndex, lastIndex - toIndex, (each, index) -> objectIntProcedure.value(each, lastIndex - index));
     }
 
     @Override
     public int detectIndex(Predicate<? super T> predicate)
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+        int index = this.delegate.detectLastIndex(predicate);
+        return index == -1 ? -1 : this.delegate.size() - 1 - index;
     }
 }

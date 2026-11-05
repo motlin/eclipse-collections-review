@@ -15,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,8 +26,11 @@ import java.util.SortedMap;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.factory.SortedMaps;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.api.map.sorted.MutableSortedMap;
@@ -71,6 +75,13 @@ public class ImmutableTreeMap<K, V>
         }
         this.keys = keysCopy;
         this.values = valuesCopy;
+    }
+
+    private ImmutableTreeMap(K[] keys, V[] values, Comparator<? super K> comparator)
+    {
+        this.keys = keys;
+        this.values = values;
+        this.comparator = comparator;
     }
 
     public static <K, V> ImmutableSortedMap<K, V> newMap(SortedMap<K, V> sortedMap)
@@ -362,6 +373,44 @@ public class ImmutableTreeMap<K, V>
             result.getRejected().add(this.values[i]);
         }
         return result.toImmutable();
+    }
+
+    @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ArrayIterate.forEach(this.values, startIndex, endIndex, procedure);
+    }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ArrayIterate.forEachWithIndex(this.values, fromIndex, toIndex, objectIntProcedure);
+    }
+
+    @Override
+    public ImmutableList<V> distinct()
+    {
+        return ArrayIterate.distinct(this.values).toImmutable();
+    }
+
+    @Override
+    public ImmutableSortedMap<K, V> toReversed()
+    {
+        int size = this.keys.length;
+        K[] reversedKeys = (K[]) new Object[size];
+        V[] reversedValues = (V[]) new Object[size];
+        for (int i = 0; i < size; i++)
+        {
+            reversedKeys[i] = this.keys[size - 1 - i];
+            reversedValues[i] = this.values[size - 1 - i];
+        }
+        return new ImmutableTreeMap<>(reversedKeys, reversedValues, Collections.reverseOrder(this.comparator));
+    }
+
+    @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        return ArrayIterate.detectLastIndex(this.values, predicate);
     }
 
     protected class ImmutableSortedMapKeySet extends AbstractSet<K> implements Serializable

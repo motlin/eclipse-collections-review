@@ -21,7 +21,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.block.procedure.Procedure2;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.SortedMaps;
 import org.eclipse.collections.api.list.MutableList;
@@ -35,6 +37,7 @@ import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.utility.ArrayIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 import org.eclipse.collections.impl.utility.MapIterate;
 
 public class TreeSortedMap<K, V>
@@ -336,6 +339,66 @@ public class TreeSortedMap<K, V>
     }
 
     @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ListIterate.rangeCheck(startIndex, endIndex, this.treeMap.size());
+        if (startIndex <= endIndex)
+        {
+            Iterator<V> iterator = this.treeMap.values().iterator();
+            for (int i = 0; i < startIndex; i++)
+            {
+                iterator.next();
+            }
+            for (int i = startIndex; i <= endIndex; i++)
+            {
+                procedure.value(iterator.next());
+            }
+        }
+        else
+        {
+            Iterator<V> iterator = this.treeMap.descendingMap().values().iterator();
+            for (int i = this.treeMap.size() - 1; i > startIndex; i--)
+            {
+                iterator.next();
+            }
+            for (int i = startIndex; i >= endIndex; i--)
+            {
+                procedure.value(iterator.next());
+            }
+        }
+    }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ListIterate.rangeCheck(fromIndex, toIndex, this.treeMap.size());
+        if (fromIndex <= toIndex)
+        {
+            Iterator<V> iterator = this.treeMap.values().iterator();
+            for (int i = 0; i < fromIndex; i++)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i <= toIndex; i++)
+            {
+                objectIntProcedure.value(iterator.next(), i);
+            }
+        }
+        else
+        {
+            Iterator<V> iterator = this.treeMap.descendingMap().values().iterator();
+            for (int i = this.treeMap.size() - 1; i > fromIndex; i--)
+            {
+                iterator.next();
+            }
+            for (int i = fromIndex; i >= toIndex; i--)
+            {
+                objectIntProcedure.value(iterator.next(), i);
+            }
+        }
+    }
+
+    @Override
     public boolean containsValue(Object value)
     {
         return this.treeMap.containsValue(value);
@@ -344,7 +407,22 @@ public class TreeSortedMap<K, V>
     @Override
     public MutableSortedMap<K, V> toReversed()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".toReversed() not implemented yet");
+        return new TreeSortedMap<>(this.treeMap.descendingMap());
+    }
+
+    @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        int index = this.treeMap.size() - 1;
+        for (V each : this.treeMap.descendingMap().values())
+        {
+            if (predicate.accept(each))
+            {
+                return index;
+            }
+            index--;
+        }
+        return -1;
     }
 
     @Override
@@ -465,7 +543,7 @@ public class TreeSortedMap<K, V>
     @Override
     public MutableList<V> distinct()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".distinct() not implemented yet");
+        return this.asLazy().distinct().toList();
     }
 
     @Override

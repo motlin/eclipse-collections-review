@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -380,7 +381,23 @@ class ImmutableSortedBagImpl<T>
 
         if (index > toIndex)
         {
-            throw new IllegalArgumentException("fromIndex must not be greater than toIndex");
+            int i = this.elements.length - 1;
+            int runStart = this.size - this.occurrences[i];
+            while (runStart > index)
+            {
+                i--;
+                runStart -= this.occurrences[i];
+            }
+            for (int position = index; position >= toIndex; position--)
+            {
+                if (position < runStart)
+                {
+                    i--;
+                    runStart -= this.occurrences[i];
+                }
+                procedure.value(this.elements[i]);
+            }
+            return;
         }
         int i = 0;
         int beginningIndex = 0;
@@ -474,7 +491,23 @@ class ImmutableSortedBagImpl<T>
 
         if (fromIndex > toIndex)
         {
-            throw new IllegalArgumentException("fromIndex must not be greater than toIndex");
+            int i = this.elements.length - 1;
+            int runStart = this.size - this.occurrences[i];
+            while (runStart > fromIndex)
+            {
+                i--;
+                runStart -= this.occurrences[i];
+            }
+            for (int position = fromIndex; position >= toIndex; position--)
+            {
+                if (position < runStart)
+                {
+                    i--;
+                    runStart -= this.occurrences[i];
+                }
+                objectIntProcedure.value(this.elements[i], position);
+            }
+            return;
         }
 
         int arrayIndex = 0;
@@ -758,6 +791,35 @@ class ImmutableSortedBagImpl<T>
         }
 
         return output.toImmutable();
+    }
+
+    @Override
+    public ImmutableSortedBag<T> toReversed()
+    {
+        int length = this.elements.length;
+        T[] reversedElements = (T[]) new Object[length];
+        int[] reversedOccurrences = new int[length];
+        for (int i = 0; i < length; i++)
+        {
+            reversedElements[i] = this.elements[length - 1 - i];
+            reversedOccurrences[i] = this.occurrences[length - 1 - i];
+        }
+        return new ImmutableSortedBagImpl<>(reversedElements, reversedOccurrences, Collections.reverseOrder(this.comparator));
+    }
+
+    @Override
+    public int detectLastIndex(Predicate<? super T> predicate)
+    {
+        int runStart = this.size;
+        for (int i = this.elements.length - 1; i >= 0; i--)
+        {
+            runStart -= this.occurrences[i];
+            if (predicate.accept(this.elements[i]))
+            {
+                return runStart + this.occurrences[i] - 1;
+            }
+        }
+        return -1;
     }
 
     @Override

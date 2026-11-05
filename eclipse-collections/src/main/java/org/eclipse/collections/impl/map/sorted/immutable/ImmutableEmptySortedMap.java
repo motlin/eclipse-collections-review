@@ -12,6 +12,7 @@ package org.eclipse.collections.impl.map.sorted.immutable;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,12 +32,14 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.factory.SortedMaps;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.partition.list.PartitionImmutableListImpl;
 import org.eclipse.collections.impl.utility.LazyIterate;
+import org.eclipse.collections.impl.utility.ListIterate;
 
 /**
  * This is a zero element {@link ImmutableSortedMap} which is created by calling SortedMaps.immutable.empty().
@@ -324,5 +327,35 @@ final class ImmutableEmptySortedMap<K, V>
     public V getOnly()
     {
         throw new IllegalStateException("Size must be 1 but was " + this.size());
+    }
+
+    @Override
+    public void forEach(int startIndex, int endIndex, Procedure<? super V> procedure)
+    {
+        ListIterate.rangeCheck(startIndex, endIndex, 0);
+    }
+
+    @Override
+    public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super V> objectIntProcedure)
+    {
+        ListIterate.rangeCheck(fromIndex, toIndex, 0);
+    }
+
+    @Override
+    public ImmutableList<V> distinct()
+    {
+        return Lists.immutable.empty();
+    }
+
+    @Override
+    public ImmutableSortedMap<K, V> toReversed()
+    {
+        return new ImmutableEmptySortedMap<>(Collections.reverseOrder(this.comparator));
+    }
+
+    @Override
+    public int detectLastIndex(Predicate<? super V> predicate)
+    {
+        return -1;
     }
 }
