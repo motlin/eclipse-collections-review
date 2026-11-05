@@ -22,7 +22,7 @@ import org.eclipse.collections.api.map.OrderedMap;
 import org.eclipse.collections.api.partition.ordered.PartitionOrderedIterable;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.eclipse.collections.test.OrderedIterableTestCase;
+import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.list.TransformsToListTrait;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public interface OrderedMapIterableTestCase extends MapIterableTestCase, OrderedIterableTestCase, TransformsToListTrait
+public interface OrderedMapIterableTestCase extends MapIterableTestCase, ReversibleIterableTestCase, TransformsToListTrait
 {
     @Override
     <T> OrderedMap<Object, T> newWith(T... elements);
@@ -62,9 +62,12 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Ordered
         return Lists.mutable.with(elements);
     }
 
+    @Override
     @Test
     default void ReversibleIterable_take()
     {
+        ReversibleIterableTestCase.super.ReversibleIterable_take();
+
         OrderedMap<Integer, String> orderedMap = this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three");
         assertIterablesEqual(this.newWithKeysValues(), orderedMap.take(0));
         assertIterablesEqual(this.newWithKeysValues(3, "Three"), orderedMap.take(1));
@@ -72,12 +75,14 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Ordered
         assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three"), orderedMap.take(3));
         assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three"), orderedMap.take(4));
         assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three"), orderedMap.take(Integer.MAX_VALUE));
-        assertThrows(IllegalArgumentException.class, () -> orderedMap.take(-1));
     }
 
+    @Override
     @Test
     default void ReversibleIterable_drop()
     {
+        ReversibleIterableTestCase.super.ReversibleIterable_drop();
+
         OrderedMap<Integer, String> orderedMap = this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three");
         assertIterablesEqual(this.newWithKeysValues(3, "Three", 2, "Two", 1, "Three"), orderedMap.drop(0));
         assertIterablesEqual(this.newWithKeysValues(2, "Two", 1, "Three"), orderedMap.drop(1));
@@ -85,7 +90,6 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Ordered
         assertIterablesEqual(this.newWithKeysValues(), orderedMap.drop(3));
         assertIterablesEqual(this.newWithKeysValues(), orderedMap.drop(4));
         assertIterablesEqual(this.newWithKeysValues(), orderedMap.drop(Integer.MAX_VALUE));
-        assertThrows(IllegalArgumentException.class, () -> orderedMap.drop(-1));
     }
 
     @Override
@@ -146,45 +150,49 @@ public interface OrderedMapIterableTestCase extends MapIterableTestCase, Ordered
         assertIterablesEqual(this.newWithKeysValues("A", 10, "B", 20, "C", 30, "D", 40), collected);
     }
 
+    @Override
     @Test
     default void ReversibleIterable_detectLastIndex()
     {
+        ReversibleIterableTestCase.super.ReversibleIterable_detectLastIndex();
+
         OrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 1, "D", 3);
 
         assertEquals(2, map.detectLastIndex(value -> value == 1));
         assertEquals(1, map.detectLastIndex(value -> value == 2));
-        assertEquals(-1, map.detectLastIndex(value -> value == 99));
-        assertEquals(-1, this.<String, Integer>newWithKeysValues().detectLastIndex(value -> true));
     }
 
+    @Override
     @Test
     default void ReversibleIterable_toReversed()
     {
+        ReversibleIterableTestCase.super.ReversibleIterable_toReversed();
+
         OrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
 
         OrderedMap<String, Integer> reversed = map.toReversed();
         assertIterablesEqual(this.newWithKeysValues("C", 3, "B", 2, "A", 1), reversed);
-        assertIterablesEqual(this.newWithKeysValues(), this.<String, Integer>newWithKeysValues().toReversed());
         assertIterablesEqual(map, reversed.toReversed());
     }
 
+    @Override
     @Test
     default void ReversibleIterable_reverseForEach()
     {
+        ReversibleIterableTestCase.super.ReversibleIterable_reverseForEach();
+
         OrderedMap<String, Integer> map = this.newWithKeysValues("A", 1, "B", 2, "C", 3);
 
         MutableList<Integer> values = Lists.mutable.empty();
         map.reverseForEach(values::add);
         assertIterablesEqual(Lists.immutable.with(3, 2, 1), values);
-
-        MutableList<Integer> empty = Lists.mutable.empty();
-        this.<String, Integer>newWithKeysValues().reverseForEach(empty::add);
-        assertIterablesEqual(Lists.immutable.empty(), empty);
     }
 
+    @Override
     @Test
     default void ReversibleIterable_asReversed()
     {
+        // TODO: Support asReversed() for ordered maps.
         assertThrows(UnsupportedOperationException.class, () -> this.newWithKeysValues("A", 1).asReversed());
     }
 
