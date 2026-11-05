@@ -66,17 +66,11 @@ public interface ListTestCase extends CollectionTestCase
         assertEquals(Integer.valueOf(1), list.get(0));
         assertEquals(Integer.valueOf(2), list.get(1));
         assertEquals(Integer.valueOf(3), list.get(2));
-    }
 
-    @Test
-    default void List_get_negative()
-    {
+        // get() rejects a negative index
         assertThrows(IndexOutOfBoundsException.class, () -> this.newWith(1, 2, 3).get(-1));
-    }
 
-    @Test
-    default void List_get_out_of_bounds()
-    {
+        // get() rejects an index past the end
         assertThrows(IndexOutOfBoundsException.class, () -> this.newWith(1, 2, 3).get(4));
     }
 

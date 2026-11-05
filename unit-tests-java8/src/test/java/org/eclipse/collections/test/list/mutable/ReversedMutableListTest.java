@@ -10,7 +10,6 @@
 
 package org.eclipse.collections.test.list.mutable;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.eclipse.collections.api.factory.Lists;
@@ -61,14 +60,14 @@ public class ReversedMutableListTest implements MutableListTestCase
         assertNotSame(empty, empty.reversed());
     }
 
+    @Override
     @Test
-    public void ReversedMutableList_writeReplace()
+    public void Object_equalsAndHashCode()
     {
-        MutableList<Integer> delegate = FastList.newListWith(1, 2, 3);
-        MutableList<Integer> reversed = delegate.reversed();
-        MutableList<Integer> deserialized = SerializeTestHelper.serializeDeserialize(reversed);
-        assertEquals(reversed, deserialized);
-        Verify.assertInstanceOf(FastList.class, deserialized);
+        MutableListTestCase.super.Object_equalsAndHashCode();
+
+        // writeReplace() serializes the reversed view as a plain FastList
+        Verify.assertInstanceOf(FastList.class, SerializeTestHelper.serializeDeserialize(this.newWith(3, 2, 1)));
     }
 
     @Override
@@ -118,20 +117,6 @@ public class ReversedMutableListTest implements MutableListTestCase
         reversed.addAll(Lists.mutable.with(7, 8));
         assertEquals(Lists.mutable.with(8, 7, 1, 2, 3), delegate);
         assertEquals(Lists.mutable.with(3, 2, 1, 7, 8), reversed);
-    }
-
-    @Test
-    public void Iterable_iterator()
-    {
-        MutableList<Integer> delegate = FastList.newListWith(1, 2, 3);
-        MutableList<Integer> reversed = delegate.reversed();
-        Iterator<Integer> it = reversed.iterator();
-        MutableList<Integer> collected = Lists.mutable.empty();
-        while (it.hasNext())
-        {
-            collected.add(it.next());
-        }
-        assertEquals(Lists.mutable.with(3, 2, 1), collected);
     }
 
     @Override

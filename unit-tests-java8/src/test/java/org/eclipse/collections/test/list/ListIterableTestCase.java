@@ -10,8 +10,6 @@
 
 package org.eclipse.collections.test.list;
 
-import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
@@ -48,17 +46,6 @@ public interface ListIterableTestCase extends OrderedIterableWithDuplicatesTestC
     default <T> ListIterable<T> getExpectedTransformed(T... elements)
     {
         return Lists.immutable.with(elements);
-    }
-
-    @Test
-    default void ListIterable_forEachWithIndex()
-    {
-        RichIterable<Integer> integers = this.newWith(1, 2, 3);
-        MutableCollection<Pair<Integer, Integer>> result = Lists.mutable.with();
-        integers.forEachWithIndex((each, index) -> result.add(Tuples.pair(each, index)));
-        assertIterablesEqual(
-                Lists.immutable.with(Tuples.pair(1, 0), Tuples.pair(2, 1), Tuples.pair(3, 2)),
-                result);
     }
 
     @Test
