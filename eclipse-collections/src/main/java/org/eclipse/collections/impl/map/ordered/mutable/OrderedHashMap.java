@@ -109,40 +109,51 @@ import org.eclipse.collections.impl.utility.LazyIterate;
  * the usable capacity, so it fills up at the same point the index table reaches its maximum load.
  * <p>
  * A rehash is triggered when an insert would overflow the dense storage, or would push the index
- * table's occupancy past the usable capacity without reusing a tombstone slot. The new capacity is
- * derived from the number of live entries alone, not from the current capacity: the smallest power of
- * two at least {@code max(size * 3, 8)}. Rehashing compacts tombstones out of both arrays. This has
+ * table's occupancy past the usable capacity without reusing a tombstone slot. The new capacity is the
+ * smallest power of two at least {@code max(size * 3, 8)}, except that the table does not grow when
+ * compacting at the current capacity already leaves free slots for at least a quarter of the live
+ * entries. Rehashing compacts tombstones out of both arrays. When the capacity is unchanged and the
+ * index table still has room, only the dense storage is compacted: the
+ * index table keeps its layout and just has its stored indices updated, so no key is hashed again. This has
  * consequences:
  * <ul>
  *     <li>With no removals, each rehash doubles the capacity: live entries fill two thirds of the old
  *     table, and three times that rounds up to twice the old capacity.</li>
- *     <li>After a rehash, the index table is at most one third full, leaving room for at least
- *     {@code size} more insertions before the next rehash.</li>
+ *     <li>After a rehash that changes the capacity, the index table is at most one third full, leaving
+ *     room for at least {@code size} more insertions before the next rehash. A compaction that keeps the
+ *     current capacity leaves free dense slots for at least a quarter of the live entries.</li>
  *     <li>Removal-heavy workloads rehash at the same or a smaller capacity. Steady remove/re-add
  *     churn periodically compacts tombstones away instead of growing the arrays unboundedly.
  *     Removing the most recently added entry reclaims its slot immediately. Removing any other entry
  *     leaves a tombstone, and re-adding the same key appends it again, so repeatedly removing and
- *     re-adding one interior key triggers a compacting rehash about once every {@code size} such
- *     cycles even though the set of keys never changes.</li>
+ *     re-adding one interior key triggers compactions even though the set of keys never changes. Each
+ *     cycle uses up one free dense slot, so consecutive compactions are at least {@code (size - 1) / 4}
+ *     such cycles apart.</li>
  * </ul>
  * For example, a map with the default index table capacity of 8 has a usable capacity of 5. The first
  * five insertions fit without rehashing. The sixth insertion triggers a rehash before it is stored:
  * with 5 live entries, the new index table capacity is 16 (the smallest power of two at least
  * {@code 5 * 3 = 15}), and the usable capacity becomes 10.
  * <p>
+ * <b>Index width.</b> Each index table slot holds an index into the dense entry storage, so the slots
+ * only need to be wide enough for the usable capacity. The table is a {@code byte[]} up to a capacity
+ * of 128 (85 entries), a {@code short[]} up to a capacity of 32,768 (21,845 entries), and an
+ * {@code int[]} beyond that. The width is chosen whenever the table is allocated or rehashed.
+ * <p>
  * <b>Memory footprint.</b> Entries are stored inline in two arrays instead of one node object per entry,
- * so the map needs roughly a third to a half of the memory that {@link java.util.LinkedHashMap} needs
- * on top of the keys and values themselves. The table shows retained bytes excluding keys and values,
+ * so with 10 or more entries the map needs between a quarter and two fifths of the memory that
+ * {@link java.util.LinkedHashMap} needs on top of the keys and values themselves, and under half of what
+ * {@code LinkedHashMap} needs with compact object headers. The table shows retained bytes excluding keys and values,
  * on a 64-bit JVM with compressed references. The last column is {@code LinkedHashMap} with compact object headers
  * ({@code -XX:+UseCompactObjectHeaders}), which do not change the size of {@code OrderedHashMap}:
  * <pre>
  *    size  OrderedHashMap  per entry  LinkedHashMap  per entry  LinkedHashMap (compact headers)
  *       0              32                        64                                          56
- *       1             136      136.0            184      184.0                              168
- *      10             208       20.8            544       54.4                              456
- *     100           2,448       24.5          5,104       51.0                            4,296
- *   1,000          19,176       19.2         48,272       48.3                           40,264
- *  10,000         152,976       15.3        465,616       46.6                          385,608
+ *       1             112      112.0            184      184.0                              168
+ *      10             160       16.0            544       54.4                              456
+ *     100           1,936       19.4          5,104       51.0                            4,296
+ *   1,000          15,080       15.1         48,272       48.3                           40,264
+ *  10,000         120,208       12.0        465,616       46.6                          385,608
  * </pre>
  * The {@code LinkedHashMap} figures are for Java 21 and later. It is 8 bytes smaller before Java 21.
  * These figures are asserted by {@code OrderedHashMapMemoryTest}.
@@ -156,6 +167,9 @@ public class OrderedHashMap<K, V>
     private static final long serialVersionUID = 1L;
 
     private static final int MINIMUM_INDICES_HASH_TABLE_CAPACITY = 8;
+    // The largest capacities whose usable entry capacity still fits in a byte or a short index.
+    private static final int MAXIMUM_BYTE_INDICES_HASH_TABLE_CAPACITY = 128;
+    private static final int MAXIMUM_SHORT_INDICES_HASH_TABLE_CAPACITY = 32_768;
     private static final int EMPTY = -1;
     private static final int REMOVED = -2;
     private static final int NO_SLOT = -1;
@@ -203,8 +217,9 @@ public class OrderedHashMap<K, V>
     };
 
     // Sparse open-addressed hash table. Each slot holds an orderedKeyValues pair index, EMPTY, or REMOVED.
+    // A byte[], short[], or int[], whichever is the narrowest that can hold every pair index for its capacity.
     // Both arrays are null until the first insertion into a map created with the no-argument constructor.
-    private int[] indicesHashTable;
+    private Object indicesHashTable;
     // Counts live and REMOVED slots in indicesHashTable.
     private int indicesHashTableOccupied;
     // Dense interleaved key-value pairs in insertion order: [k0, v0, k1, v1, ...].
@@ -281,30 +296,107 @@ public class OrderedHashMap<K, V>
 
     private void allocateTable(int indicesHashTableCapacity, int usableEntryCapacity)
     {
-        this.indicesHashTable = new int[indicesHashTableCapacity];
-        Arrays.fill(this.indicesHashTable, EMPTY);
+        this.indicesHashTable = newIndicesHashTable(indicesHashTableCapacity);
         this.orderedKeyValues = new Object[usableEntryCapacity << 1];
         this.size = 0;
         this.orderedKeyValuesOccupied = 0;
         this.indicesHashTableOccupied = 0;
     }
 
-    private int spread(Object key)
+    private static Object newIndicesHashTable(int indicesHashTableCapacity)
     {
-        int h = key == null ? 0 : key.hashCode();
-        h ^= h >>> 20 ^ h >>> 12;
-        h ^= h >>> 7 ^ h >>> 4;
-        return h & (this.indicesHashTable.length - 1);
+        Object table;
+        if (indicesHashTableCapacity <= MAXIMUM_BYTE_INDICES_HASH_TABLE_CAPACITY)
+        {
+            table = new byte[indicesHashTableCapacity];
+        }
+        else if (indicesHashTableCapacity <= MAXIMUM_SHORT_INDICES_HASH_TABLE_CAPACITY)
+        {
+            table = new short[indicesHashTableCapacity];
+        }
+        else
+        {
+            table = new int[indicesHashTableCapacity];
+        }
+        fillWithEmpty(table);
+        return table;
     }
 
-    private int usableEntryCapacity()
+    private static void fillWithEmpty(Object table)
     {
-        return this.indicesHashTable == null ? 0 : usableEntryCapacity(this.indicesHashTable.length);
+        if (table instanceof byte[])
+        {
+            Arrays.fill((byte[]) table, (byte) EMPTY);
+        }
+        else if (table instanceof short[])
+        {
+            Arrays.fill((short[]) table, (short) EMPTY);
+        }
+        else
+        {
+            Arrays.fill((int[]) table, EMPTY);
+        }
+    }
+
+    private static int indicesHashTableLength(Object table)
+    {
+        if (table instanceof byte[])
+        {
+            return ((byte[]) table).length;
+        }
+        if (table instanceof short[])
+        {
+            return ((short[]) table).length;
+        }
+        return ((int[]) table).length;
     }
 
     private int indexAt(int slot)
     {
-        return slot == NO_SLOT ? EMPTY : this.indicesHashTable[slot];
+        return slot == NO_SLOT ? EMPTY : indexAt(this.indicesHashTable, slot);
+    }
+
+    // byte and short slots sign-extend, so EMPTY and REMOVED read back unchanged.
+    private static int indexAt(Object table, int slot)
+    {
+        if (table instanceof byte[])
+        {
+            return ((byte[]) table)[slot];
+        }
+        if (table instanceof short[])
+        {
+            return ((short[]) table)[slot];
+        }
+        return ((int[]) table)[slot];
+    }
+
+    private static void setIndexAt(Object table, int slot, int index)
+    {
+        if (table instanceof byte[])
+        {
+            ((byte[]) table)[slot] = (byte) index;
+        }
+        else if (table instanceof short[])
+        {
+            ((short[]) table)[slot] = (short) index;
+        }
+        else
+        {
+            ((int[]) table)[slot] = index;
+        }
+    }
+
+    private static int spread(Object key, int mask)
+    {
+        int h = key == null ? 0 : key.hashCode();
+        h ^= h >>> 20 ^ h >>> 12;
+        h ^= h >>> 7 ^ h >>> 4;
+        return h & mask;
+    }
+
+    private int usableEntryCapacity()
+    {
+        return this.orderedKeyValues == null ? 0 : this.orderedKeyValues.length >> 1;
     }
 
     private static int usableEntryCapacity(int indicesHashTableCapacity)
@@ -372,14 +464,29 @@ public class OrderedHashMap<K, V>
      */
     private int probe(Object key)
     {
-        if (this.indicesHashTable == null)
+        Object table = this.indicesHashTable;
+        if (table == null)
         {
             return NO_SLOT;
         }
-        int slot = this.spread(key);
+        if (table instanceof byte[])
+        {
+            return this.probeBytes((byte[]) table, key);
+        }
+        if (table instanceof short[])
+        {
+            return this.probeShorts((short[]) table, key);
+        }
+        return this.probeInts((int[]) table, key);
+    }
+
+    private int probeBytes(byte[] table, Object key)
+    {
+        int mask = table.length - 1;
+        int slot = spread(key, mask);
         int removedSlot = -1;
 
-        int idx = this.indicesHashTable[slot];
+        int idx = table[slot];
         if (idx == REMOVED)
         {
             removedSlot = slot;
@@ -396,10 +503,100 @@ public class OrderedHashMap<K, V>
         int probe = 17;
         while (true)
         {
-            slot = (slot + probe) & (this.indicesHashTable.length - 1);
+            slot = (slot + probe) & mask;
             probe += 17;
 
-            idx = this.indicesHashTable[slot];
+            idx = table[slot];
+            if (idx == REMOVED)
+            {
+                if (removedSlot == -1)
+                {
+                    removedSlot = slot;
+                }
+            }
+            else if (idx == EMPTY)
+            {
+                return removedSlot == -1 ? slot : removedSlot;
+            }
+            else if (this.nullSafeKeyEquals(this.orderedKeyValues[idx << 1], key))
+            {
+                return slot;
+            }
+        }
+    }
+
+    private int probeShorts(short[] table, Object key)
+    {
+        int mask = table.length - 1;
+        int slot = spread(key, mask);
+        int removedSlot = -1;
+
+        int idx = table[slot];
+        if (idx == REMOVED)
+        {
+            removedSlot = slot;
+        }
+        else if (idx == EMPTY)
+        {
+            return slot;
+        }
+        else if (this.nullSafeKeyEquals(this.orderedKeyValues[idx << 1], key))
+        {
+            return slot;
+        }
+
+        int probe = 17;
+        while (true)
+        {
+            slot = (slot + probe) & mask;
+            probe += 17;
+
+            idx = table[slot];
+            if (idx == REMOVED)
+            {
+                if (removedSlot == -1)
+                {
+                    removedSlot = slot;
+                }
+            }
+            else if (idx == EMPTY)
+            {
+                return removedSlot == -1 ? slot : removedSlot;
+            }
+            else if (this.nullSafeKeyEquals(this.orderedKeyValues[idx << 1], key))
+            {
+                return slot;
+            }
+        }
+    }
+
+    private int probeInts(int[] table, Object key)
+    {
+        int mask = table.length - 1;
+        int slot = spread(key, mask);
+        int removedSlot = -1;
+
+        int idx = table[slot];
+        if (idx == REMOVED)
+        {
+            removedSlot = slot;
+        }
+        else if (idx == EMPTY)
+        {
+            return slot;
+        }
+        else if (this.nullSafeKeyEquals(this.orderedKeyValues[idx << 1], key))
+        {
+            return slot;
+        }
+
+        int probe = 17;
+        while (true)
+        {
+            slot = (slot + probe) & mask;
+            probe += 17;
+
+            idx = table[slot];
             if (idx == REMOVED)
             {
                 if (removedSlot == -1)
@@ -424,14 +621,15 @@ public class OrderedHashMap<K, V>
 
         if (this.needsRehashBeforeAdd(reusedRemovedHashTableSlot))
         {
-            this.rehashForGrowth();
+            this.makeRoomForAdd(reusedRemovedHashTableSlot);
             slot = this.probe(key);
-            reusedRemovedHashTableSlot = false;
+            // Compaction keeps the REMOVED slots in indicesHashTable, so the probe can land on one again.
+            reusedRemovedHashTableSlot = this.indexAt(slot) == REMOVED;
         }
 
         this.orderedKeyValues[this.orderedKeyValuesOccupied << 1] = toSentinelIfNull(key);
         this.orderedKeyValues[(this.orderedKeyValuesOccupied << 1) + 1] = value;
-        this.indicesHashTable[slot] = this.orderedKeyValuesOccupied;
+        setIndexAt(this.indicesHashTable, slot, this.orderedKeyValuesOccupied);
         this.orderedKeyValuesOccupied++;
         if (!reusedRemovedHashTableSlot)
         {
@@ -447,10 +645,90 @@ public class OrderedHashMap<K, V>
                 || (!reusedRemovedHashTableSlot && this.indicesHashTableOccupied >= usableEntryCapacity);
     }
 
-    private void rehashForGrowth()
+    private void makeRoomForAdd(boolean reusedRemovedHashTableSlot)
     {
+        int currentCapacity = this.indicesHashTable == null ? 0 : indicesHashTableLength(this.indicesHashTable);
         int indicesHashTableCapacity = smallestIndicesHashTableCapacityForGrowth(this.size);
-        this.rehash(indicesHashTableCapacity);
+        int freeAfterCompaction = this.usableEntryCapacity() - this.size;
+        // Don't grow while compacting at the current capacity leaves free slots for at least a quarter of the live entries.
+        if (indicesHashTableCapacity > currentCapacity && freeAfterCompaction > 0 && freeAfterCompaction * 4 >= this.size)
+        {
+            indicesHashTableCapacity = currentCapacity;
+        }
+        boolean sameCapacity = indicesHashTableCapacity == currentCapacity;
+        boolean indexTableHasRoom = reusedRemovedHashTableSlot || this.indicesHashTableOccupied < this.usableEntryCapacity();
+        // Compaction only clears tombstones from orderedKeyValues. If REMOVED slots filled indicesHashTable, only a rehash clears them.
+        if (sameCapacity && indexTableHasRoom)
+        {
+            this.compactOrderedKeyValues();
+        }
+        else
+        {
+            this.rehash(indicesHashTableCapacity);
+        }
+    }
+
+    // Removes the tombstones from orderedKeyValues and updates the indices stored in indicesHashTable, without hashing any key.
+    private void compactOrderedKeyValues()
+    {
+        Object[] keyValues = this.orderedKeyValues;
+        int occupied = this.orderedKeyValuesOccupied;
+        int[] newIndexOfOld = new int[occupied];
+        int newIndex = 0;
+        for (int oldIndex = 0; oldIndex < occupied; oldIndex++)
+        {
+            Object key = keyValues[oldIndex << 1];
+            if (isNonSentinel(key))
+            {
+                newIndexOfOld[oldIndex] = newIndex;
+                if (newIndex != oldIndex)
+                {
+                    keyValues[newIndex << 1] = key;
+                    keyValues[(newIndex << 1) + 1] = keyValues[(oldIndex << 1) + 1];
+                }
+                newIndex++;
+            }
+        }
+        Arrays.fill(keyValues, newIndex << 1, occupied << 1, null);
+        this.orderedKeyValuesOccupied = newIndex;
+        remapIndices(this.indicesHashTable, newIndexOfOld);
+    }
+
+    private static void remapIndices(Object table, int[] newIndexOfOld)
+    {
+        if (table instanceof byte[])
+        {
+            byte[] bytes = (byte[]) table;
+            for (int slot = 0; slot < bytes.length; slot++)
+            {
+                if (bytes[slot] >= 0)
+                {
+                    bytes[slot] = (byte) newIndexOfOld[bytes[slot]];
+                }
+            }
+        }
+        else if (table instanceof short[])
+        {
+            short[] shorts = (short[]) table;
+            for (int slot = 0; slot < shorts.length; slot++)
+            {
+                if (shorts[slot] >= 0)
+                {
+                    shorts[slot] = (short) newIndexOfOld[shorts[slot]];
+                }
+            }
+        }
+        else
+        {
+            int[] ints = (int[]) table;
+            for (int slot = 0; slot < ints.length; slot++)
+            {
+                if (ints[slot] >= 0)
+                {
+                    ints[slot] = newIndexOfOld[ints[slot]];
+                }
+            }
+        }
     }
 
     private void rehash(int indicesHashTableCapacity)
@@ -459,8 +737,9 @@ public class OrderedHashMap<K, V>
         int oldOrderedKeyValuesOccupied = this.orderedKeyValuesOccupied;
         int usableEntryCapacity = usableEntryCapacity(indicesHashTableCapacity);
 
-        this.indicesHashTable = new int[indicesHashTableCapacity];
-        Arrays.fill(this.indicesHashTable, EMPTY);
+        Object table = newIndicesHashTable(indicesHashTableCapacity);
+        int mask = indicesHashTableCapacity - 1;
+        this.indicesHashTable = table;
         this.orderedKeyValues = new Object[usableEntryCapacity << 1];
         this.orderedKeyValuesOccupied = 0;
         this.indicesHashTableOccupied = 0;
@@ -473,8 +752,8 @@ public class OrderedHashMap<K, V>
                 Object key = oldOrderedKeyValues[i];
                 Object value = oldOrderedKeyValues[i + 1];
 
-                int slot = this.probeForRehash(this.toNonSentinel(key));
-                this.indicesHashTable[slot] = newIndex;
+                int slot = probeForRehash(table, mask, this.toNonSentinel(key));
+                setIndexAt(table, slot, newIndex);
                 this.orderedKeyValues[newIndex << 1] = key;
                 this.orderedKeyValues[(newIndex << 1) + 1] = value;
                 newIndex++;
@@ -484,19 +763,70 @@ public class OrderedHashMap<K, V>
         this.indicesHashTableOccupied = newIndex;
     }
 
-    private int probeForRehash(Object key)
+    private static int probeForRehash(Object table, int mask, Object key)
     {
-        int slot = this.spread(key);
-        if (this.indicesHashTable[slot] == EMPTY)
+        if (table instanceof byte[])
+        {
+            return probeBytesForRehash((byte[]) table, mask, key);
+        }
+        if (table instanceof short[])
+        {
+            return probeShortsForRehash((short[]) table, mask, key);
+        }
+        return probeIntsForRehash((int[]) table, mask, key);
+    }
+
+    private static int probeBytesForRehash(byte[] table, int mask, Object key)
+    {
+        int slot = spread(key, mask);
+        if (table[slot] == EMPTY)
         {
             return slot;
         }
         int probe = 17;
         while (true)
         {
-            slot = (slot + probe) & (this.indicesHashTable.length - 1);
+            slot = (slot + probe) & mask;
             probe += 17;
-            if (this.indicesHashTable[slot] == EMPTY)
+            if (table[slot] == EMPTY)
+            {
+                return slot;
+            }
+        }
+    }
+
+    private static int probeShortsForRehash(short[] table, int mask, Object key)
+    {
+        int slot = spread(key, mask);
+        if (table[slot] == EMPTY)
+        {
+            return slot;
+        }
+        int probe = 17;
+        while (true)
+        {
+            slot = (slot + probe) & mask;
+            probe += 17;
+            if (table[slot] == EMPTY)
+            {
+                return slot;
+            }
+        }
+    }
+
+    private static int probeIntsForRehash(int[] table, int mask, Object key)
+    {
+        int slot = spread(key, mask);
+        if (table[slot] == EMPTY)
+        {
+            return slot;
+        }
+        int probe = 17;
+        while (true)
+        {
+            slot = (slot + probe) & mask;
+            probe += 17;
+            if (table[slot] == EMPTY)
             {
                 return slot;
             }
@@ -541,7 +871,7 @@ public class OrderedHashMap<K, V>
         if (idx >= 0)
         {
             V oldValue = (V) this.orderedKeyValues[(idx << 1) + 1];
-            this.indicesHashTable[slot] = REMOVED;
+            setIndexAt(this.indicesHashTable, slot, REMOVED);
             this.orderedKeyValues[idx << 1] = REMOVED_KEY;
             this.orderedKeyValues[(idx << 1) + 1] = null;
             this.size--;
@@ -613,7 +943,7 @@ public class OrderedHashMap<K, V>
         {
             return;
         }
-        Arrays.fill(this.indicesHashTable, EMPTY);
+        fillWithEmpty(this.indicesHashTable);
         Arrays.fill(this.orderedKeyValues, 0, this.orderedKeyValuesOccupied << 1, null);
         this.size = 0;
         this.orderedKeyValuesOccupied = 0;
