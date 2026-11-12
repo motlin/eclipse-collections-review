@@ -63,18 +63,18 @@ public interface ImmutableBiMapTestCase extends ImmutableUnsortedBiMapTestCase, 
 
     @Override
     @Test
-    default void Object_equalsAndHashCode()
+    default void Object_equals_hashCode()
     {
-        ImmutableUnsortedBiMapTestCase.super.Object_equalsAndHashCode();
-        UnmodifiableMapTestCase.super.Object_equalsAndHashCode();
+        ImmutableUnsortedBiMapTestCase.super.Object_equals_hashCode();
+        UnmodifiableMapTestCase.super.Object_equals_hashCode();
     }
 
     @Override
     @Test
-    default void Iterable_toString()
+    default void Object_toString()
     {
-        // MapTestCase.Iterable_toString() assumes insertion order
-        ImmutableUnsortedBiMapTestCase.super.Iterable_toString();
+        // MapTestCase.Object_toString() assumes insertion order
+        ImmutableUnsortedBiMapTestCase.super.Object_toString();
     }
 
     @Override

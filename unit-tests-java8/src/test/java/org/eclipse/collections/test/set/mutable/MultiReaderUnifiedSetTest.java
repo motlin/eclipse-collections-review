@@ -44,9 +44,9 @@ public class MultiReaderUnifiedSetTest implements MutableSetTestCase, MultiReade
 
     @Override
     @Test
-    public void Iterable_next()
+    public void Iterable_iterator_next()
     {
-        MultiReaderMutableCollectionTestCase.super.Iterable_next();
+        MultiReaderMutableCollectionTestCase.super.Iterable_iterator_next();
 
         // next() iterates the delegate, and throws at the end
         {
@@ -109,9 +109,9 @@ public class MultiReaderUnifiedSetTest implements MutableSetTestCase, MultiReade
 
     @Override
     @Test
-    public void Iterable_hasNext()
+    public void Iterable_iterator_hasNext()
     {
-        MultiReaderMutableCollectionTestCase.super.Iterable_hasNext();
+        MultiReaderMutableCollectionTestCase.super.Iterable_iterator_hasNext();
 
         MultiReaderUnifiedSet<Integer> iterable = this.newWith(3, 2, 1);
         iterable.withReadLockAndDelegate(delegate -> assertTrue(delegate.iterator().hasNext()));
