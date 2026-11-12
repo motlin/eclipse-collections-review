@@ -92,6 +92,7 @@
     <suppress checks="RedundantModifier" files="ImmutableSortedBagMultimapImpl.java" />
     <suppress checks="RedundantModifier" files="ImmutableSetMultimapImpl.java" />
     <suppress checks="RedundantModifier" files="ImmutableSortedSetMultimapImpl.java" />
+    <suppress checks="RedundantModifier" files="ImmutableOrderedSetMultimapImpl.java" />
     <suppress checks="RedundantModifier" files="DoubletonSet.java" />
     <suppress checks="RedundantModifier" files="QuadrupletonSet.java" />
     <suppress checks="RedundantModifier" files="SingletonSet.java" />

@@ -81,23 +81,6 @@ public class OrderedHashSetTest implements MutableOrderedSetTestCase
 
     @Override
     @Test
-    public void RichIterable_iterationOrder()
-    {
-        // TODO Support groupBy for OrderedHashSet, then delete this override. Until then the inherited test runs up to its groupBy assertion.
-        assertThrows(UnsupportedOperationException.class, () -> MutableOrderedSetTestCase.super.RichIterable_iterationOrder());
-    }
-
-    @Override
-    @Test
-    public void RichIterable_groupBy()
-    {
-        // TODO Support groupBy and groupByEach for OrderedHashSet.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).groupBy(each -> each));
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).groupByEach(each -> null));
-    }
-
-    @Override
-    @Test
     public void Collection_add()
     {
         MutableOrderedSetTestCase.super.Collection_add();

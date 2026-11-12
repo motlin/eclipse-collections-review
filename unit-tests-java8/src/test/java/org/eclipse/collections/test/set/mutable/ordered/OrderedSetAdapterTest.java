@@ -15,9 +15,6 @@ import java.util.LinkedHashSet;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
 import org.eclipse.collections.impl.set.ordered.mutable.OrderedSetAdapter;
 import org.eclipse.collections.test.IterableTestCase;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OrderedSetAdapterTest implements MutableOrderedSetTestCase
 {
@@ -28,22 +25,5 @@ public class OrderedSetAdapterTest implements MutableOrderedSetTestCase
         MutableOrderedSet<T> result = OrderedSetAdapter.adapt(new LinkedHashSet<>());
         IterableTestCase.addAllTo(elements, result);
         return result;
-    }
-
-    @Override
-    @Test
-    public void RichIterable_iterationOrder()
-    {
-        // TODO Support groupBy for OrderedSetAdapter, then delete this override. Until then the inherited test runs up to its groupBy assertion.
-        assertThrows(UnsupportedOperationException.class, () -> MutableOrderedSetTestCase.super.RichIterable_iterationOrder());
-    }
-
-    @Override
-    @Test
-    public void RichIterable_groupBy()
-    {
-        // TODO Support groupBy and groupByEach for OrderedSetAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).groupBy(each -> each));
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).groupByEach(each -> null));
     }
 }
