@@ -14,8 +14,8 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.Set;
 
-import org.eclipse.collections.api.bimap.ImmutableBiMap;
 import org.eclipse.collections.api.bimap.MutableBiMap;
+import org.eclipse.collections.impl.bimap.immutable.AbstractImmutableBiMap;
 import org.eclipse.collections.impl.bimap.mutable.HashBiMap;
 import org.eclipse.collections.test.bimap.BiMapTestCase;
 import org.eclipse.collections.test.map.UnmodifiableBiMapValuesCollectionTestCase;
@@ -30,7 +30,7 @@ public class ImmutableHashBiMapTest implements ImmutableBiMapTestCase
     private static final long CURRENT_TIME_MILLIS = System.currentTimeMillis();
 
     @Override
-    public <T> ImmutableBiMap<Object, T> newWith(T... elements)
+    public <T> AbstractImmutableBiMap<Object, T> newWith(T... elements)
     {
         Random random = new Random(CURRENT_TIME_MILLIS);
         MutableBiMap<Object, T> result = new HashBiMap<>();
@@ -45,11 +45,11 @@ public class ImmutableHashBiMapTest implements ImmutableBiMapTestCase
                 throw new IllegalStateException(e);
             }
         }
-        return result.toImmutable();
+        return (AbstractImmutableBiMap<Object, T>) result.toImmutable();
     }
 
     @Override
-    public <K, V> ImmutableBiMap<K, V> newWithKeysValues(Object... elements)
+    public <K, V> AbstractImmutableBiMap<K, V> newWithKeysValues(Object... elements)
     {
         if (elements.length % 2 != 0)
         {
@@ -61,7 +61,7 @@ public class ImmutableHashBiMapTest implements ImmutableBiMapTestCase
         {
             assertNull(result.put((K) elements[i], (V) elements[i + 1]));
         }
-        return result.toImmutable();
+        return (AbstractImmutableBiMap<K, V>) result.toImmutable();
     }
 
     @Nested
