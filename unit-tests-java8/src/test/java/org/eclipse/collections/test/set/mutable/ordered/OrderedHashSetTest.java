@@ -16,10 +16,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
+import org.eclipse.collections.api.factory.Bags;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.OrderedSets;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.ParallelSetIterable;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
 import org.eclipse.collections.impl.set.ordered.mutable.OrderedHashSet;
 import org.eclipse.collections.test.IterableTestCase;
@@ -370,5 +374,27 @@ public class OrderedHashSetTest implements MutableOrderedSetTestCase
         assertTrue(Arrays.stream((Object[]) getField(set, "orderedElements")).allMatch(each -> each == null));
         assertTrue(set.add(6));
         assertEquals(List.of(6), new ArrayList<>(set));
+    }
+
+    @Override
+    @Test
+    public void SetIterable_asParallel()
+    {
+        MutableOrderedSetTestCase.super.SetIterable_asParallel();
+
+        // Batches cover the dense storage, skipping tombstones and unwrapping the null sentinel
+        OrderedHashSet<Integer> set = OrderedHashSet.newSetWith(1, 2, 3, 4, 5, 6, 7, 8, null, 10);
+        assertTrue(set.remove(1));
+        assertTrue(set.remove(5));
+        assertTrue(set.remove(6));
+        assertEquals(10, getOrderedElementsOccupied(set));
+        ParallelSetIterable<Integer> parallel = set.asParallel(ForkJoinPool.commonPool(), 3);
+        assertEquals(Bags.mutable.with(2, 3, 4, 7, 8, null, 10), parallel.toBag());
+        assertEquals(Sets.mutable.with(2, 4, 8, 10), parallel.select(each -> each != null && each % 2 == 0).toSet());
+        assertEquals(6, parallel.count(each -> each != null));
+        assertFalse(parallel.anySatisfy(each -> each != null && (each == 1 || each == 5 || each == 6)));
+        assertTrue(parallel.anySatisfy(each -> each == null));
+        assertTrue(parallel.allSatisfy(each -> each == null || each > 1));
+        assertEquals(Integer.valueOf(10), parallel.detect(each -> each != null && each > 8));
     }
 }

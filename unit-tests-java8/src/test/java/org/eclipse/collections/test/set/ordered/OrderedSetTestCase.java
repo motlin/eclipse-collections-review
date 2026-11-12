@@ -10,6 +10,8 @@
 
 package org.eclipse.collections.test.set.ordered;
 
+import java.util.concurrent.ForkJoinPool;
+
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.OrderedSets;
 import org.eclipse.collections.api.list.MutableList;
@@ -55,6 +57,18 @@ public interface OrderedSetTestCase extends SetIterableTestCase, OrderedIterable
     {
         SetIterable<Integer> union = this.newWith(3, 2, 1).union(this.newWith(5, 4, 3));
         assertIterablesEqual(this.newWith(3, 2, 1, 5, 4), union);
+    }
+
+    @Override
+    @Test
+    default void SetIterable_asParallel()
+    {
+        SetIterableTestCase.super.SetIterable_asParallel();
+
+        // Arguments are validated eagerly
+        OrderedSet<Integer> integers = this.newWith(3, 2, 1);
+        assertThrows(NullPointerException.class, () -> integers.asParallel(null, 2));
+        assertThrows(IllegalArgumentException.class, () -> integers.asParallel(ForkJoinPool.commonPool(), 0));
     }
 
     @Override
