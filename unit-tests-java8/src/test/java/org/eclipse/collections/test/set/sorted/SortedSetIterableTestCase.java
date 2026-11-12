@@ -16,6 +16,7 @@ import org.eclipse.collections.api.factory.SortedSets;
 import org.eclipse.collections.api.set.sorted.MutableSortedSet;
 import org.eclipse.collections.api.set.sorted.SortedSetIterable;
 import org.eclipse.collections.impl.block.factory.Comparators;
+import org.eclipse.collections.test.ReversibleIterableTestCase;
 import org.eclipse.collections.test.SortedIterableTestCase;
 import org.eclipse.collections.test.domain.A;
 import org.eclipse.collections.test.domain.B;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIterableTestCase, TransformsToListTrait
+public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIterableTestCase, ReversibleIterableTestCase, TransformsToListTrait
 {
     @Override
     <T> SortedSetIterable<T> newWith(T... elements);
@@ -84,6 +85,14 @@ public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIt
             case SORTED_REVERSE_NATURAL -> assertSame(Comparators.reverseNaturalOrder(), this.newWith().comparator());
             default -> throw new AssertionError("Unexpected ordering type for SortedSetIterable: " + this.getOrderingType());
         }
+    }
+
+    @Override
+    @Test
+    default void ReversibleIterable_asReversed()
+    {
+        // TODO: Support asReversed() for sorted sets.
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).asReversed());
     }
 
     @Override
