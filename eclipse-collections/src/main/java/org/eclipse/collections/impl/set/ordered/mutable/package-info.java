@@ -11,8 +11,11 @@
 /**
  * This package contains implementations of {@link org.eclipse.collections.api.set.ordered.MutableOrderedSet}.
  * <p>
- *     This package contains 1 mutable ordered set implementation:
+ *     This package contains 2 mutable ordered set implementations:
  * <ul>
+ *     <li>
+ *          {@link org.eclipse.collections.impl.set.ordered.mutable.OrderedHashSet} - a memory-efficient, insertion-ordered set using a sparse open-addressed index table and dense insertion-order storage.
+ *     </li>
  *     <li>
  *          {@link org.eclipse.collections.impl.set.ordered.mutable.OrderedSetAdapter} - a class which provides a MutableOrderedSet wrapper around a JDK Collections Set interface instance whose iteration order is the set's order, like {@link java.util.LinkedHashSet}.
  *     </li>

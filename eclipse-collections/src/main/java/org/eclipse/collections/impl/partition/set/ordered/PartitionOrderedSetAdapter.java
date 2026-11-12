@@ -10,20 +10,18 @@
 
 package org.eclipse.collections.impl.partition.set.ordered;
 
-import java.util.LinkedHashSet;
-
+import org.eclipse.collections.api.factory.OrderedSets;
 import org.eclipse.collections.api.partition.set.ordered.PartitionImmutableOrderedSet;
 import org.eclipse.collections.api.partition.set.ordered.PartitionMutableOrderedSet;
 import org.eclipse.collections.api.set.ordered.MutableOrderedSet;
-import org.eclipse.collections.impl.set.ordered.mutable.OrderedSetAdapter;
 
 /**
  * @since 14.0
  */
 public class PartitionOrderedSetAdapter<T> implements PartitionMutableOrderedSet<T>
 {
-    private final MutableOrderedSet<T> selected = OrderedSetAdapter.adapt(new LinkedHashSet<>());
-    private final MutableOrderedSet<T> rejected = OrderedSetAdapter.adapt(new LinkedHashSet<>());
+    private final MutableOrderedSet<T> selected = OrderedSets.mutable.empty();
+    private final MutableOrderedSet<T> rejected = OrderedSets.mutable.empty();
 
     @Override
     public MutableOrderedSet<T> getSelected()
