@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableOrderedMap;
 import org.eclipse.collections.impl.map.ordered.immutable.ImmutableOrderedMapAdapter;
 import org.eclipse.collections.impl.map.ordered.mutable.OrderedMapAdapter;
@@ -27,6 +29,7 @@ import org.eclipse.collections.test.map.mutable.UnmodifiableMapTestCase;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.eclipse.collections.test.IterableTestCase.assertIterablesEqual;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -190,24 +193,50 @@ public class ImmutableOrderedMapTest
     @Test
     public void OrderedIterable_forEach_from_to()
     {
-        // TODO Support indexed traversal for ImmutableOrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).forEach(0, 1, each -> { }));
+        ImmutableOrderedMapAdapter<Integer, Integer> map = this.newWithKeysValues(1, 10, 2, 20, 3, 30);
+
+        MutableList<Integer> forward = Lists.mutable.empty();
+        map.forEach(1, 2, forward::add);
+        assertIterablesEqual(Lists.immutable.with(20, 30), forward);
+
+        // TODO Support reverse ranges for ImmutableOrderedMapAdapter without copying.
+        assertThrows(UnsupportedOperationException.class, () -> map.forEach(2, 1, each -> { }));
     }
 
     @Override
     @Test
     public void OrderedIterable_forEachWithIndex_from_to()
     {
-        // TODO Support indexed traversal for ImmutableOrderedMapAdapter.
-        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).forEachWithIndex(0, 1, (each, index) -> { }));
+        ImmutableOrderedMapAdapter<Integer, Integer> map = this.newWithKeysValues(1, 10, 2, 20, 3, 30);
+
+        MutableList<Integer> forward = Lists.mutable.empty();
+        MutableList<Integer> forwardIndexes = Lists.mutable.empty();
+        map.forEachWithIndex(1, 2, (each, index) ->
+        {
+            forward.add(each);
+            forwardIndexes.add(index);
+        });
+        assertIterablesEqual(Lists.immutable.with(20, 30), forward);
+        assertIterablesEqual(Lists.immutable.with(1, 2), forwardIndexes);
+
+        // TODO Support reverse ranges for ImmutableOrderedMapAdapter without copying.
+        assertThrows(UnsupportedOperationException.class, () -> map.forEachWithIndex(2, 1, (each, index) -> { }));
     }
 
     @Override
     @Test
     public void ReversibleIterable_reverseForEach()
     {
-        // TODO Support reverseForEach for ImmutableOrderedMapAdapter (depends on forEach(int, int)).
+        // TODO Support reverseForEach for ImmutableOrderedMapAdapter (depends on reverse ranges in forEach(int, int)).
         assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEach(each -> { }));
+    }
+
+    @Override
+    @Test
+    public void ReversibleIterable_reverseForEachWithIndex()
+    {
+        // TODO Support reverseForEachWithIndex for ImmutableOrderedMapAdapter (depends on reverse ranges in forEachWithIndex(int, int)).
+        assertThrows(UnsupportedOperationException.class, () -> this.newWith(3, 2, 1).reverseForEachWithIndex((each, index) -> { }));
     }
 
     @Nested
