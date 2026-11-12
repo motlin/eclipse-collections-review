@@ -111,6 +111,23 @@ import org.eclipse.collections.impl.utility.internal.SetIterables;
  * with 5 live elements, the new index table capacity is 16 (the smallest power of two at least
  * {@code 5 * 3 = 15}), and the usable capacity becomes 10.
  * <p>
+ * <b>Memory footprint.</b> Elements are stored inline in two arrays instead of one node object per element,
+ * so the set needs roughly a quarter to a third of the memory that {@link java.util.LinkedHashSet} needs
+ * on top of the elements themselves. The table shows retained bytes excluding elements,
+ * on a 64-bit JVM with compressed references. The last two columns are with compact object headers
+ * ({@code -XX:+UseCompactObjectHeaders}), which change the size of {@code OrderedHashSet} by at most 8 bytes of array padding:
+ * <pre>
+ *    size  OrderedHashSet  per element  LinkedHashSet  per element  OrderedHashSet (compact headers)  LinkedHashSet (compact headers)
+ *       0              32                          80                                             32                               72
+ *       1             120        120.0            216        216.0                               112                              192
+ *      10             168         16.8            576         57.6                               168                              480
+ *     100           1,768         17.7          5,136         51.4                             1,768                            4,320
+ *   1,000          13,720         13.7         48,304         48.3                            13,712                           40,288
+ *  10,000         109,288         10.9        465,648         46.6                           109,288                          385,632
+ * </pre>
+ * The {@code LinkedHashSet} figures are for Java 21 and later. It is 8 bytes smaller before Java 21.
+ * These figures are asserted by {@code OrderedHashSetMemoryTest}.
+ * <p>
  * <b>Positional operations.</b> Because the dense storage is in insertion order, iteration, {@code getFirst},
  * {@code getLast}, reverse iteration, {@code take}, {@code drop}, and the other ordered operations walk the
  * dense storage directly, skipping tombstones. {@code indexOf} finds the element's dense index by hashing
