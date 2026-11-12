@@ -28,6 +28,12 @@ public interface SortedIterableTestCase extends OrderedIterableTestCase, NoDetec
         return false;
     }
 
+    @Override
+    default boolean supportsNull()
+    {
+        return false;
+    }
+
     @Test
     default void SortedIterable_comparator()
     {
