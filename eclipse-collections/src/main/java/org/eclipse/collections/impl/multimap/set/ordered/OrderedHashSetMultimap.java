@@ -173,6 +173,6 @@ public final class OrderedHashSetMultimap<K, V>
     @Override
     public MutableOrderedSetMultimap<K, V> asSynchronized()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asSynchronized() not implemented yet");
+        return SynchronizedOrderedSetMultimap.of(this);
     }
 }

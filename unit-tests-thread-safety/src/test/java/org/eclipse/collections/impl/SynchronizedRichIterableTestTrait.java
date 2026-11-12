@@ -75,6 +75,12 @@ public interface SynchronizedRichIterableTestTrait
     }
 
     @Test
+    default void tap_synchronized()
+    {
+        this.assertSynchronized(() -> this.getClassUnderTest().tap(x -> { }));
+    }
+
+    @Test
     default void select_synchronized()
     {
         this.assertSynchronized(() -> this.getClassUnderTest().select(x -> false));
@@ -174,6 +180,16 @@ public interface SynchronizedRichIterableTestTrait
                         x ->
                                 FastList.newList(),
                         FastList.newList()));
+    }
+
+    @Test
+    default void flatCollectWith_synchronized()
+    {
+        this.assertSynchronized(() ->
+                this.getClassUnderTest().flatCollectWith(
+                        (x, y) ->
+                                FastList.newList(),
+                        ""));
     }
 
     @Test
